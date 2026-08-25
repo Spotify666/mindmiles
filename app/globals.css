@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void: #08090c;
+  --chalk: #f4f6fa;
+  --focus: #497CFD;
+  --recovery: #00AA6A;
+  --strain: #CD7707;
+  --scatter: #CE52D7;
+  --record: #f5c451;
+  color-scheme: dark;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  background: var(--void);
+}
+
+body {
+  background: var(--void);
+  color: var(--chalk);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  /* Numbers are the content here, so tabular figures are the default and the
+     UI opts out rather than in. */
+  font-feature-settings: 'tnum', 'ss01';
+}
+
+::selection {
+  background: rgba(73, 124, 253, 0.32);
+}
+
+/* ── Type utilities ───────────────────────────────────────────── */
+
+/* Metric readouts. Tight, optically aligned, never wrapping mid-number. */
+.readout {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.045em;
+  font-weight: 620;
+  line-height: 0.86;
+}
+
+.label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ── Structure ────────────────────────────────────────────────── */
+
+.card {
+  background: #101219;
+  border: 1px solid rgba(244, 246, 250, 0.09);
+  border-radius: 18px;
+}
+
+/* Safe-area aware gutter — the tab bar sits on the home indicator otherwise. */
+.safe-x {
+  padding-left: max(1.15rem, env(safe-area-inset-left));
+  padding-right: max(1.15rem, env(safe-area-inset-right));
+}
+
+.safe-b {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Horizontal card rails: snap, and hide the scrollbar without hiding the
+   affordance (the cards are visibly clipped at the edge). */
+.rail {
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+.rail > * {
+  scroll-snap-align: start;
+}
+
+/* Hairline that fades at both ends — used to separate rows without boxing
+   them in, which is what makes a dense list feel heavy. */
+.rule-fade {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(244, 246, 250, 0.13) 12%,
+    rgba(244, 246, 250, 0.13) 88%,
+    transparent
+  );
+}
+
+/* ── Focus ring ───────────────────────────────────────────────── */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
