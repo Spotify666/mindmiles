@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { ACCENT_HEX, type Accent } from './tokens';
 
 /**
@@ -34,10 +35,18 @@ export default function Ring({
   sublabel?: string;
   children?: React.ReactNode;
 }) {
+  // Sweeps round on arrival rather than appearing filled. A gauge that is
+  // simply drawn at its value looks printed; one that sweeps looks taken.
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setShown(value));
+    return () => cancelAnimationFrame(id);
+  }, [value]);
+
   const r = (size - thickness) / 2;
   const c = 2 * Math.PI * r;
   const arc = (SWEEP / 360) * c;
-  const filled = (Math.max(0, Math.min(100, value)) / 100) * arc;
+  const filled = (Math.max(0, Math.min(100, shown)) / 100) * arc;
   const hex = ACCENT_HEX[accent];
 
   return (
@@ -64,7 +73,7 @@ export default function Ring({
             strokeWidth={thickness}
             strokeLinecap="round"
             strokeDasharray={`${filled} ${c}`}
-            style={{ transition: 'stroke-dasharray 700ms cubic-bezier(0.16,1,0.3,1)' }}
+            style={{ transition: 'stroke-dasharray 1100ms cubic-bezier(0.16,1,0.3,1)' }}
           />
         </g>
       </svg>

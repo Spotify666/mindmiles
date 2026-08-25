@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useMindMiles } from '@/components/MindMilesProvider';
 
 /**
  * Primary navigation.
@@ -25,6 +26,12 @@ function useActive(href: string): boolean {
 }
 
 export function TabBar() {
+  // Nothing to navigate to until the welcome has been read — four tabs under a
+  // "Start measuring" button is an invitation to skip the only screen that
+  // explains what this is.
+  const { state } = useMindMiles();
+  if (!state.onboarded) return null;
+
   return (
     <nav
       aria-label="Primary"
@@ -58,6 +65,9 @@ function TabLink({ href, label, icon: Icon }: (typeof TABS)[number]) {
 }
 
 export function DesktopNav() {
+  const { state } = useMindMiles();
+  if (!state.onboarded) return null;
+
   return (
     <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
       {TABS.map((t) => (

@@ -372,7 +372,7 @@ export function SharingControls({
   onChange: () => void;
 }) {
   const FIELDS = [
-    ['fitness', 'Digital Fitness'],
+    ['fitness', 'Screen Fitness'],
     ['miles', 'Mind Miles'],
     ['records', 'Personal records'],
     ['challenges', 'Challenges completed'],

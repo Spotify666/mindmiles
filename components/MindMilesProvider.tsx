@@ -17,6 +17,8 @@ import { buildDayReport, fitnessStatus } from '@/lib/mm/metrics';
 import { acknowledgementMap, personalRecords } from '@/lib/mm/records';
 import { reclaimedTime } from '@/lib/mm/reclaimed';
 import { seedSampleHistory } from '@/lib/mm/seed';
+import { listenForExtension, onExtensionData } from '@/lib/mm/extension';
+import { resumeDeviceAwareness } from '@/lib/mm/presence';
 import {
   acknowledgeRecords,
   isStorageBlocked,
@@ -58,6 +60,11 @@ const REBUILD_MS = 15_000;
 interface MindMilesValue {
   ready: boolean;
   state: MindMilesState;
+  /**
+   * The live snapshot at the time the aggregates were last rebuilt. Fine for
+   * things that change slowly — the brightness source, say. Anything showing a
+   * ticking number must use `useLive()` instead.
+   */
   live: LiveStats | null;
   storageBlocked: boolean;
 
@@ -92,6 +99,28 @@ interface MindMilesValue {
 
 const Ctx = createContext<MindMilesValue | null>(null);
 
+/**
+ * The live readout gets its own context, and this is not an optimisation — it
+ * is a correctness fix.
+ *
+ * The tracker emits at 1Hz. Everything else on the screen is rebuilt from
+ * ninety days of minute buckets and cannot be, so the aggregate value is
+ * memoised on a slow tick. Putting `live` inside that memo meant the clock on
+ * screen was whatever the tracker happened to be saying the last time the
+ * aggregates were rebuilt — which is to say, 00:00, for fifteen seconds at a
+ * time. The counters were recording correctly the whole time; the screen simply
+ * was not being told.
+ *
+ * Two contexts: the heavy one changes rarely, the live one changes every
+ * second, and only the components that actually show a live number subscribe to
+ * it.
+ */
+const LiveCtx = createContext<LiveStats | null>(null);
+
+export function useLive(): LiveStats | null {
+  return useContext(LiveCtx);
+}
+
 export function useMindMiles(): MindMilesValue {
   const v = useContext(Ctx);
   if (!v) throw new Error('useMindMiles must be used inside <MindMilesProvider>');
@@ -124,10 +153,21 @@ export default function MindMilesProvider({ children }: { children: React.ReactN
     const t = tracker();
     t.start();
     const unsub = t.subscribe(setLive);
+
+    // If OS idle detection was granted in a previous session, pick it back up
+    // without prompting — the prompt needs a gesture, a resume does not.
+    void resumeDeviceAwareness();
+
+    // The extension, if one is installed, posts its totals into the page.
+    const stopExtension = listenForExtension();
+    const stopExtensionData = onExtensionData(() => setState({ ...loadState() }));
+
     const id = setInterval(() => setTick((n) => n + 1), REBUILD_MS);
 
     return () => {
       unsub();
+      stopExtension();
+      stopExtensionData();
       clearInterval(id);
     };
   }, []);
@@ -221,5 +261,9 @@ export default function MindMilesProvider({ children }: { children: React.ReactN
     );
   }
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={value}>
+      <LiveCtx.Provider value={live}>{children}</LiveCtx.Provider>
+    </Ctx.Provider>
+  );
 }

@@ -198,7 +198,7 @@ export default function MethodPage() {
         <h2 className="text-[18px] font-[620] tracking-tightest">What this is not</h2>
         <div className="mt-3 space-y-3 text-[13px] leading-relaxed text-chalk-45">
           <p>
-            <span className="text-chalk">It is not a doctor.</span> Visual Load is a guess at how
+            <span className="text-chalk">It is not a doctor.</span> The Eyes score is a guess at how
             hard a day asked your eyes to work. It is not a statement about your eyes, and nothing
             here diagnoses eye strain, sleep problems or anything else. The scores are simple rules
             built on well-known advice — a mirror, not a medical test.

@@ -305,3 +305,125 @@ body {
 .splash-skip .splash {
   display: none;
 }
+
+/* ── Arrival ──────────────────────────────────────────────────── */
+
+/*
+ * Cards land rather than appear. Runs once, forwards, so the end state is the
+ * normal state and nothing depends on the animation having played.
+ */
+.mm-enter {
+  opacity: 0;
+  animation: mm-enter 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes mm-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The live pulse — one of only two things in the app that loops, and it loops
+   because it is marking real time passing. */
+.mm-ping {
+  animation: mm-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes mm-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  75%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* A slow sheen across the live panel, so the surface itself reads as awake. */
+.mm-live-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(73, 124, 253, 0.07) 48%,
+    transparent 66%
+  );
+  transform: translateX(-100%);
+  animation: mm-sheen 7s ease-in-out infinite;
+}
+
+@keyframes mm-sheen {
+  0%,
+  55% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ── The welcome comparison ───────────────────────────────────── */
+
+/*
+ * Segments grow from nothing into place. The shattered day arrives after the
+ * solid one so the contrast is watched rather than merely seen — the point of
+ * the picture is the difference, and a difference needs two beats.
+ */
+.mm-seg {
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+}
+
+.mm-armed .mm-seg {
+  animation: mm-seg 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes mm-seg {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-seg {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/*
+ * The welcome's action bar. A long fade rather than a short one: text passing
+ * underneath has to be clearly on its way out, not half-legible behind the
+ * button. Dropped entirely once the bar stops floating.
+ */
+.mm-cta {
+  background-image: linear-gradient(
+    to top,
+    #08090c 0%,
+    #08090c 62%,
+    rgba(8, 9, 12, 0.92) 78%,
+    rgba(8, 9, 12, 0) 100%
+  );
+}
+
+@media (min-width: 768px) {
+  .mm-cta {
+    background-image: none;
+  }
+}

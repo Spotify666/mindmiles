@@ -141,5 +141,5 @@ export const SOURCE_NOTE: Record<BrightnessSource, string> = {
   sensor:
     'Taken from your device’s light sensor. It measures the light in the room rather than the screen — and a bright screen in a dark room is the combination that tires eyes out.',
   declared:
-    'No web browser can read your screen brightness, on any device. So this is the number you set. We use it for Visual Load, and we always say it came from you rather than pretending we measured it.',
+    'No web browser can read your screen brightness, on any device. So this is the number you set. We use it for your Eyes score, and we always say it came from you rather than pretending we measured it.',
 };

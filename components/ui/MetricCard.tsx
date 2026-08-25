@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { PROVENANCE_LABEL, PROVENANCE_NOTE, type Metric, type MetricInput } from '@/lib/mm/types';
 import Delta from './Delta';
+import { Counting } from './motion';
 import ProvenanceBadge from './Provenance';
 import Sheet from './Sheet';
 import { ACCENT_HEX, METRIC_ACCENT } from './tokens';
@@ -112,7 +113,7 @@ export function MetricExplain({
 
       <div className="mt-3 flex items-end gap-4">
         <span className="readout text-[60px]" style={{ color: unavailable ? undefined : hex }}>
-          {unavailable ? '—' : metric.value}
+          {unavailable ? '—' : <Counting value={metric.value} duration={650} />}
         </span>
         <div className="pb-2.5">
           <p className="text-[17px] font-[620] leading-none">{metric.bandLabel}</p>
@@ -206,7 +207,7 @@ export default function MetricCard({ metric, compact = false }: { metric: Metric
 
         <div className="mt-2.5 flex items-end gap-2">
           <span className="readout text-[34px]" style={{ color: unavailable ? undefined : hex }}>
-            {unavailable ? '—' : metric.value}
+            {unavailable ? '—' : <Counting value={metric.value} />}
           </span>
           <span className="pb-1 text-[13px] text-chalk-45">{metric.bandLabel}</span>
         </div>

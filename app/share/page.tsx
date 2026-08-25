@@ -83,10 +83,10 @@ export default function SharePage() {
     lines.push({ label: 'Focus', value: fmtPercent(focusChange), accent: ACCENT_HEX.focus });
   }
   if (fragChange !== null && fragChange < -1) {
-    lines.push({ label: 'Fragmentation', value: fmtPercent(fragChange), accent: ACCENT_HEX.scatter });
+    lines.push({ label: 'Jumpiness', value: fmtPercent(fragChange), accent: ACCENT_HEX.scatter });
   }
   if (visualChange !== null && visualChange < -1) {
-    lines.push({ label: 'Visual Load', value: fmtPercent(visualChange), accent: ACCENT_HEX.strain });
+    lines.push({ label: 'Tired eyes', value: fmtPercent(visualChange), accent: ACCENT_HEX.strain });
   }
   if (state.sharing.reclaimed && reclaimedWeek.available && reclaimedWeek.minutes > 0) {
     lines.push({
@@ -106,7 +106,7 @@ export default function SharePage() {
   const summaryText = [
     'My week in Mind Miles',
     ...lines.map((l) => `${l.label}: ${l.value}`),
-    state.sharing.fitness ? `Digital Fitness: ${fitness}` : null,
+    state.sharing.fitness ? `Screen Fitness: ${fitness}` : null,
     state.sharing.records && newRecords.length
       ? `New personal best: ${newRecords[0].label} — ${newRecords[0].display}`
       : null,
@@ -222,7 +222,7 @@ export default function SharePage() {
 
             {state.sharing.fitness && (
               <div className="flex items-baseline justify-between gap-4 border-t border-hair pt-4">
-                <span className="label text-chalk-30">Digital Fitness</span>
+                <span className="label text-chalk-30">Screen Fitness</span>
                 <span className="readout text-[36px]" style={{ color: ACCENT_HEX.record }}>
                   {fitness}
                 </span>
@@ -372,7 +372,7 @@ function drawCard(
 
     ctx.fillStyle = 'rgba(244,246,250,0.45)';
     ctx.font = sans(28, 500);
-    ctx.fillText('DIGITAL FITNESS', PAD, baseY - 10);
+    ctx.fillText('SCREEN FITNESS', PAD, baseY - 10);
 
     ctx.fillStyle = '#F5C451';
     ctx.font = sans(84, 620);

@@ -72,7 +72,7 @@ export const CHALLENGES: ChallengeDef[] = [
   },
   {
     id: 'fragmentation-breaker',
-    name: 'Fragmentation Breaker',
+    name: 'Settle Down',
     premise: 'Jump between things 15% less than you normally do.',
     criterion: 'Over seven days, jump away 15% less per hour than you normally do.',
     days: 7,

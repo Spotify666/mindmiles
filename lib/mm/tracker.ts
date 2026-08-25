@@ -1,6 +1,7 @@
 'use client';
 
 import { initBrightness, readBrightness, type BrightnessSource } from './brightness';
+import { claimWriter, onPresenceChange, presence, releaseWriter, type PresenceSource } from './presence';
 import { dayKey, ensureDay, getBucket, loadState, saveState } from './store';
 
 /**
@@ -18,9 +19,20 @@ import { dayKey, ensureDay, getBucket, loadState, saveState } from './store';
  *                     separates reading from feed-flicking.
  *   context switches  every time focus or visibility leaves and comes back.
  *
- * What is NOT measured, and is never guessed at: other applications, other
- * tabs, other devices, OS-level screen time, notification counts, and anything
- * about the content on screen. Those are logged by hand or marked unavailable.
+ * Beyond this tab, three things extend the reach — all in ./presence:
+ *
+ *   With OS idle detection granted, engaged time keeps accruing while Mind
+ *   Miles sits in the background, because we can tell you are still at your
+ *   device. Input counts obviously do not: we cannot see what you typed in
+ *   another app, and we never pretend to.
+ *
+ *   With the extension installed, time in other tabs arrives separately.
+ *
+ *   With several Mind Miles tabs open, only one of them banks time.
+ *
+ * What is still NOT measured, and is never guessed at: which application or
+ * site you were in, OS-level screen time, notification counts, and anything at
+ * all about the content on your screen.
  */
 
 /** No input for this long and the user is no longer engaged, tab open or not. */
@@ -59,6 +71,12 @@ export interface LiveStats {
   peakVelocity: number;
   /** True while scrolling faster than content can be read. */
   bursting: boolean;
+  /** How far our knowledge reaches right now: this tab, or the whole device. */
+  presenceSource: PresenceSource;
+  /** True when OS-level idle detection is running. */
+  deviceAware: boolean;
+  /** False when another Mind Miles tab is the one banking time. */
+  writing: boolean;
   /** Last 60 one-second activity samples, 0–1, oldest first. */
   wave: number[];
   brightness: number;
@@ -100,6 +118,8 @@ class Tracker {
 
   private brightness = 70;
   private brightnessSource: BrightnessSource = 'declared';
+  private writing = true;
+  private unsubPresence: (() => void) | null = null;
   private lux: number | undefined;
   private brightnessBusy = false;
 
@@ -132,6 +152,10 @@ class Tracker {
     window.addEventListener('blur', this.onSwitch);
     window.addEventListener('pagehide', this.flush);
 
+    // A presence change (screen locked, user went idle at OS level) should
+    // reach the UI immediately rather than on the next tick.
+    this.unsubPresence = onPresenceChange(() => this.emit());
+
     this.timer = setInterval(this.tick, TICK_MS);
   }
 
@@ -149,6 +173,10 @@ class Tracker {
     document.removeEventListener('visibilitychange', this.onVisibility);
     window.removeEventListener('blur', this.onSwitch);
     window.removeEventListener('pagehide', this.flush);
+
+    this.unsubPresence?.();
+    this.unsubPresence = null;
+    releaseWriter();
 
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
@@ -227,11 +255,23 @@ class Tracker {
 
   // ── the clock ────────────────────────────────────────────────
 
-  private engagedNow(): boolean {
+  /** Engagement as seen from inside this tab: visible, focused, recently touched. */
+  private tabEngaged(): boolean {
     if (typeof document === 'undefined') return false;
     if (document.visibilityState !== 'visible') return false;
     if (document.hasFocus && !document.hasFocus()) return false;
     return Date.now() - this.lastInput < IDLE_MS;
+  }
+
+  /**
+   * Whether to count this second at all.
+   *
+   * With device awareness on, this is a question about the person rather than
+   * about the page — you can be working in another window and still be
+   * engaged. Without it, the tab is all we can honestly see.
+   */
+  private engagedNow(): boolean {
+    return presence(this.tabEngaged()).active;
   }
 
   private refreshBrightness() {
@@ -289,9 +329,13 @@ class Tracker {
 
     this.refreshBrightness();
 
+    // Only one Mind Miles tab banks time. Everyone else keeps their own live
+    // readout and writes nothing, so an open second tab cannot double the day.
+    this.writing = claimWriter();
+
     // Switches are recorded whether or not the tab is engaged — leaving is the
     // event, and it necessarily happens while the tab is not in focus.
-    if (engaged || switchesThisTick > 0) {
+    if (this.writing && (engaged || switchesThisTick > 0)) {
       const d = new Date();
       const state = loadState();
       const day = ensureDay(state, dayKey(d));
@@ -334,7 +378,8 @@ class Tracker {
   };
 
   private snapshot(): LiveStats {
-    const engaged = this.engagedNow();
+    const p = presence(this.tabEngaged());
+    const engaged = p.active;
     const sum = (a: number[]) => a.reduce((s, n) => s + n, 0);
     const peakVelocity = Math.round(Math.max(0, ...this.velocityWindow));
 
@@ -357,6 +402,9 @@ class Tracker {
       brightness: this.brightness,
       brightnessSource: this.brightnessSource,
       lux: this.lux,
+      presenceSource: p.source,
+      deviceAware: p.deviceAware,
+      writing: this.writing,
     };
   }
 

@@ -52,6 +52,8 @@ lib/mm/records.ts      personal records, each with a qualifying floor
 lib/mm/challenges.ts   challenges measured against your own baseline
 lib/mm/reclaimed.ts    time won back
 lib/mm/coach.ts        rule-based insight generation
+lib/mm/presence.ts     device-level presence, and one writer across tabs
+lib/mm/extension.ts    merging what the extension saw
 ```
 
 ## The ideas that shaped the code
@@ -67,11 +69,13 @@ per input: what it is, what it was, how much it mattered. Each row opens to its
 explanation only if you ask. The full working is always there; nobody has to
 walk past it to leave.
 
-**It is written the way people talk.** "How often you jumped away", not "context
-switches per engaged hour". "Time after 11pm", not "late-night exposure". Every
-metric carries a plain-English line under its name, so nobody needs to already
-know what "fragmentation" means to read their own screen. A number nobody can
-read is not transparent, whatever is printed underneath it.
+**It is written the way people talk.** That includes the metric names, which is
+where it was hardest and mattered most — Fragmentation is **Jumpiness**,
+Intentionality is **On Plan**, Visual Load is **Eyes**, Recovery is **Rest**,
+Strain is **Effort**. The ids underneath keep the precise terms so the code still
+reads exactly; only the label changes, because the label is the part a person has
+to understand. Every metric also carries a plain line under its name. A number
+nobody can read is not transparent, whatever is printed underneath it.
 
 **Four provenance labels, shown everywhere.** `measured` (observed directly),
 `derived` (arithmetic on measured values), `estimated` (inferred — treat as a
@@ -100,6 +104,31 @@ Only rapid-scroll, fragmented and late-night minutes below your baseline count.
 A user who goes several days without opening this because their digital life is
 in good order is a successful user.
 
+## Seeing past this one tab
+
+A web page can only see itself, and that limit produced a fair complaint: switch
+tabs, work for an hour, come back, and nothing was recorded. Three things get
+past it, and all three are honest about their reach.
+
+**Device presence.** With `IdleDetector` permission granted, Mind Miles knows
+whether *you* are at your device — at the OS level, while it sits in the
+background. It still cannot see which app you were in, and never claims to. The
+live panel says "This tab only" or "Your whole device", never something vaguer.
+
+**The extension.** `extension/` is a working MV3 extension that sees every tab.
+It records, per minute, how many seconds you were active and the **domain** —
+the path, query and page title are discarded the moment a URL is seen. It stores
+to `chrome.storage.local`, makes no network call, and hands its totals to the
+page when you open Mind Miles.
+
+**One writer.** Several Mind Miles tabs would each count the same minute, so a
+lock in `localStorage` elects a single writer. The others keep their own live
+readout and bank nothing.
+
+Where the extension fills a minute, it contributes **time only** — never
+keystrokes or scroll. It knows you were there; it does not know what you did,
+because it does not look.
+
 ## Privacy
 
 There is no account, no server, no analytics and no network call. Everything is
@@ -113,6 +142,14 @@ product does not ask for a permission that would let it.
 
 Export gives you the complete raw record as JSON. Delete removes it from the only
 place it has ever existed. Both are one tap away in Profile.
+
+## The way in
+
+A first visit lands on the welcome, not the dashboard — six numbers that mean
+nothing yet explain nothing about what you have opened. The welcome makes the
+argument in one picture: two days, five hours each, one drawn in solid blocks and
+one in confetti. Screen time counts both as five hours. That is the entire case
+for the product, and it lands before a word about metrics.
 
 ## The opening
 
@@ -167,6 +204,8 @@ components/
   profile/    brightness, intentions, manual log, data and sharing controls
   today/      the live deck and the narrative cards
   Splash.tsx  the opening
+  Welcome.tsx the first visit
+extension/    MV3 extension — the part that can see your other tabs
   ui/         ring, sheet, metric card with its explain sheet, provenance badge
 lib/mm/       the measurement and scoring engine
 ```

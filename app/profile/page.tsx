@@ -48,7 +48,7 @@ export default function ProfilePage() {
             <h1 className="truncate text-[21px] font-[620] tracking-tightest">
               {state.profile.displayName}
             </h1>
-            <p className="label mt-1 text-chalk-30">Digital Fitness {fitness}</p>
+            <p className="label mt-1 text-chalk-30">Screen Fitness {fitness}</p>
           </div>
         </div>
 

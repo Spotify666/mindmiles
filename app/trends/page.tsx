@@ -27,10 +27,10 @@ const RANGES = [
 ] as const;
 
 const SERIES: { id: MetricId; label: string }[] = [
-  { id: 'fitness', label: 'Digital Fitness' },
+  { id: 'fitness', label: 'Screen Fitness' },
   { id: 'focus', label: 'Focus' },
-  { id: 'fragmentation', label: 'Fragmentation' },
-  { id: 'recovery', label: 'Recovery' },
+  { id: 'fragmentation', label: 'Jumpiness' },
+  { id: 'recovery', label: 'Rest' },
 ];
 
 export default function TrendsPage() {

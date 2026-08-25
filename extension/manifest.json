@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Mind Miles — Everywhere",
+  "version": "0.1.0",
+  "description": "Lets Mind Miles count your time across every tab, not just its own. Nothing leaves your computer.",
+  "permissions": ["tabs", "idle", "storage", "alarms"],
+  "host_permissions": ["http://localhost/*", "https://*/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost/*", "https://mindmiles.app/*"],
+      "js": ["bridge.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_title": "Mind Miles — counting across your tabs" }
+}

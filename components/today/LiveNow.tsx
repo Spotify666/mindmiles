@@ -1,10 +1,18 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fmtClock, fmtCount, fmtDistance, pxToMeters } from '@/lib/mm/format';
 import { SOURCE_LABEL, SOURCE_NOTE } from '@/lib/mm/brightness';
 import { BURST_VELOCITY, type LiveStats } from '@/lib/mm/tracker';
 import { ACCENT_HEX } from '@/components/ui/tokens';
+import { useLive } from '@/components/MindMilesProvider';
+import { Heartbeat } from '@/components/ui/motion';
+import {
+  enableDeviceAwareness,
+  idleDetectionSupported,
+  SOURCE_COPY,
+} from '@/lib/mm/presence';
+import { extensionInstalled } from '@/lib/mm/extension';
 
 /**
  * What is happening right now.
@@ -70,7 +78,15 @@ function Cell({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
-export default function LiveNow({ live }: { live: LiveStats | null }) {
+export default function LiveNow() {
+  // Straight from the 1Hz stream, not from the slow aggregate context — see the
+  // note on LiveCtx in MindMilesProvider for why that distinction is load-bearing.
+  const live = useLive();
+  const [asking, setAsking] = useState(false);
+  const [askResult, setAskResult] = useState<'granted' | 'refused' | null>(null);
+
+  const source = extensionInstalled() ? 'extension' : (live?.presenceSource ?? 'tab');
+  const canGoDeviceWide = !live?.deviceAware && idleDetectionSupported();
   const engaged = live?.engaged ?? false;
   const bout = live?.boutSec ?? 0;
   const overdue = bout >= BREAK_TARGET_SEC;
@@ -79,7 +95,7 @@ export default function LiveNow({ live }: { live: LiveStats | null }) {
   const barColor = overdue ? ACCENT_HEX.strain : ACCENT_HEX.focus;
 
   return (
-    <section className="card overflow-hidden">
+    <section className="card mm-live-sheen relative overflow-hidden">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-hair px-4 py-3">
         <span className="flex items-center gap-2 text-[12.5px] font-[560]">
           <span
@@ -141,6 +157,41 @@ export default function LiveNow({ live }: { live: LiveStats | null }) {
             />
           </div>
         </div>
+      </div>
+
+      {/* What we can and cannot see, said plainly, with the way to widen it. */}
+      <div className="border-t border-hair px-4 py-3.5">
+        <p className="text-[12.5px] leading-relaxed text-chalk-45">{SOURCE_COPY[source].note}</p>
+
+        {canGoDeviceWide && (
+          <button
+            type="button"
+            disabled={asking}
+            onClick={async () => {
+              setAsking(true);
+              const ok = await enableDeviceAwareness();
+              setAskResult(ok ? 'granted' : 'refused');
+              setAsking(false);
+            }}
+            className="mt-3 rounded-pill bg-focus px-4 py-2 text-[13.5px] font-[560] text-void transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {asking ? 'Asking your browser…' : 'Count my whole device'}
+          </button>
+        )}
+
+        {askResult === 'refused' && (
+          <p className="mt-2.5 text-[12px] leading-relaxed text-chalk-30">
+            Your browser said no, or does not support it. Nothing is broken — we will keep counting
+            this tab. The extension in this project counts every tab instead.
+          </p>
+        )}
+
+        {live && !live.writing && (
+          <p className="mt-2.5 text-[12px] leading-relaxed text-chalk-30">
+            Mind Miles is open in another tab, and that one is doing the counting — so the same
+            minute is never counted twice.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-hair px-4 py-3">

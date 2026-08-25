@@ -11,6 +11,9 @@ import { MileageCard, OneThingCard, StoryCard, WinCard } from '@/components/toda
 import { recordsSetOn } from '@/lib/mm/records';
 import { fmtSigned, todayLabel } from '@/lib/mm/labels';
 import { ACCENT_HEX } from '@/components/ui/tokens';
+import { Counting, Enter } from '@/components/ui/motion';
+import Welcome from '@/components/Welcome';
+import { setOnboarded } from '@/lib/mm/store';
 
 /**
  * TODAY.
@@ -23,10 +26,14 @@ import { ACCENT_HEX } from '@/components/ui/tokens';
  * made in layout: if watching a counter climb were the point, this would be a
  * screen-time app. The point is the summary, and a user who never scrolls this
  * far has still got what they came for.
+ *
+ * On a first visit this route is the welcome instead. Landing a stranger on six
+ * numbers that mean nothing yet explains nothing about what they have opened —
+ * so the door is the idea first, and the dashboard from the second visit on.
  */
 export default function TodayPage() {
   const mm = useMindMiles();
-  const { today, fitness, fitnessLastMonth, records, insights, story, live, storageBlocked } = mm;
+  const { today, fitness, fitnessLastMonth, records, insights, story, storageBlocked } = mm;
 
   const newToday = recordsSetOn(records, today.date).filter((r) => r.isNew);
   const win = newToday[0];
@@ -43,6 +50,17 @@ export default function TodayPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newToday.length]);
 
+  if (!mm.state.onboarded) {
+    return (
+      <Welcome
+        onStart={() => {
+          setOnboarded(true);
+          mm.refresh();
+        }}
+      />
+    );
+  }
+
   return (
     <div className="mx-auto flex max-w-app flex-col gap-3.5 md:max-w-none md:grid md:grid-cols-12 md:items-start md:gap-4">
       {storageBlocked && (
@@ -53,7 +71,7 @@ export default function TodayPage() {
       )}
 
       {/* ── status ─────────────────────────────────────────── */}
-      <section className="card p-5 md:col-span-5">
+      <Enter as="section" index={0} className="card p-5 md:col-span-5">
         <div className="flex items-baseline justify-between gap-3">
           <p className="label text-chalk-30">{todayLabel(today.date)}</p>
         </div>
@@ -61,7 +79,7 @@ export default function TodayPage() {
         <div className="mt-4 flex items-center gap-5">
           <Ring value={fitness} accent="record" size={124}>
             <span className="readout text-[40px]" style={{ color: ACCENT_HEX.record }}>
-              {fitness}
+              <Counting value={fitness} duration={1100} />
             </span>
             <span className="label mt-1.5 text-chalk-30">Fitness</span>
           </Ring>
@@ -85,18 +103,18 @@ export default function TodayPage() {
         <div className="mt-4 border-t border-hair pt-3.5">
           <p className="text-[13.5px] leading-relaxed text-chalk-70">{today.fitness.headline}</p>
         </div>
-      </section>
+      </Enter>
 
-      <div className="md:col-span-7">
+      <Enter index={1} className="md:col-span-7">
         <MileageCard
           miles={today.summary.miles}
           activeMin={today.summary.activeMin}
           scrollMeters={today.summary.scrollMeters}
         />
-      </div>
+      </Enter>
 
       {/* ── the six ────────────────────────────────────────── */}
-      <section className="md:col-span-12">
+      <Enter as="section" index={2} className="md:col-span-12">
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
           <MetricCard metric={today.focus} />
           <MetricCard metric={today.recovery} />
@@ -108,23 +126,23 @@ export default function TodayPage() {
         <p className="mt-2.5 text-[11.5px] text-chalk-30">
           Tap any score to see what went into it, in plain words.
         </p>
-      </section>
+      </Enter>
 
       {/* ── the day ────────────────────────────────────────── */}
-      <section className="card p-4 md:col-span-7">
+      <Enter as="section" index={3} className="card p-4 md:col-span-7">
         <DayTimeline day={today.summary} />
-      </section>
+      </Enter>
 
-      <div className="flex flex-col gap-3.5 md:col-span-5">
+      <Enter index={4} className="flex flex-col gap-3.5 md:col-span-5">
         <StoryCard story={story} />
         {win && <WinCard record={win} />}
         {insight && <OneThingCard insight={insight} />}
-      </div>
+      </Enter>
 
       {/* ── live, last ─────────────────────────────────────── */}
-      <div className="md:col-span-12">
-        <LiveNow live={live} />
-      </div>
+      <Enter index={5} className="md:col-span-12">
+        <LiveNow />
+      </Enter>
 
       <p className="text-[11.5px] leading-relaxed text-chalk-30 md:col-span-12">
         Everything here was worked out in this browser and saved on this device. We count key

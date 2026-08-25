@@ -22,7 +22,15 @@ import type {
  *
  * THE LANGUAGE RULE. Every string in this file is read by someone looking at
  * their own screen time, not by an analyst. So: short sentences, everyday
- * words, and no term that needs a glossary. "How often you jumped away", not
+ * words, and no term that needs a glossary.
+ *
+ * That applies to the metric NAMES too, which is where it was hardest and
+ * mattered most. "Fragmentation" is a fine word for what it measures and a
+ * terrible name for a thing on a phone screen — nobody looks at it and knows
+ * what it means. It is Jumpiness. "Intentionality" is On Plan. "Visual Load"
+ * is Eyes. "Recovery" is Rest, "Strain" is Effort. The ids underneath keep the
+ * original terms, so the code still reads precisely; only the label changes,
+ * because the label is the part a person has to understand. "How often you jumped away", not
  * "context switches per engaged hour". "Time after 11pm", not "late-night
  * exposure". Where a technical idea genuinely earns its place — the 20-minute
  * cost of getting back on task — it gets explained in the same breath rather
@@ -60,7 +68,7 @@ const BAND_LABELS: Record<MetricId, Record<Band, string>> = {
   focus: { optimal: 'Sharp', solid: 'Steady', watch: 'Patchy', strained: 'All over' },
   recovery: { optimal: 'Well rested', solid: 'Okay', watch: 'Not much', strained: 'Worn out' },
   strain: { optimal: 'Easy', solid: 'Normal', watch: 'Hard', strained: 'Very hard' },
-  visual: { optimal: 'Easy', solid: 'Okay', watch: 'Working hard', strained: 'Working very hard' },
+  visual: { optimal: 'Fine', solid: 'Okay', watch: 'Tired', strained: 'Very tired' },
   fragmentation: { optimal: 'Calm', solid: 'Mostly calm', watch: 'Jumpy', strained: 'Very jumpy' },
   intentionality: { optimal: 'Went to plan', solid: 'Close', watch: 'Drifted', strained: 'Off plan' },
 };
@@ -167,7 +175,7 @@ function focusMetric(d: DaySummary, baseline?: Baseline): Metric {
     {
       id: 'focus',
       label: 'Focus',
-      plain: 'How long you stayed on one thing',
+      plain: 'How long you stuck with one thing',
       polarity: 'higher-better',
       provenance: 'derived',
       inputs,
@@ -259,8 +267,8 @@ function fragmentationMetric(d: DaySummary, baseline?: Baseline): Metric {
   return assemble(
     {
       id: 'fragmentation',
-      label: 'Fragmentation',
-      plain: 'How much you jumped between things',
+      label: 'Jumpiness',
+      plain: 'How much you hopped about',
       polarity: 'lower-better',
       provenance: 'derived',
       inputs,
@@ -351,8 +359,8 @@ function strainMetric(d: DaySummary, baseline?: Baseline): Metric {
   return assemble(
     {
       id: 'strain',
-      label: 'Strain',
-      plain: 'How hard the day was on you',
+      label: 'Effort',
+      plain: 'How hard the day was',
       polarity: 'lower-better',
       provenance: 'derived',
       inputs,
@@ -434,8 +442,8 @@ function visualMetric(d: DaySummary, brightnessMeasured: boolean, baseline?: Bas
   return assemble(
     {
       id: 'visual',
-      label: 'Visual Load',
-      plain: 'How hard your eyes had to work',
+      label: 'Eyes',
+      plain: 'How tired your eyes got',
       polarity: 'lower-better',
       // Brightness is the input that decides this: without a real reading the
       // whole metric is an estimate, and says so rather than implying a measurement.
@@ -499,21 +507,21 @@ function recoveryMetric(d: DaySummary, fragmentation: number, baseline?: Baselin
       detail: 'Your longest stretch, flipped round — shorter is better here. A day that never lets up never recovers, however short it was.',
     },
     {
-      label: 'How jumpy the day was',
+      label: 'How hoppy the day was',
       value: String(Math.round(fragmentation)),
       score: 100 - fragmentation,
       weight: 0.16,
       provenance: 'derived',
       detail:
-        'Your Fragmentation score, flipped. A chopped-up day leaves you more tired than a long calm one — which is why it counts against your rest, not just your effort.',
+        'Your Jumpiness score, flipped. A hoppy day leaves you more tired than a long calm one — which is why it counts against your rest, not just your effort.',
     },
   ];
 
   return assemble(
     {
       id: 'recovery',
-      label: 'Recovery',
-      plain: 'How much rest you actually got',
+      label: 'Rest',
+      plain: 'How much of a break you got',
       polarity: 'higher-better',
       provenance: 'derived',
       inputs,
@@ -554,8 +562,8 @@ function intentionalityMetric(d: DaySummary, baseline?: Baseline): Metric {
   if (plannedTotal === 0) {
     return {
       id: 'intentionality',
-      label: 'Intentionality',
-      plain: 'Did the day go the way you wanted',
+      label: 'On Plan',
+      plain: 'Did the day go how you wanted',
       value: 0,
       polarity: 'higher-better',
       band: 'watch',
@@ -658,8 +666,8 @@ function intentionalityMetric(d: DaySummary, baseline?: Baseline): Metric {
   return assemble(
     {
       id: 'intentionality',
-      label: 'Intentionality',
-      plain: 'Did the day go the way you wanted',
+      label: 'On Plan',
+      plain: 'Did the day go how you wanted',
       polarity: 'higher-better',
       provenance: 'estimated',
       inputs,
@@ -719,7 +727,7 @@ function fitnessMetric(
       score: 100 - parts.fragmentation.value,
       weight: 0.2,
       provenance: 'derived',
-      detail: 'Your Fragmentation score, flipped round — so a calm day scores high here.',
+      detail: 'Your Jumpiness score, flipped round — so a calm day scores high here.',
     },
     {
       label: 'Hard day, handled well',
@@ -736,7 +744,7 @@ function fitnessMetric(
       score: 100 - parts.visual.value,
       weight: 0.12,
       provenance: 'estimated',
-      detail: 'Your Visual Load score, flipped. It counts for less because part of it rests on a brightness you told us rather than one we measured.',
+      detail: 'Your Eyes score, flipped. It counts for less because part of it rests on a brightness you told us rather than one we measured.',
     },
     {
       label: 'Intentionality',
@@ -753,7 +761,7 @@ function fitnessMetric(
   return assemble(
     {
       id: 'fitness',
-      label: 'Digital Fitness',
+      label: 'Screen Fitness',
       plain: 'How well you handled your screen time',
       polarity: 'higher-better',
       provenance: 'derived',
