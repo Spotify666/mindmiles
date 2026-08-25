@@ -75,9 +75,9 @@ export const CLASS_LABEL = {
 } as const;
 
 export const CLASS_NOTE = {
-  focus: 'Inside a stretch of 25 minutes or more, uninterrupted.',
-  scatter: 'Real time, spent shallowly or in pieces.',
-  scroll: 'Content moving faster than it could be read.',
+  focus: 'Inside a block of 25 minutes or more, uninterrupted.',
+  scatter: 'Real time, but spent in bits and pieces.',
+  scroll: 'Things moving past faster than you could read them.',
 } as const;
 
 export const CLASS_ORDER = ['focus', 'scatter', 'scroll'] as const;

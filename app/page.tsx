@@ -47,8 +47,8 @@ export default function TodayPage() {
     <div className="mx-auto flex max-w-app flex-col gap-3.5 md:max-w-none md:grid md:grid-cols-12 md:items-start md:gap-4">
       {storageBlocked && (
         <p className="rounded-card border border-strain/30 bg-strain-dim p-3 text-[12.5px] leading-relaxed text-chalk-70 md:col-span-12">
-          Your browser is blocking site storage, so today is being measured in memory only and will
-          be lost when this tab closes. Nothing was sent anywhere — there is nowhere for it to go.
+          Your browser is not letting us save anything, so today will disappear when you close this
+          tab. Nothing went anywhere — there is nowhere for it to go.
         </p>
       )}
 
@@ -72,12 +72,12 @@ export default function TodayPage() {
             </p>
             <p className="label mt-1.5 text-chalk-45">
               {monthChange === null
-                ? 'building your history'
+                ? 'still learning your normal'
                 : `${monthChange === 0 ? 'level' : fmtSigned(monthChange)} this month`}
             </p>
             <p className="mt-3 text-[12.5px] leading-relaxed text-chalk-45">
-              A seven-day trailing figure, not today alone — one rough day should not describe your
-              relationship with technology.
+              This covers your last seven days, not just today. One rough day should not decide how
+              you are doing.
             </p>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function TodayPage() {
           <MetricCard metric={today.intentionality} />
         </div>
         <p className="mt-2.5 text-[11.5px] text-chalk-30">
-          Tap any score to see exactly how it was calculated. Nothing here is a black box.
+          Tap any score to see what went into it, in plain words.
         </p>
       </section>
 
@@ -127,10 +127,11 @@ export default function TodayPage() {
       </div>
 
       <p className="text-[11.5px] leading-relaxed text-chalk-30 md:col-span-12">
-        Everything on this screen was measured in this browser and stored on this device. Keystrokes
-        are counted, never read. Nothing is uploaded, because there is no server to upload it to.{' '}
+        Everything here was worked out in this browser and saved on this device. We count key
+        presses; we never see which keys. Nothing is uploaded, because there is nowhere to upload
+        it to.{' '}
         <Link href="/method" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
-          How each number is measured
+          How we work all this out
         </Link>
         .
       </p>

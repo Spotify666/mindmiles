@@ -17,7 +17,7 @@ import { ACCENT_HEX, type Accent } from '@/components/ui/tokens';
 export function StoryCard({ story }: { story: string }) {
   return (
     <section className="card p-4">
-      <p className="label text-chalk-30">Today&rsquo;s story</p>
+      <p className="label text-chalk-30">How today went</p>
       <p className="mt-2.5 text-[15px] leading-relaxed text-chalk-70">{story}</p>
     </section>
   );
@@ -34,7 +34,7 @@ export function WinCard({ record }: { record: PersonalRecord }) {
       <div className="relative">
         <p className="label flex items-center gap-1.5" style={{ color: ACCENT_HEX.record }}>
           <TrophyGlyph />
-          New personal best
+          Your best yet
         </p>
         <p className="mt-2.5 text-[15px] font-[560]">{record.label}</p>
         <p className="readout mt-1.5 text-[36px]" style={{ color: ACCENT_HEX.record }}>
@@ -42,7 +42,7 @@ export function WinCard({ record }: { record: PersonalRecord }) {
         </p>
         {record.previousDisplay && (
           <p className="mt-2 text-[12.5px] text-chalk-45">
-            Previous best {record.previousDisplay}
+            Old best {record.previousDisplay}
             {record.previousDate && ` · ${fmtDate(record.previousDate)}`}
           </p>
         )}
@@ -60,7 +60,7 @@ export function OneThingCard({ insight }: { insight: Insight }) {
       <div className="flex items-center gap-2">
         <span className="h-1.5 w-1.5 rounded-pill" style={{ background: hex }} aria-hidden />
         <p className="label text-chalk-30">
-          {insight.tone === 'win' ? 'Worth noticing' : insight.tone === 'watch' ? 'One thing' : 'A pattern'}
+          {insight.tone === 'win' ? 'Nice one' : insight.tone === 'watch' ? 'One thing to try' : 'Something we noticed'}
         </p>
       </div>
 
@@ -83,10 +83,10 @@ export function ReclaimedCard({ reclaimed, window }: { reclaimed: Reclaimed; win
   if (!reclaimed.available) {
     return (
       <section className="card p-4">
-        <p className="label text-chalk-30">Time reclaimed</p>
+        <p className="label text-chalk-30">Time you got back</p>
         <p className="mt-2.5 text-[14px] leading-relaxed text-chalk-45">
-          Reclaimed time compares each day against your own normal, so it appears once there are
-          enough measured days to have a normal. Keep the app installed and it fills in.
+          This compares each day with a normal day for you — so it needs a few more days before it
+          can say anything. Keep the app around and it fills in.
         </p>
       </section>
     );
@@ -95,13 +95,13 @@ export function ReclaimedCard({ reclaimed, window }: { reclaimed: Reclaimed; win
   return (
     <section className="card p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="label text-chalk-30">Time reclaimed · {window}</p>
+        <p className="label text-chalk-30">Time you got back · {window}</p>
       </div>
       <p className="readout mt-2 text-[44px]" style={{ color: ACCENT_HEX.recovery }}>
         {fmtMin(reclaimed.minutes)}
       </p>
       <p className="mt-1.5 text-[12.5px] text-chalk-45">
-        Against your own baseline, across {reclaimed.days} measured days.
+        Compared with a normal {reclaimed.days} days for you.
       </p>
 
       {reclaimed.breakdown.length > 0 && (
@@ -119,8 +119,8 @@ export function ReclaimedCard({ reclaimed, window }: { reclaimed: Reclaimed; win
       )}
 
       <p className="mt-4 text-[11.5px] leading-relaxed text-chalk-30">
-        Focus time is never counted here. Doing less work is not the same as reclaiming time, and
-        counting it would turn this number into a reward for avoidance.
+        Focused time never counts here. Getting less done is not the same as getting time back —
+        counting it would just reward you for avoiding things.
       </p>
     </section>
   );
@@ -173,8 +173,8 @@ export function MileageCard({
       </dl>
 
       <p className="mt-3.5 text-[11.5px] leading-relaxed text-chalk-30">
-        Scroll distance {fmtDistanceLabel(scrollMeters)} — estimated from a nominal CSS pixel, not a
-        measurement of your glass.
+        You scrolled about {fmtDistanceLabel(scrollMeters)} today. That is worked out from how far the
+        page moved, so treat it as a rough figure.
       </p>
     </section>
   );

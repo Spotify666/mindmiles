@@ -23,7 +23,7 @@ export default function Delta({
   className?: string;
 }) {
   if (!delta) {
-    return <span className={`label text-chalk-30 ${className}`}>Baseline building</span>;
+    return <span className={`label text-chalk-30 ${className}`}>Learning your normal</span>;
   }
   if (delta.samples < MIN_BASELINE_DAYS) {
     return (
@@ -41,7 +41,7 @@ export default function Delta({
   return (
     <span className={`label whitespace-nowrap ${tone} ${className}`}>
       {text}
-      <span className="ml-1.5 text-chalk-30">vs you</span>
+      <span className="ml-1.5 text-chalk-30">vs your usual</span>
     </span>
   );
 }

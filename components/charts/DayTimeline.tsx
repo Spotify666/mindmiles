@@ -73,7 +73,7 @@ export default function DayTimeline({ day, title = 'Your day' }: { day: DaySumma
         <span className="label text-chalk-30">
           {day.firstEngagedMin !== null && day.lastEngagedMin !== null
             ? fmtRange(day.firstEngagedMin, day.lastEngagedMin)
-            : 'No sessions yet'}
+            : 'Nothing yet today'}
         </span>
       </figcaption>
 

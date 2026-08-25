@@ -103,7 +103,7 @@ export default function TrendsPage() {
             accent={ACCENT_HEX.recovery}
             note="in breaks"
           />
-          <Stat label="Scroll distance" value={totalScroll(window)} note="estimated" />
+          <Stat label="Scrolled" value={totalScroll(window)} note="roughly" />
         </dl>
       </section>
 
@@ -132,8 +132,8 @@ export default function TrendsPage() {
           baseline={seriesBaseline?.value}
         />
         <p className="mt-3 text-[11.5px] leading-relaxed text-chalk-30">
-          Gaps are days with under 15 measured minutes. They are drawn as breaks rather than as
-          zeroes — a day away from your devices is not a day with a bad score.
+          Days with almost no screen time show as gaps, not zeroes. A day away from your devices is
+          not a bad day.
         </p>
       </section>
 
@@ -143,13 +143,13 @@ export default function TrendsPage() {
           {thisMiles.total < 1
             ? 'Not enough measured time this week to summarise yet.'
             : `${fmtMiles(thisMiles.total)} Mind Miles, of which ${fmtMiles(thisMiles.focus)} were focus miles.` +
-              (focusChange !== null ? ` Focus ${fmtPercent(focusChange)} on last week.` : '') +
-              (scrollChange !== null ? ` Rapid scrolling ${fmtPercent(scrollChange)}.` : '')}
+              (focusChange !== null ? ` Focused time ${fmtPercent(focusChange)} on last week.` : '') +
+              (scrollChange !== null ? ` Fast scrolling ${fmtPercent(scrollChange)}.` : '')}
         </p>
 
         <div className="mt-4 grid gap-3.5 sm:grid-cols-2">
           <BaselineBar
-            label="Engaged time today"
+            label="Time on screen today"
             value={today.summary.activeMin}
             baseline={baseline.normal('activeMin', today.date)?.value}
             max={480}
@@ -158,7 +158,7 @@ export default function TrendsPage() {
             lowerIsBetter
           />
           <BaselineBar
-            label="Longest unbroken stretch"
+            label="Longest stretch without a break"
             value={today.summary.longestBoutMin}
             baseline={baseline.normal('longestBoutMin', today.date)?.value}
             max={120}
@@ -167,7 +167,7 @@ export default function TrendsPage() {
             lowerIsBetter
           />
           <BaselineBar
-            label="Rapid scrolling"
+            label="Fast scrolling"
             value={today.summary.burstMin}
             baseline={baseline.normal('burstMin', today.date)?.value}
             max={90}
@@ -176,7 +176,7 @@ export default function TrendsPage() {
             lowerIsBetter
           />
           <BaselineBar
-            label="Breaks taken"
+            label="Breaks you took"
             value={today.summary.breakCount}
             baseline={baseline.normal('breakCount', today.date)?.value}
             max={8}
@@ -199,7 +199,7 @@ export default function TrendsPage() {
         </div>
 
         <div className="mt-3.5">
-          <DayTimeline day={selectedReport.summary} title="Session map" />
+          <DayTimeline day={selectedReport.summary} title="Your day, hour by hour" />
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
@@ -214,15 +214,15 @@ export default function TrendsPage() {
           <div className="mt-5 overflow-x-auto">
             <table className="w-full min-w-[440px] text-left text-[13px]">
               <caption className="sr-only">
-                Sessions on {selected}, with start time, length and input counts.
+                Every visit to the screen on {selected}, with when it started, how long it lasted, and what you did.
               </caption>
               <thead>
                 <tr className="label text-chalk-30">
-                  <th scope="col" className="py-2 font-normal">Session</th>
+                  <th scope="col" className="py-2 font-normal">Started</th>
                   <th scope="col" className="py-2 font-normal">Length</th>
                   <th scope="col" className="py-2 text-right font-normal">Keys</th>
                   <th scope="col" className="py-2 text-right font-normal">Scroll</th>
-                  <th scope="col" className="py-2 text-right font-normal">Switches</th>
+                  <th scope="col" className="py-2 text-right font-normal">Jumps</th>
                 </tr>
               </thead>
               <tbody>

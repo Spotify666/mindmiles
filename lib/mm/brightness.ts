@@ -131,15 +131,15 @@ export async function readBrightness(declared: number): Promise<BrightnessReadin
 }
 
 export const SOURCE_LABEL: Record<BrightnessSource, string> = {
-  native: 'Measured · display',
-  sensor: 'Measured · ambient',
-  declared: 'Declared by you',
+  native: 'Read from your screen',
+  sensor: 'Read from your room',
+  declared: 'You told us',
 };
 
 export const SOURCE_NOTE: Record<BrightnessSource, string> = {
-  native: 'Read from the display itself. This is real hardware brightness.',
+  native: 'Taken straight from your screen. This is the real thing.',
   sensor:
-    'Read from the ambient light sensor. It measures the light in your room rather than your screen — a bright screen in a dark room is the combination that strains an eye.',
+    'Taken from your device’s light sensor. It measures the light in the room rather than the screen — and a bright screen in a dark room is the combination that tires eyes out.',
   declared:
-    'No browser can read display brightness, on any platform, so this is the value you set. It is used for Visual Load and always labelled as declared rather than measured.',
+    'No web browser can read your screen brightness, on any device. So this is the number you set. We use it for Visual Load, and we always say it came from you rather than pretending we measured it.',
 };

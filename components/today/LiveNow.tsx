@@ -87,21 +87,21 @@ export default function LiveNow({ live }: { live: LiveStats | null }) {
             style={{ background: engaged ? ACCENT_HEX.recovery : 'rgba(244,246,250,0.22)' }}
             aria-hidden
           />
-          {engaged ? 'Measuring' : 'Idle — no input'}
+          {engaged ? 'Watching now' : 'Paused — you are not doing anything'}
         </span>
-        <span className="label ml-auto text-chalk-30">Stays on this device</span>
+        <span className="label ml-auto text-chalk-30">Never leaves this device</span>
       </div>
 
       <div className="grid gap-5 p-4 sm:grid-cols-2">
         <div>
-          <p className="label text-chalk-30">Unbroken stretch</p>
+          <p className="label text-chalk-30">Going without a break</p>
           <p className="readout mt-2 text-[42px]" style={{ color: overdue ? ACCENT_HEX.strain : undefined }}>
             {fmtClock(bout)}
           </p>
 
           <div className="mt-4">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="label text-chalk-30">Eye break</span>
+              <span className="label text-chalk-30">Next eye break</span>
               <span className="label" style={{ color: barColor }}>
                 {overdue ? `overdue ${fmtClock(bout - BREAK_TARGET_SEC)}` : `in ${fmtClock(remaining)}`}
               </span>
@@ -114,30 +114,30 @@ export default function LiveNow({ live }: { live: LiveStats | null }) {
             </div>
             <p className="mt-2 text-[11.5px] leading-relaxed text-chalk-45">
               {overdue
-                ? 'Past twenty minutes at one focal distance. Look at something across the room for twenty seconds — this resets when you step away.'
-                : 'Every twenty minutes, twenty seconds at something twenty feet away. This is that clock.'}
+                ? 'You have been staring at the same distance for over twenty minutes. Look at something across the room for twenty seconds — this resets when you step away.'
+                : 'Every twenty minutes, look at something far away for twenty seconds. This is the timer for that.'}
             </p>
           </div>
         </div>
 
         <div>
-          <p className="label text-chalk-30">Input · last 60 seconds</p>
+          <p className="label text-chalk-30">What you have been doing · last minute</p>
           <div className="mt-2 h-14 w-full rounded-[12px] bg-surface-inset p-1.5">
             <Wave wave={live?.wave ?? []} engaged={engaged} />
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <Cell label="Session" value={fmtClock(live?.sessionSec ?? 0)} />
+            <Cell label="Here so far" value={fmtClock(live?.sessionSec ?? 0)} />
             <Cell
-              label="Scroll"
+              label="Scrolled"
               value={fmtDistance(pxToMeters(live?.scrollPx ?? 0))}
-              sub="estimated"
+              sub="roughly"
             />
-            <Cell label="Keys / min" value={fmtCount(live?.kpm ?? 0)} sub="counts only" />
+            <Cell label="Keys a minute" value={fmtCount(live?.kpm ?? 0)} sub="just the count" />
             <Cell
               label="Scroll speed"
               value={`${fmtCount(live?.peakVelocity ?? 0)}`}
-              sub={live?.bursting ? 'above read speed' : `px/s · burst at ${BURST_VELOCITY}`}
+              sub={live?.bursting ? 'faster than you can read' : 'still readable'}
             />
           </div>
         </div>

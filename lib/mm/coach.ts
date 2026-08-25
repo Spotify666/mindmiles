@@ -16,10 +16,12 @@ import type { DayReport, Insight, Profile } from './types';
  *   an attention problem. It says what was measured and what usually helps.
  *
  *   It never shames. The tone rule is simple — describe the behaviour, not the
- *   person, and always in a sentence the user could have written themselves.
- *   "Your evening scrolling rose 32% above your baseline" is a fact. "You are
- *   spending too long on your phone" is a judgement, and it is not this
- *   product's to make.
+ *   person, and always in words the user would use themselves. "Your evening
+ *   scrolling was up a third on your usual" is a fact. "You are spending too
+ *   long on your phone" is a judgement, and it is not this product's to make.
+ *
+ *   It never needs a glossary. No sentence here uses a term the app has not
+ *   already explained in ordinary words on the screen the reader came from.
  *
  *   It always explains itself. Every insight carries a `because` — the reason
  *   the recommendation follows from the evidence. A coach that says what to do
@@ -69,11 +71,11 @@ const RULES: Rule[] = [
       id: 'focus-up',
       priority: 10,
       tone: 'win',
-      title: 'Your focus is up on your own normal',
-      evidence: `Focus scored ${today.focus.value} against a baseline of ${Math.round(d.baseline)} for this kind of day — ${fmtPercent(d.percent)}.`,
-      action: 'Whatever protected the morning, put it in the diary for tomorrow before anything else claims the slot.',
+      title: 'You focused better than usual today',
+      evidence: `Your focus came in at ${today.focus.value}. On a normal day like this it is about ${Math.round(d.baseline)} — so ${fmtPercent(d.percent)}.`,
+      action: 'Whatever kept your morning clear, put it in the diary for tomorrow before something else takes the slot.',
       because:
-        'Focus is the least durable of these metrics — it responds to conditions rather than to intent, so the useful move is to repeat the conditions.',
+        'Focus comes from the shape of your day far more than from trying harder. So the thing worth copying is the day, not the effort.',
       accent: 'focus',
     };
   },
@@ -86,10 +88,10 @@ const RULES: Rule[] = [
       priority: 12,
       tone: 'win',
       title: `${plural(streak, 'clear evening')} in a row`,
-      evidence: `Under ten minutes after 23:00 on each of the last ${streak} days.`,
-      action: 'Nothing to change. This is the habit with the largest downstream effect, and it is holding.',
+      evidence: `Less than ten minutes on a screen after 11pm, ${streak} days running.`,
+      action: 'Nothing to change. This is the single habit that helps the most, and it is holding.',
       because:
-        'Light after 23:00 delays melatonin and pushes the body clock later, so a protected evening improves the next day before it starts.',
+        'Screen light late at night pushes your body clock back and makes sleep come later. A clear evening improves tomorrow before it has started.',
       accent: 'recovery',
     };
   },
@@ -104,13 +106,13 @@ const RULES: Rule[] = [
       id: 'late-night-rising',
       priority: 2,
       tone: 'watch',
-      title: `Late-night use has climbed for ${plural(eveningRun, 'day')}`,
-      evidence: `${fmtMin(today.summary.lateNightMin)} after 23:00 today${
-        d && d.percent !== null ? `, ${fmtPercent(d.percent)} against your normal` : ''
+      title: `Later nights, ${plural(eveningRun, 'day')} in a row`,
+      evidence: `${fmtMin(today.summary.lateNightMin)} on a screen after 11pm today${
+        d && d.percent !== null ? `, ${fmtPercent(d.percent)} on your usual` : ''
       }.`,
-      action: 'Pick a hard stop 60 minutes before you intend to sleep, and put the charger in another room tonight.',
+      action: 'Pick a stopping time an hour before bed, and put the charger in another room tonight.',
       because:
-        'Evening light shifts sleep onset even when total sleep length is unchanged — the curfew matters more than the duration.',
+        'Screen light in the evening makes sleep come later, even if you end up sleeping just as long. When you stop matters more than how long you were on.',
       accent: 'recovery',
     };
   },
@@ -125,14 +127,14 @@ const RULES: Rule[] = [
       id: 'scroll-above-baseline',
       priority: 3,
       tone: 'watch',
-      title: 'Rapid scrolling is above your normal',
-      evidence: `${fmtMin(d)} of fast scrolling today against a baseline of ${fmtMin(normal.value)} — ${fmtPercent(((d - normal.value) / normal.value) * 100)}.`,
+      title: 'More fast scrolling than usual',
+      evidence: `${fmtMin(d)} of fast scrolling today. You usually do about ${fmtMin(normal.value)} — so ${fmtPercent(((d - normal.value) / normal.value) * 100)}.`,
       action:
         eveningShare > 0.35
-          ? 'Most of it landed in the evening. Try ending the final session half an hour earlier tonight.'
-          : 'Batch feed-checking into two fixed windows rather than letting it fill the gaps between tasks.',
+          ? 'Most of it was in the evening. Try finishing half an hour earlier tonight.'
+          : 'Try keeping it to two set times of day, rather than letting it fill the gaps between things.',
       because:
-        'Rapid scrolling is measured as content moving faster than it can be read — it is the clearest signal of time passing without anything being taken from it.',
+        'Fast scrolling means things went past quicker than you could read them. It is the clearest sign of time passing without you getting anything from it.',
       accent: 'scatter',
     };
   },
@@ -145,13 +147,13 @@ const RULES: Rule[] = [
       id: 'fragmentation-high',
       priority: 4,
       tone: 'watch',
-      title: 'The day came apart into pieces',
-      evidence: `${today.summary.shortBouts} of ${today.summary.bouts.length} sessions ran under five minutes, at ${today.summary.switchRate.toFixed(1)} context switches an hour${
-        mean !== null ? ` (your recent average is ${Math.round(mean)}/100 fragmentation)` : ''
+      title: 'Today got chopped up',
+      evidence: `${today.summary.shortBouts} of your ${today.summary.bouts.length} visits lasted under five minutes, and you jumped away ${today.summary.switchRate.toFixed(1)} times an hour${
+        mean !== null ? `. Lately you average ${Math.round(mean)} out of 100 here` : ''
       }.`,
-      action: 'Protect one 45-minute block tomorrow with notifications off and nothing else open. One is enough to change the shape of a day.',
+      action: 'Keep one 45-minute block clear tomorrow — notifications off, nothing else open. One is enough to change the shape of a day.',
       because:
-        'Returning to full depth after an interruption takes around 23 minutes, so a day of five-minute sessions never reaches the part where the hard problems get solved.',
+        'It takes about 23 minutes to get your head fully back into something. A day of five-minute visits never reaches the part where hard things get solved.',
       accent: 'focus',
     };
   },
@@ -164,13 +166,13 @@ const RULES: Rule[] = [
       id: 'no-breaks',
       priority: 5,
       tone: 'watch',
-      title: 'A long run with almost no release',
-      evidence: `${fmtMin(today.summary.longestBoutMin)} unbroken, and ${
+      title: 'A long run with barely a break',
+      evidence: `${fmtMin(today.summary.longestBoutMin)} without stopping, and ${
         today.summary.breakCount === 0 ? 'no break reached ten minutes' : 'only one break did'
       }.`,
-      action: 'Stand up at the end of the next hour, even for thirty seconds, and look at something across the room while you do.',
+      action: 'Stand up at the end of the next hour, even for thirty seconds, and look at something across the room while you are up.',
       because:
-        'The 20-20-20 guideline exists because blink rate falls by more than half during sustained near-focus, and standing resets most of the circulatory cost at the same time.',
+        'You blink about half as often while staring at a screen, which is what makes eyes feel dry and gritty. Standing up sorts out the stiffness at the same time.',
       accent: 'strain',
     };
   },
@@ -195,11 +197,11 @@ const RULES: Rule[] = [
       id: 'peak-window',
       priority: 7,
       tone: 'steady',
-      title: `Your deepest work lands around ${fmtTimeOfDay(best.hour * 60)}`,
-      evidence: `Across your measured history, the hour from ${fmtRange(best.hour * 60, best.hour * 60 + 59)} holds more focus minutes than any other.`,
-      action: `Try holding ${fmtRange(best.hour * 60, best.hour * 60 + 119)} tomorrow as a notification-free block.`,
+      title: `You do your best work around ${fmtTimeOfDay(best.hour * 60)}`,
+      evidence: `Looking back over your days, ${fmtRange(best.hour * 60, best.hour * 60 + 59)} holds more focused time than any other hour.`,
+      action: `Try keeping ${fmtRange(best.hour * 60, best.hour * 60 + 119)} free tomorrow, with notifications off.`,
       because:
-        'Focus is far more schedule-dependent than effort-dependent, so the highest-return change is usually moving the work rather than trying harder at it.',
+        'When you do something matters more than how hard you try at it. Moving the work usually beats pushing harder.',
       accent: 'focus',
     };
   },
@@ -211,10 +213,10 @@ const RULES: Rule[] = [
       priority: 8,
       tone: 'watch',
       title: 'The day started on a screen',
-      evidence: `${fmtMin(today.summary.sunriseMin)} engaged in the first hour after ${String(profile.wakeHour).padStart(2, '0')}:00.`,
-      action: 'Try giving the first thirty minutes to something else, and see whether the rest of the morning holds together differently.',
+      evidence: `${fmtMin(today.summary.sunriseMin)} on a screen in the first hour after you got up.`,
+      action: 'Try giving the first half hour to something else, and see whether the rest of the morning feels different.',
       because:
-        'The first session of the day tends to set the switching rhythm for the ones after it — a fragmented start is unusually predictive of a fragmented day.',
+        'How you start tends to set the pace for the rest. A jumpy first half hour usually means a jumpy day.',
       accent: 'scatter',
     };
   },
@@ -226,11 +228,11 @@ const RULES: Rule[] = [
       id: 'set-intent',
       priority: 9,
       tone: 'steady',
-      title: 'Nothing planned for today',
-      evidence: 'No intentions were set, so intentionality is not being scored.',
-      action: 'Set one intention for tomorrow — even a single 90-minute block of work is enough for the comparison to mean something.',
+      title: 'You have not told us what you want today',
+      evidence: 'With no plan set, there is nothing to compare the day against.',
+      action: 'Set one thing for tomorrow — even a single 90-minute block of work is enough to make the comparison worth something.',
       because:
-        'Total screen time says almost nothing on its own. The gap between what you meant to do and what happened is where the useful signal is.',
+        'Hours on a screen tell you almost nothing on their own. The gap between what you meant to do and what you did is where the useful bit is.',
       accent: 'record',
     };
   },
@@ -273,8 +275,8 @@ export function dayStory(ctx: Ctx): string {
 
   if (s.activeMin < 15) {
     return s.partial
-      ? 'Barely any measured activity yet today. This page fills in as the day runs.'
-      : 'Almost nothing measured on this day.';
+      ? 'Not much on screen yet today. This page fills in as the day goes on.'
+      : 'Almost nothing happened on screen this day.';
   }
 
   const parts: string[] = [];
@@ -283,23 +285,23 @@ export function dayStory(ctx: Ctx): string {
   const kind = new Date(`${today.date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long' });
   parts.push(
     activeDelta && activeDelta.percent !== null && Math.abs(activeDelta.percent) >= 8
-      ? `You spent ${fmtMin(s.activeMin)} in active digital interaction — ${fmtPercent(activeDelta.percent)} against your normal ${kind}.`
-      : `You spent ${fmtMin(s.activeMin)} in active digital interaction, close to your normal ${kind}.`,
+      ? `You spent ${fmtMin(s.activeMin)} actually using a screen — ${fmtPercent(activeDelta.percent)} on a normal ${kind} for you.`
+      : `You spent ${fmtMin(s.activeMin)} actually using a screen, about the same as a normal ${kind} for you.`,
   );
 
   const longest = [...s.bouts].sort((a, b) => b.endMin - b.startMin - (a.endMin - a.startMin))[0];
   if (longest && longest.endMin - longest.startMin + 1 >= 25) {
     parts.push(
-      `Your strongest stretch ran ${fmtRange(longest.startMin, longest.endMin)}, ${fmtMin(longest.endMin - longest.startMin + 1)} without a break.`,
+      `Your best run was ${fmtRange(longest.startMin, longest.endMin)} — ${fmtMin(longest.endMin - longest.startMin + 1)} without a break.`,
     );
   }
 
   if (s.miles.scroll > 0.5) {
     parts.push(
-      `${fmtMin(s.miles.scroll * 20)} went to rapid scrolling, out of ${fmtMin(s.activeMin)} total.`,
+      `${fmtMin(s.miles.scroll * 20)} of that went on fast scrolling.`,
     );
   } else if (s.breakCount > 0) {
-    parts.push(`You took ${plural(s.breakCount, 'break')} of ten minutes or more.`);
+    parts.push(`You took ${plural(s.breakCount, 'proper break')} of ten minutes or more.`);
   }
 
   return parts.join(' ');

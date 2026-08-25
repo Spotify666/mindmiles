@@ -35,7 +35,7 @@ const DEFS: RecordDef[] = [
   {
     key: 'longest-focus',
     label: 'Longest focus session',
-    blurb: 'The longest single stretch you held without a break.',
+    blurb: 'The longest you have ever stayed with one thing without stopping.',
     direction: 'max',
     floor: 0,
     value: (r) => (r.summary.longestBoutMin >= 25 ? r.summary.longestBoutMin : null),
@@ -44,7 +44,7 @@ const DEFS: RecordDef[] = [
   {
     key: 'most-focus-miles',
     label: 'Most focus miles',
-    blurb: 'The most mileage you have ever spent inside deep blocks in one day.',
+    blurb: 'The most focused time you have ever managed in one day.',
     direction: 'max',
     floor: 0,
     value: (r) => r.summary.miles.focus,
@@ -52,8 +52,8 @@ const DEFS: RecordDef[] = [
   },
   {
     key: 'lowest-fragmentation',
-    label: 'Lowest fragmentation',
-    blurb: 'Your most intact day. Requires a real working day behind it.',
+    label: 'Calmest day',
+    blurb: 'Your least jumpy day. Only counts on a proper working day.',
     direction: 'min',
     // Two hours engaged, or this is won by a day off rather than a day handled.
     floor: 120,
@@ -62,8 +62,8 @@ const DEFS: RecordDef[] = [
   },
   {
     key: 'best-recovery',
-    label: 'Best recovery',
-    blurb: 'Breaks taken, evening protected, load released.',
+    label: 'Best rest',
+    blurb: 'Breaks taken, evening left alone, and you let up during the day.',
     direction: 'max',
     floor: 60,
     value: (r) => r.recovery.value,
@@ -71,8 +71,8 @@ const DEFS: RecordDef[] = [
   },
   {
     key: 'longest-break',
-    label: 'Longest screen-free window',
-    blurb: 'The longest gap inside an active day — not a day you were away.',
+    label: 'Longest time away',
+    blurb: 'Your biggest break in the middle of a busy day — not a day you were simply out.',
     direction: 'max',
     floor: 120,
     value: (r) => (r.summary.longestBreakMin > 0 ? r.summary.longestBreakMin : null),
@@ -80,8 +80,8 @@ const DEFS: RecordDef[] = [
   },
   {
     key: 'best-fitness',
-    label: 'Best digital fitness day',
-    blurb: 'Your highest single-day composite.',
+    label: 'Best day overall',
+    blurb: 'Your highest score for a single day.',
     direction: 'max',
     floor: 60,
     value: (r) => r.fitness.value,
@@ -89,8 +89,8 @@ const DEFS: RecordDef[] = [
   },
   {
     key: 'lowest-scroll',
-    label: 'Lowest scroll load',
-    blurb: 'Least rapid scrolling on a full day of use.',
+    label: 'Least scrolling',
+    blurb: 'The least fast scrolling you have done on a full day of screen time.',
     direction: 'min',
     floor: 120,
     value: (r) => r.summary.miles.scroll,
@@ -99,7 +99,7 @@ const DEFS: RecordDef[] = [
   {
     key: 'best-evening',
     label: 'Best evening',
-    blurb: 'Least time after 23:00 on a day you were genuinely on screens.',
+    blurb: 'The least time after 11pm on a day you were really using screens.',
     direction: 'min',
     floor: 180,
     value: (r) => r.summary.lateNightMin,
@@ -107,8 +107,8 @@ const DEFS: RecordDef[] = [
   },
   {
     key: 'most-intentional',
-    label: 'Most intentional day',
-    blurb: 'The closest a day has come to the plan you set for it.',
+    label: 'Most on-plan day',
+    blurb: 'The closest a day has come to what you wanted from it.',
     direction: 'max',
     floor: 60,
     value: (r) => (r.intentionality.provenance === 'unavailable' ? null : r.intentionality.value),

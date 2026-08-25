@@ -61,10 +61,17 @@ a stated conversion, printed next to the number. Every engaged minute is
 classified exactly once as Focus, Scattered or Scroll, so the three always sum
 back to total mileage.
 
-**Every score can be taken apart.** Tap any metric and you get each input, its
-own 0–100 contribution, the weight it carried, where the underlying value came
-from, and why it belongs in the metric. There is no hidden term anywhere in
-`lib/mm/metrics.ts`.
+**Every score can be taken apart — without reading an essay.** Tap any metric
+and you get the number, the word for it and one sentence. Under that, one row
+per input: what it is, what it was, how much it mattered. Each row opens to its
+explanation only if you ask. The full working is always there; nobody has to
+walk past it to leave.
+
+**It is written the way people talk.** "How often you jumped away", not "context
+switches per engaged hour". "Time after 11pm", not "late-night exposure". Every
+metric carries a plain-English line under its name, so nobody needs to already
+know what "fragmentation" means to read their own screen. A number nobody can
+read is not transparent, whatever is printed underneath it.
 
 **Four provenance labels, shown everywhere.** `measured` (observed directly),
 `derived` (arithmetic on measured values), `estimated` (inferred — treat as a
@@ -107,6 +114,17 @@ product does not ask for a permission that would let it.
 Export gives you the complete raw record as JSON. Delete removes it from the only
 place it has ever existed. Both are one tap away in Profile.
 
+## The opening
+
+A cold frame, then the route draws itself, a spark runs its length, the mile
+marker lands, and the name settles into place. Two and a half seconds, once per
+browser session, skippable with any tap or key. Reduced motion gets the frame
+without the choreography.
+
+It is one gesture rather than a sequence of animations, which is what makes it
+read as a signature instead of a loading screen — and the last 200ms, where the
+wordmark's letter-spacing tightens as it fades up, is most of the feeling.
+
 ## Design
 
 Dark, instrument-grade — the reference points are WHOOP, Oura, Strava's activity
@@ -148,6 +166,7 @@ components/
   nav/        bottom tab bar (mobile) and header nav (desktop)
   profile/    brightness, intentions, manual log, data and sharing controls
   today/      the live deck and the narrative cards
+  Splash.tsx  the opening
   ui/         ring, sheet, metric card with its explain sheet, provenance badge
 lib/mm/       the measurement and scoring engine
 ```

@@ -20,7 +20,7 @@ export default function TopBar() {
           href="/method"
           className="label shrink-0 text-chalk-30 transition-colors hover:text-chalk-70"
         >
-          Method
+          How it works
         </Link>
       </div>
     </header>

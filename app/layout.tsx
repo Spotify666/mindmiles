@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter_Tight, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import MindMilesProvider from '@/components/MindMilesProvider';
+import Splash from '@/components/Splash';
 import TopBar from '@/components/nav/TopBar';
 import { TabBar } from '@/components/nav/TabBar';
 
@@ -53,6 +54,19 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <head>
+        {/*
+          Runs before first paint. The opening plays once per browser session,
+          and deciding that in an effect would show a frame of it on every
+          subsequent load — so the class is stamped here and CSS hides the
+          overlay before anything is painted.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem('mindmiles.splash.seen')==='1'){document.documentElement.classList.add('splash-skip')}}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="font-sans antialiased">
         <a
           href="#main"
@@ -60,6 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
+        <Splash />
         <MindMilesProvider>
           <TopBar />
           {/* Bottom padding clears the mobile tab bar. */}

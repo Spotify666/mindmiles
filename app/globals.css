@@ -115,3 +115,193 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ── The opening ──────────────────────────────────────────────── */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--void);
+  opacity: 1;
+}
+
+.splash-out {
+  /* The exit is the pull-in: the frame lifts toward the viewer as it clears,
+     so the app appears to be behind it rather than replacing it. */
+  animation: splash-out 480ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    transform: scale(1.07);
+  }
+}
+
+.splash-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.splash-mark {
+  overflow: visible;
+}
+
+/* The draw. A beat of black first — the pause is the point. */
+.splash-route {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: splash-draw 950ms cubic-bezier(0.65, 0, 0.35, 1) 160ms forwards;
+}
+
+@keyframes splash-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* A short bright segment chasing the leading edge, then gone. */
+.splash-spark {
+  stroke-dasharray: 0.05 1;
+  stroke-dashoffset: 1.05;
+  opacity: 0;
+  animation: splash-spark 950ms cubic-bezier(0.65, 0, 0.35, 1) 160ms forwards;
+}
+
+@keyframes splash-spark {
+  0% {
+    stroke-dashoffset: 1.05;
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  88% {
+    opacity: 0.9;
+  }
+  100% {
+    stroke-dashoffset: 0.05;
+    opacity: 0;
+  }
+}
+
+.splash-node {
+  opacity: 0;
+  transform-origin: 33px 19px;
+  animation: splash-land 460ms cubic-bezier(0.16, 1, 0.3, 1) 1010ms forwards;
+}
+
+@keyframes splash-land {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.splash-bloom {
+  opacity: 0;
+  transform-origin: 33px 19px;
+  animation: splash-bloom 900ms ease-out 1040ms forwards;
+}
+
+@keyframes splash-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+/* The settle. Arrives wide, tightens into place — this is the part that reads
+   as expensive, and the part nobody consciously notices. */
+.splash-word {
+  margin-top: 1.6rem;
+  font-size: clamp(1.75rem, 8vw, 2.5rem);
+  font-weight: 620;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--chalk);
+  opacity: 0;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  animation: splash-settle 760ms cubic-bezier(0.16, 1, 0.3, 1) 1180ms forwards;
+}
+
+@keyframes splash-settle {
+  0% {
+    opacity: 0;
+    letter-spacing: 0.34em;
+    text-indent: 0.34em;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: -0.03em;
+    text-indent: 0;
+    transform: translateY(0);
+  }
+}
+
+.splash-tag {
+  margin-top: 0.9rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(244, 246, 250, 0.45);
+  opacity: 0;
+  animation: splash-fade 620ms ease-out 1620ms forwards;
+}
+
+@keyframes splash-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * Reduced motion: the frame, not the choreography. Everything is placed at its
+ * final state and only opacity moves — no drawing, no travel, no scale.
+ */
+.splash-still .splash-route,
+.splash-still .splash-node,
+.splash-still .splash-word,
+.splash-still .splash-tag {
+  animation: splash-fade 260ms ease-out forwards;
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transform: none;
+  letter-spacing: -0.03em;
+  text-indent: 0;
+}
+
+.splash-still .splash-spark,
+.splash-still .splash-bloom {
+  display: none;
+}
+
+/* Stamped before first paint when the opening has already run this session. */
+.splash-skip .splash {
+  display: none;
+}

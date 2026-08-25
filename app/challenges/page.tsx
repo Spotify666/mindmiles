@@ -30,8 +30,8 @@ export default function ChallengesPage() {
       <div>
         <h1 className="text-[22px] font-[620] tracking-tightest">Challenges</h1>
         <p className="mt-1.5 text-[13px] leading-relaxed text-chalk-45">
-          Every challenge is measured against your own baseline, so a nine-hour working day is no
-          barrier to any of them. None of them are about using devices less.
+          Every challenge is measured against how you normally are — so a long working day is no
+          barrier to any of them. None of them are about using your phone less.
         </p>
       </div>
 
@@ -119,7 +119,7 @@ function Card({ c, onChange }: { c: ChallengeProgress; onChange: () => void }) {
           </>
         ) : (
           <div className="rounded-[12px] bg-surface-inset px-3 py-2.5">
-            <p className="label text-chalk-30">Where you stand now</p>
+            <p className="label text-chalk-30">Where you are right now</p>
             <p className="mt-1 text-[12.5px] text-chalk-70">{c.detail}</p>
           </div>
         )}
@@ -138,7 +138,7 @@ function Card({ c, onChange }: { c: ChallengeProgress; onChange: () => void }) {
             className="rounded-pill px-3.5 py-1.5 text-[13px] font-[560] text-void transition-opacity hover:opacity-90"
             style={{ background: hex }}
           >
-            {c.status === 'expired' ? 'Start again' : 'Start'}
+            {c.status === 'expired' ? 'Try again' : 'Start'}
           </button>
         ) : !done ? (
           <>
@@ -158,7 +158,7 @@ function Card({ c, onChange }: { c: ChallengeProgress; onChange: () => void }) {
           </>
         ) : (
           <span className="label" style={{ color: ACCENT_HEX.record }}>
-            Completed{c.completedOn ? ` · ${c.completedOn}` : ''}
+            Done{c.completedOn ? ` · ${c.completedOn}` : ''}
           </span>
         )}
       </div>

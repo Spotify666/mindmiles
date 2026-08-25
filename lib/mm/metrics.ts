@@ -20,6 +20,15 @@ import type {
  * its weight, and where the underlying value came from. Tapping any score in the
  * UI shows exactly this — there is no hidden term anywhere in this file.
  *
+ * THE LANGUAGE RULE. Every string in this file is read by someone looking at
+ * their own screen time, not by an analyst. So: short sentences, everyday
+ * words, and no term that needs a glossary. "How often you jumped away", not
+ * "context switches per engaged hour". "Time after 11pm", not "late-night
+ * exposure". Where a technical idea genuinely earns its place — the 20-minute
+ * cost of getting back on task — it gets explained in the same breath rather
+ * than assumed. A metric nobody can read is not transparent, whatever is
+ * printed underneath it.
+ *
  * Three rules were applied throughout:
  *
  *   Nothing is scored that is not measured. Where a browser cannot see a
@@ -47,18 +56,20 @@ function bandFor(value: number, polarity: 'higher-better' | 'lower-better'): Ban
 
 /** Each metric names its own bands, because "75" does not mean the same thing twice. */
 const BAND_LABELS: Record<MetricId, Record<Band, string>> = {
-  fitness: { optimal: 'Excellent', solid: 'Strong', watch: 'Building', strained: 'Low' },
-  focus: { optimal: 'Deep', solid: 'Steady', watch: 'Shallow', strained: 'Scattered' },
-  recovery: { optimal: 'Restored', solid: 'Adequate', watch: 'Thin', strained: 'Depleted' },
-  strain: { optimal: 'Light', solid: 'Moderate', watch: 'High', strained: 'Very high' },
-  visual: { optimal: 'Comfortable', solid: 'Noticeable', watch: 'Elevated', strained: 'Heavy' },
-  fragmentation: { optimal: 'Whole', solid: 'Mostly intact', watch: 'Broken up', strained: 'Shredded' },
-  intentionality: { optimal: 'On plan', solid: 'Close', watch: 'Drifting', strained: 'Off plan' },
+  fitness: { optimal: 'Great', solid: 'Good', watch: 'Okay', strained: 'Rough' },
+  focus: { optimal: 'Sharp', solid: 'Steady', watch: 'Patchy', strained: 'All over' },
+  recovery: { optimal: 'Well rested', solid: 'Okay', watch: 'Not much', strained: 'Worn out' },
+  strain: { optimal: 'Easy', solid: 'Normal', watch: 'Hard', strained: 'Very hard' },
+  visual: { optimal: 'Easy', solid: 'Okay', watch: 'Working hard', strained: 'Working very hard' },
+  fragmentation: { optimal: 'Calm', solid: 'Mostly calm', watch: 'Jumpy', strained: 'Very jumpy' },
+  intentionality: { optimal: 'Went to plan', solid: 'Close', watch: 'Drifted', strained: 'Off plan' },
 };
 
 interface Draft {
   id: MetricId;
   label: string;
+  /** The metric in ordinary words. Shown under the name, never instead of it. */
+  plain: string;
   polarity: 'higher-better' | 'lower-better';
   provenance: Provenance;
   inputs: MetricInput[];
@@ -88,6 +99,7 @@ function assemble(draft: Draft, baseline?: Baseline, date?: string): Metric {
   return {
     id: draft.id,
     label: draft.label,
+    plain: draft.plain,
     value,
     polarity: draft.polarity,
     band,
@@ -114,40 +126,40 @@ function focusMetric(d: DaySummary, baseline?: Baseline): Metric {
 
   const inputs: MetricInput[] = [
     {
-      label: 'Focus share of mileage',
+      label: 'Time in long blocks',
       value: `${Math.round(focusShare)}%`,
       score: clamp(focusShare * 1.4, 0, 100),
       weight: 0.34,
       provenance: 'derived',
       detail:
-        'The proportion of engaged minutes that fell inside an uninterrupted stretch of 25 minutes or more. A day can be busy and still score low here — that is the distinction the metric exists to draw.',
+        'How much of your screen time sat inside a block of 25 minutes or more with nothing breaking it up. A busy day can still score low here — that is the whole point of it.',
     },
     {
-      label: 'Longest unbroken stretch',
+      label: 'Longest block',
       value: fmtMin(d.longestBoutMin),
       score: rampInverse(d.longestBoutMin, 60),
       weight: 0.26,
       provenance: 'measured',
       detail:
-        'The single longest run with no break. Scored against a 60-minute target, above which the marginal gain to depth is small and the cost to your eyes and back starts to dominate.',
+        'Your longest run without a break. An hour is full marks — past that you gain little and your eyes and back start paying for it.',
     },
     {
-      label: 'Deep blocks',
+      label: 'Long blocks today',
       value: String(d.deepBouts),
       score: rampInverse(d.deepBouts, 3),
       weight: 0.22,
       provenance: 'measured',
       detail:
-        'Stretches of 25 minutes or more. Three is treated as a full day: one long block is fragile, three is a rhythm.',
+        'Blocks of 25 minutes or more. Three is a full day — one is luck, three is a rhythm.',
     },
     {
-      label: 'Interruptions inside deep blocks',
+      label: 'Interruptions inside them',
       value: deep.length ? interruptionsPerDeepBout.toFixed(1) : '—',
       score: deep.length ? 100 - ramp(interruptionsPerDeepBout, 2, 14) : undefined,
       weight: deep.length ? 0.18 : undefined,
       provenance: deep.length ? 'measured' : 'unavailable',
       detail:
-        'Context switches that happened during a deep block without ending it. A block that survived twelve interruptions was long, but it was not deep.',
+        'Times you nipped away and came back mid-block. A block that survived twelve of those was long, but you were not really in it.',
     },
   ];
 
@@ -155,19 +167,20 @@ function focusMetric(d: DaySummary, baseline?: Baseline): Metric {
     {
       id: 'focus',
       label: 'Focus',
+      plain: 'How long you stayed on one thing',
       polarity: 'higher-better',
       provenance: 'derived',
       inputs,
       headline: (v) =>
         d.activeMin < 15
-          ? 'Not enough measured time yet to say anything about focus.'
+          ? 'Not enough time on screen yet to tell.'
           : v >= 75
-            ? `Attention held. ${d.deepBouts === 1 ? 'One deep block' : `${d.deepBouts} deep blocks`}, longest ${fmtMin(d.longestBoutMin)}.`
+            ? `You stayed with things. ${d.deepBouts === 1 ? 'One long block' : `${d.deepBouts} long blocks`}, the best one ${fmtMin(d.longestBoutMin)}.`
             : v >= 55
-              ? `Steady. ${fmtMiles(d.miles.focus)} of your ${fmtMiles(d.miles.total)} miles were focus miles.`
+              ? `Steady day. ${fmtMiles(d.miles.focus)} of your ${fmtMiles(d.miles.total)} miles were focus miles.`
               : v >= 35
-                ? 'Shallow. The day had engagement but few stretches long enough for depth.'
-                : 'Scattered. Almost nothing today ran long enough to get anywhere.',
+                ? 'Patchy. Plenty of screen time, but few runs long enough to get anywhere.'
+                : 'All over the place. Almost nothing today lasted long enough to land.',
     },
     baseline,
     d.date,
@@ -185,49 +198,61 @@ function fragmentationMetric(d: DaySummary, baseline?: Baseline): Metric {
   const sessions = d.bouts.length;
   const meanBout = sessions > 0 ? d.activeMin / sessions : 0;
   const shortShare = sessions > 0 ? (d.shortBouts / sessions) * 100 : 0;
-  const refocusDebtHours = (d.switches * 23) / 60;
+  /*
+   * The published figure for getting back to full concentration after an
+   * interruption is around 23 minutes. Multiplying it by the day's jumps
+   * routinely produces a number larger than the day itself — which is not a
+   * bug in the arithmetic but a bug in presenting it as hours. Nobody pays the
+   * full price every time, and "31.1h" printed under a 6-hour day reads as
+   * broken maths rather than as a striking fact. So past the length of the day
+   * it stops being a duration and becomes the sentence it was always meant to
+   * be.
+   */
+  const refocusDebtMin = d.switches * 23;
+  const refocusOverflows = refocusDebtMin > d.activeMin && d.activeMin > 0;
 
   const inputs: MetricInput[] = [
     {
-      label: 'Context switches per engaged hour',
+      label: 'Jumps away, per hour',
       value: d.switchRate > 0 ? d.switchRate.toFixed(1) : '—',
       score: d.switchRate > 0 ? ramp(d.switchRate, 6, 45) : undefined,
       weight: d.switchRate > 0 ? 0.38 : undefined,
       provenance: d.switchRate > 0 ? 'measured' : 'unavailable',
       detail:
-        'Every time attention left this context and came back. The classic attention research puts the cost of returning to full depth at around 23 minutes, which is why a handful of switches an hour is a different day from thirty.',
+        'Every time you left what you were doing and came back. Getting your head fully back into something takes about 23 minutes, so a few jumps an hour is a very different day from thirty.',
     },
     {
-      label: 'Sessions under 5 minutes',
+      label: 'Quick check-ins',
       value: `${d.shortBouts} of ${sessions}`,
       score: sessions > 0 ? ramp(shortShare, 15, 70) : undefined,
       weight: sessions > 0 ? 0.24 : undefined,
       provenance: 'measured',
       detail:
-        'Sessions too short to have been going anywhere. This is the signature of checking rather than using — the pattern that produces hours with nothing to show for them.',
+        'Visits under five minutes — too short to be doing anything. This is checking rather than using, and it is what turns hours into nothing much.',
     },
     {
-      label: 'Separate sessions',
+      label: 'Times you came back',
       value: String(sessions),
       score: sessions > 0 ? ramp(sessions, 6, 40) : undefined,
       weight: sessions > 0 ? 0.2 : undefined,
       provenance: 'measured',
-      detail: 'How many times you re-entered the screen. High counts mean the day was shredded rather than spent.',
+      detail: 'How many separate visits you made to the screen. A big number means the day got chopped up.',
     },
     {
-      label: 'Average session length',
+      label: 'Average visit',
       value: sessions > 0 ? fmtMin(meanBout) : '—',
       score: sessions > 0 ? ramp(Math.max(0, 30 - meanBout), 5, 28) : undefined,
       weight: sessions > 0 ? 0.18 : undefined,
       provenance: 'derived',
-      detail: 'Engaged time divided by session count, scored against a 30-minute mark.',
+      detail: 'Your screen time shared out across those visits. Half an hour each is a calm day.',
     },
     {
-      label: 'Theoretical refocus debt',
-      value: `${refocusDebtHours.toFixed(1)}h`,
+      label: 'Getting back on track',
+      value: refocusOverflows ? 'more than the day itself' : fmtMin(refocusDebtMin),
       provenance: 'estimated',
-      detail:
-        'Switch count multiplied by the 23-minute refocus figure. Not literal lost hours — nobody pays the full cost every time — but a sense of scale for what fragmentation buys you. It carries no weight in the score.',
+      detail: refocusOverflows
+        ? 'Every jump costs you about 23 minutes to get your head fully back in. Today you jumped away so often that those add up to more time than the day contained — which mostly means you never got all the way back before the next one. It does not affect your score.'
+        : 'Every jump costs about 23 minutes to get your head fully back in. This is those added up. Not time you literally lost — nobody pays full price every time — just a sense of the size of it. It does not affect your score.',
     },
   ];
 
@@ -235,19 +260,20 @@ function fragmentationMetric(d: DaySummary, baseline?: Baseline): Metric {
     {
       id: 'fragmentation',
       label: 'Fragmentation',
+      plain: 'How much you jumped between things',
       polarity: 'lower-better',
       provenance: 'derived',
       inputs,
       headline: (v) =>
         d.activeMin < 15
-          ? 'Not enough measured time yet to judge fragmentation.'
+          ? 'Not enough time on screen yet to tell.'
           : v < 25
-            ? `Attention stayed whole. ${sessions} sessions, averaging ${fmtMin(meanBout)}.`
+            ? `Calm day. ${sessions} visits, about ${fmtMin(meanBout)} each.`
             : v < 50
-              ? 'Mostly intact — a few more entry points than the day needed.'
+              ? 'Mostly calm — you picked the screen up a few more times than you needed to.'
               : v < 75
-                ? `Broken up. ${d.shortBouts} of ${sessions} sessions lasted under five minutes.`
-                : 'Shredded. Almost no window today survived long enough to be useful.',
+                ? `Jumpy. ${d.shortBouts} of your ${sessions} visits lasted under five minutes.`
+                : 'Very jumpy. Almost nothing today got a clear run.',
     },
     baseline,
     d.date,
@@ -267,58 +293,58 @@ function strainMetric(d: DaySummary, baseline?: Baseline): Metric {
 
   const inputs: MetricInput[] = [
     {
-      label: 'Engaged time',
+      label: 'Time on screen',
       value: fmtMin(d.activeMin),
       score: ramp(d.activeMin, 180, 660),
       weight: 0.26,
       provenance: d.loggedMin > 0 ? 'derived' : 'measured',
       detail:
         d.loggedMin > 0
-          ? `${fmtMin(d.measuredMin)} measured here plus ${fmtMin(d.loggedMin)} you logged by hand. Three hours is treated as an ordinary working load; eleven as the ceiling.`
-          : 'Active minutes with the page visible, focused, and input inside the idle window. Three hours is treated as an ordinary working load; eleven as the ceiling.',
+          ? `${fmtMin(d.measuredMin)} counted here, plus ${fmtMin(d.loggedMin)} you added yourself. Three hours is an ordinary working day; eleven is the top of the scale.`
+          : 'Time you were actually using the screen — looking at it, and touching it. A tab left open while you make lunch does not count. Three hours is an ordinary working day; eleven is the top of the scale.',
     },
     {
-      label: 'Longest continuous stretch',
+      label: 'Longest stretch without a break',
       value: fmtMin(d.longestBoutMin),
       score: ramp(d.longestBoutMin, 45, 180),
       weight: 0.18,
       provenance: 'measured',
-      detail: 'Sustained load without release. The same total time taken in pieces costs less than taken in one run.',
+      detail: 'The same hours taken in pieces cost you less than taken in one go.',
     },
     {
-      label: 'Interaction density',
+      label: 'How busy your hands were',
       value: `${density.toFixed(0)} /min`,
       score: ramp(density, 60, 320),
       weight: 0.14,
       provenance: 'derived',
       detail:
-        'Keystrokes plus weighted clicks per engaged minute. A proxy for how hard the day was being worked, not how long it was.',
+        'Typing and tapping per minute. This is about how hard you were working, not how long for.',
     },
     {
-      label: 'Rapid scrolling',
+      label: 'Fast scrolling',
       value: fmtMin(d.burstMin),
       score: ramp(d.burstMin, 10, 120),
       weight: 0.14,
       provenance: 'measured',
       detail:
-        'Minutes where content moved past faster than it could be read. Cheap to do and surprisingly expensive to sustain.',
+        'Minutes where things went past faster than you could read them. Easy to do, and more tiring than it feels.',
     },
     {
-      label: 'Context switching',
+      label: 'Jumping between things',
       value: d.switchRate > 0 ? `${d.switchRate.toFixed(1)} /h` : '—',
       score: ramp(d.switchRate, 8, 45),
       weight: 0.14,
       provenance: 'measured',
-      detail: 'Switching carries its own load independent of how long the day was.',
+      detail: 'Jumping about tires you out on its own, even on a short day.',
     },
     {
-      label: 'Late-night use',
+      label: 'Time after 11pm',
       value: fmtMin(d.lateNightMin),
       score: ramp(d.lateNightMin, 10, 120),
       weight: 0.14,
       provenance: 'measured',
       detail:
-        'Minutes after 23:00. Load taken here costs more than the same load at midday, because it is taken out of recovery rather than out of the day.',
+        'This costs more than the same time at midday, because it comes out of your sleep rather than out of your day.',
     },
   ];
 
@@ -326,19 +352,20 @@ function strainMetric(d: DaySummary, baseline?: Baseline): Metric {
     {
       id: 'strain',
       label: 'Strain',
+      plain: 'How hard the day was on you',
       polarity: 'lower-better',
       provenance: 'derived',
       inputs,
       headline: (v) =>
         d.activeMin < 15
-          ? 'Barely any load measured today.'
+          ? 'Barely anything today.'
           : v < 25
-            ? `Light load. ${fmtMin(d.activeMin)} engaged, taken in manageable pieces.`
+            ? `An easy day. ${fmtMin(d.activeMin)} on screen, taken in manageable pieces.`
             : v < 50
-              ? `Moderate load — a normal working day at ${fmtMin(d.activeMin)} engaged.`
+              ? `A normal working day — ${fmtMin(d.activeMin)} on screen.`
               : v < 75
-                ? `High load. ${fmtMin(d.activeMin)} engaged, longest run ${fmtMin(d.longestBoutMin)}.`
-                : `Very high load. This is a day that will be felt tomorrow.`,
+                ? `A hard day. ${fmtMin(d.activeMin)} on screen, longest run ${fmtMin(d.longestBoutMin)}.`
+                : 'A very hard day. You will probably feel this one tomorrow.',
     },
     baseline,
     d.date,
@@ -360,47 +387,47 @@ function visualMetric(d: DaySummary, brightnessMeasured: boolean, baseline?: Bas
 
   const inputs: MetricInput[] = [
     {
-      label: 'Longest continuous exposure',
+      label: 'Longest look without a break',
       value: fmtMin(d.longestBoutMin),
       score: ramp(d.longestBoutMin, UNBROKEN_BOUT_MIN, 150),
       weight: 0.28,
       provenance: 'measured',
       detail:
-        'The 20-20-20 guideline — every 20 minutes, 20 seconds at something 20 feet away. Fixed near-focus is what fatigues the ciliary muscle, and blink rate falls by more than half while it lasts.',
+        'The usual advice is: every 20 minutes, look at something far away for 20 seconds. Staring at something close up is what tires eyes — and you blink about half as often while you do it.',
     },
     {
-      label: 'Total exposure',
+      label: 'Screen time altogether',
       value: fmtMin(d.activeMin),
       score: ramp(d.activeMin, 120, 600),
       weight: 0.24,
       provenance: 'derived',
-      detail: 'Cumulative near-focus across the whole day.',
+      detail: 'All of it added up, across the whole day.',
     },
     {
-      label: 'Break rhythm',
+      label: 'Breaks per hour',
       value: d.activeMin > 30 ? `${breaksPerHour.toFixed(1)} /h` : '—',
       score: d.activeMin > 30 ? ramp(breakDeficit, 0.4, 1.5) : undefined,
       weight: d.activeMin > 30 ? 0.18 : undefined,
       provenance: d.activeMin > 30 ? 'measured' : 'unavailable',
-      detail: `Breaks of ${RECOVERY_MIN} minutes or more, per engaged hour, scored against a target of 1.5.`,
+      detail: `Breaks of ${RECOVERY_MIN} minutes or more. About one and a half an hour is the target.`,
     },
     {
-      label: 'Evening brightness exposure',
+      label: 'Evening screen, and how bright',
       value: `${fmtMin(d.nightMin)} at ${d.avgBrightness}%`,
       score: d.nightMin > 20 ? ramp(eveningExposure, 15, 180) : 0,
       weight: 0.16,
       provenance: brightnessMeasured ? 'measured' : 'estimated',
       detail: brightnessMeasured
-        ? 'Evening minutes weighted by real display brightness. A bright screen in a dark room is what makes the iris work hardest.'
-        : 'Evening minutes weighted by the brightness you declared. No browser can read display brightness, so this input is an estimate — it is the reason the whole metric is marked estimated.',
+        ? 'Evening time, weighted by how bright your screen really was. A bright screen in a dark room is the hardest combination for your eyes.'
+        : 'Evening time, weighted by the brightness you told us. No web browser can read your screen brightness, so this part is a guess — which is why the whole score is marked as one.',
     },
     {
-      label: 'Rapid content change',
+      label: 'Fast-moving stuff',
       value: fmtMin(d.burstMin),
       score: ramp(d.burstMin, 10, 100),
       weight: 0.14,
       provenance: 'measured',
-      detail: 'Minutes of fast scrolling. Continuously re-fixating on moving content is more tiring than reading still text.',
+      detail: 'Minutes of fast scrolling. Chasing something that keeps moving is more tiring than reading something that sits still.',
     },
   ];
 
@@ -408,6 +435,7 @@ function visualMetric(d: DaySummary, brightnessMeasured: boolean, baseline?: Bas
     {
       id: 'visual',
       label: 'Visual Load',
+      plain: 'How hard your eyes had to work',
       polarity: 'lower-better',
       // Brightness is the input that decides this: without a real reading the
       // whole metric is an estimate, and says so rather than implying a measurement.
@@ -415,14 +443,14 @@ function visualMetric(d: DaySummary, brightnessMeasured: boolean, baseline?: Bas
       inputs,
       headline: (v) =>
         d.activeMin < 15
-          ? 'Too little screen time today to estimate visual load.'
+          ? 'Not enough screen time today to say.'
           : v < 25
-            ? 'Comfortable. Your break rhythm is doing its job.'
+            ? 'Easy day for your eyes. Your breaks are doing their job.'
             : v < 50
-              ? `Noticeable. Longest continuous stretch was ${fmtMin(d.longestBoutMin)}.`
+              ? `Okay. Your longest look without a break was ${fmtMin(d.longestBoutMin)}.`
               : v < 75
-                ? `Elevated. ${fmtMin(d.longestBoutMin)} unbroken, with ${d.breakCount === 1 ? 'one break' : `${d.breakCount} breaks`} across the day.`
-                : 'Heavy. This is the shape of a day that ends with a headache.',
+                ? `Your eyes worked hard. ${fmtMin(d.longestBoutMin)} without a break, and ${d.breakCount === 1 ? 'only one break' : `only ${d.breakCount} breaks`} all day.`
+                : 'Your eyes worked very hard. This is the shape of a day that ends with a headache.',
     },
     baseline,
     d.date,
@@ -437,47 +465,47 @@ function recoveryMetric(d: DaySummary, fragmentation: number, baseline?: Baselin
 
   const inputs: MetricInput[] = [
     {
-      label: 'Break frequency',
+      label: 'Breaks you took',
       value: d.activeMin > 30 ? `${d.breakCount} breaks · ${breaksPerHour.toFixed(1)}/h` : `${d.breakCount} breaks`,
       score: d.activeMin > 30 ? rampInverse(breaksPerHour, 1.5) : undefined,
       weight: d.activeMin > 30 ? 0.26 : undefined,
       provenance: d.activeMin > 30 ? 'measured' : 'unavailable',
-      detail: `Gaps of ${RECOVERY_MIN} minutes or more between sessions. Shorter pauses are real but are not recovery.`,
+      detail: `Gaps of ${RECOVERY_MIN} minutes or more. Shorter pauses are real, but they do not put anything back.`,
     },
     {
-      label: 'Longest screen-free window',
+      label: 'Longest time away',
       value: fmtMin(d.longestBreakMin),
       score: rampInverse(d.longestBreakMin, 90),
       weight: 0.2,
       provenance: 'measured',
       detail:
-        'The longest continuous gap inside your active day, scored against 90 minutes. Time before your first session and after your last is excluded — that is not a break you took, it is a day you had not started.',
+        'Your biggest gap between visits. An hour and a half is full marks. Time before you started and after you finished does not count — that is not a break you took.',
     },
     {
-      label: 'Evening protection',
+      label: 'Evening left alone',
       value: fmtMin(d.lateNightMin),
       score: 100 - ramp(d.lateNightMin, 10, 120),
       weight: 0.22,
       provenance: 'measured',
       detail:
-        'Minutes after 23:00, inverted. This is the window where light most strongly delays melatonin and pushes the body clock later, so it is the most consequential single input here.',
+        'Time after 11pm — less is better. Light this late pushes your body clock back and makes sleep come later, so this matters more than anything else here.',
     },
     {
-      label: 'Load released',
+      label: 'Did you let up?',
       value: fmtMin(d.longestBoutMin),
       score: 100 - ramp(d.longestBoutMin, 45, 180),
       weight: 0.16,
       provenance: 'measured',
-      detail: 'Longest unbroken stretch, inverted. A day with no release does not recover regardless of its total.',
+      detail: 'Your longest stretch, flipped round — shorter is better here. A day that never lets up never recovers, however short it was.',
     },
     {
-      label: 'Attention cost',
+      label: 'How jumpy the day was',
       value: String(Math.round(fragmentation)),
       score: 100 - fragmentation,
       weight: 0.16,
       provenance: 'derived',
       detail:
-        'Fragmentation, inverted. A shredded day leaves you more tired than a long one, which is why it belongs in recovery rather than only in strain.',
+        'Your Fragmentation score, flipped. A chopped-up day leaves you more tired than a long calm one — which is why it counts against your rest, not just your effort.',
     },
   ];
 
@@ -485,6 +513,7 @@ function recoveryMetric(d: DaySummary, fragmentation: number, baseline?: Baselin
     {
       id: 'recovery',
       label: 'Recovery',
+      plain: 'How much rest you actually got',
       polarity: 'higher-better',
       provenance: 'derived',
       inputs,
@@ -492,12 +521,12 @@ function recoveryMetric(d: DaySummary, fragmentation: number, baseline?: Baselin
         d.activeMin < 15
           ? 'A day almost entirely off screens. Nothing to recover from.'
           : v >= 75
-            ? `Restored. ${d.breakCount === 1 ? 'One meaningful break' : `${d.breakCount} meaningful breaks`} and a protected evening.`
+            ? `Well rested. ${d.breakCount === 1 ? 'One proper break' : `${d.breakCount} proper breaks`}, and you left the evening alone.`
             : v >= 55
-              ? 'Adequate. Enough release to hold, without much margin.'
+              ? 'Enough rest to get by, without much to spare.'
               : v >= 35
-                ? `Thin. ${d.breakCount === 0 ? 'No break reached ten minutes.' : `Only ${d.breakCount} real breaks across ${fmtMin(d.activeMin)}.`}`
-                : 'Depleted. Long load, few breaks, and the evening was not protected.',
+                ? `Not much rest. ${d.breakCount === 0 ? 'No break reached ten minutes.' : `Only ${d.breakCount} real breaks in ${fmtMin(d.activeMin)}.`}`
+                : 'Worn out. A long day, few breaks, and the evening went on the screen too.',
     },
     baseline,
     d.date,
@@ -526,19 +555,20 @@ function intentionalityMetric(d: DaySummary, baseline?: Baseline): Metric {
     return {
       id: 'intentionality',
       label: 'Intentionality',
+      plain: 'Did the day go the way you wanted',
       value: 0,
       polarity: 'higher-better',
       band: 'watch',
-      bandLabel: 'Not set',
+      bandLabel: 'Nothing planned',
       provenance: 'unavailable',
-      headline: 'Set an intention for the day and this becomes measurable.',
+      headline: 'Tell us what you want from a day and we can check how it went.',
       inputs: [
         {
-          label: 'Intentions set',
-          value: 'None',
+          label: 'What you planned',
+          value: 'Nothing yet',
           provenance: 'unavailable',
           detail:
-            'Intentionality compares what you planned against what the day actually contained. With nothing planned there is nothing to compare, so no score is shown — rather than a zero, which would imply you failed at something you never attempted.',
+            'This compares what you meant to do with what actually happened. With no plan there is nothing to compare — so you get no score rather than a zero, because you did not fail at anything.',
         },
       ],
     };
@@ -585,15 +615,15 @@ function intentionalityMetric(d: DaySummary, baseline?: Baseline): Metric {
       score: clamp((delivered / target) * 100, 0, 100),
       weight: target / plannedTotal,
       provenance: 'estimated',
-      detail: `Planned ${fmtMin(target)}. Matched against ${
+      detail: `You planned ${fmtMin(target)}. We match that against ${
         deepCats.includes(cat)
-          ? 'measured focus minutes'
+          ? 'your long focused blocks'
           : cat === 'recovery'
-            ? 'measured screen-free windows'
+            ? 'your time away from the screen'
             : cat === 'communication'
-              ? 'measured shallow-session minutes'
-              : 'measured rapid-scroll minutes'
-      }, plus anything you logged by hand in this category.`,
+              ? 'your shorter bits of screen time'
+              : 'your fast-scrolling time'
+      }, plus anything you added yourself.`,
     };
   });
 
@@ -607,20 +637,20 @@ function intentionalityMetric(d: DaySummary, baseline?: Baseline): Metric {
 
   const inputs: MetricInput[] = [
     {
-      label: 'Plan met',
+      label: 'Plan you kept',
       value: `${fmtMin(met)} of ${fmtMin(plannedTotal)}`,
       score: adherence,
       weight: 0.75,
       provenance: 'estimated',
-      detail: 'How much of what you planned the day actually contained. Over-delivery is capped at the plan, so a runaway day cannot buy back a missed one.',
+      detail: 'How much of what you planned actually happened. Doing extra of one thing does not make up for missing another.',
     },
     {
-      label: 'Unplanned drift',
+      label: 'Time that went elsewhere',
       value: fmtMin(unplannedScroll),
       score: 100 - clamp(driftShare * 2.2, 0, 100),
       weight: 0.25,
       provenance: 'estimated',
-      detail: 'Rapid-scroll minutes beyond anything you planned for. Meeting the plan matters less if the rest of the day went somewhere you did not choose.',
+      detail: 'Fast scrolling beyond anything you planned for. Keeping the plan counts for less if the rest of the day went somewhere you did not choose.',
     },
     ...perCategory.map((i) => ({ ...i, score: undefined, weight: undefined })),
   ];
@@ -629,17 +659,18 @@ function intentionalityMetric(d: DaySummary, baseline?: Baseline): Metric {
     {
       id: 'intentionality',
       label: 'Intentionality',
+      plain: 'Did the day go the way you wanted',
       polarity: 'higher-better',
       provenance: 'estimated',
       inputs,
       headline: (v) =>
         v >= 75
-          ? `On plan. You intended ${fmtMin(plannedTotal)} and the day delivered ${fmtMin(met)} of it.`
+          ? `It went to plan. You wanted ${fmtMin(plannedTotal)} and got ${fmtMin(met)} of it.`
           : v >= 55
-            ? `Close. ${fmtMin(met)} of your ${fmtMin(plannedTotal)} plan landed.`
+            ? `Close. ${fmtMin(met)} of your ${fmtMin(plannedTotal)} plan happened.`
             : v >= 35
-              ? `Drifting. ${fmtMin(unplannedScroll)} went somewhere you had not planned for.`
-              : 'Off plan. What you intended and what happened were largely different days.',
+              ? `Drifted. ${fmtMin(unplannedScroll)} went somewhere you had not planned.`
+              : 'Off plan. What you wanted and what happened were two different days.',
     },
     baseline,
     d.date,
@@ -672,7 +703,7 @@ function fitnessMetric(
       score: parts.focus.value,
       weight: 0.24,
       provenance: 'derived',
-      detail: 'Attention held, weighted highest because it is the thing the rest is in service of.',
+      detail: 'How well you stayed with things. It counts for the most, because it is what all the rest is for.',
     },
     {
       label: 'Recovery',
@@ -680,42 +711,42 @@ function fitnessMetric(
       score: parts.recovery.value,
       weight: 0.22,
       provenance: 'derived',
-      detail: 'Capacity restored. Load without recovery is not fitness, it is accumulation.',
+      detail: 'How much rest you got. A hard day with no rest is not fitness, it just piles up.',
     },
     {
-      label: 'Attention intact',
-      value: String(parts.fragmentation.value),
+      label: 'Stayed on track',
+      value: String(100 - parts.fragmentation.value),
       score: 100 - parts.fragmentation.value,
       weight: 0.2,
       provenance: 'derived',
-      detail: 'Fragmentation, inverted.',
+      detail: 'Your Fragmentation score, flipped round — so a calm day scores high here.',
     },
     {
-      label: 'Load balance',
-      value: `strain ${parts.strain.value} vs recovery ${parts.recovery.value}`,
+      label: 'Hard day, handled well',
+      value: `${parts.strain.value} hard vs ${parts.recovery.value} rested`,
       score: balance,
       weight: 0.12,
       provenance: 'derived',
       detail:
-        'Only the amount by which strain exceeded recovery counts against you. A heavy day you recovered from costs nothing here — which is the whole reason this product does not simply reward using devices less.',
+        'Only the bit where the day was harder than your rest counts against you. A hard day you rested from costs you nothing here — which is exactly why this app does not just reward using your phone less.',
     },
     {
-      label: 'Visual comfort',
-      value: String(parts.visual.value),
+      label: 'Easy on the eyes',
+      value: String(100 - parts.visual.value),
       score: 100 - parts.visual.value,
       weight: 0.12,
       provenance: 'estimated',
-      detail: 'Visual Load, inverted. Weighted modestly because it rests on declared brightness.',
+      detail: 'Your Visual Load score, flipped. It counts for less because part of it rests on a brightness you told us rather than one we measured.',
     },
     {
       label: 'Intentionality',
-      value: intentionalityAvailable ? String(parts.intentionality.value) : 'Not set',
+      value: intentionalityAvailable ? String(parts.intentionality.value) : 'Nothing planned',
       score: intentionalityAvailable ? parts.intentionality.value : undefined,
       weight: intentionalityAvailable ? 0.1 : undefined,
       provenance: intentionalityAvailable ? 'estimated' : 'unavailable',
       detail: intentionalityAvailable
-        ? 'How closely the day matched your plan.'
-        : 'No intentions set today, so this term is dropped and its weight is spread across the others rather than scored as a zero.',
+        ? 'How closely the day matched what you wanted from it.'
+        : 'You did not plan anything today, so this is left out altogether and its share is spread over the others — rather than scored as a zero you did not earn.',
     },
   ];
 
@@ -723,19 +754,20 @@ function fitnessMetric(
     {
       id: 'fitness',
       label: 'Digital Fitness',
+      plain: 'How well you handled your screen time',
       polarity: 'higher-better',
       provenance: 'derived',
       inputs,
       headline: (v) =>
         d.activeMin < 15
-          ? 'Barely any measured activity today — not enough to score.'
+          ? 'Barely any screen time today — not enough to score.'
           : v >= 75
-            ? 'A strong day. Load carried well and recovered from.'
+            ? 'A great day. You took it on, and you rested from it.'
             : v >= 55
-              ? `Solid. ${[parts.focus, parts.recovery, parts.fragmentation].sort((a, b) => (a.polarity === 'higher-better' ? a.value : 100 - a.value) - (b.polarity === 'higher-better' ? b.value : 100 - b.value))[0].label} is carrying the least weight.`
+              ? `A good day. ${[parts.focus, parts.recovery, parts.fragmentation].sort((a, b) => (a.polarity === 'higher-better' ? a.value : 100 - a.value) - (b.polarity === 'higher-better' ? b.value : 100 - b.value))[0].label} is the weakest part of it.`
               : v >= 35
-                ? 'Building. The pieces are there but the day did not hold together.'
-                : 'Low. Long load, thin recovery, fragmented attention.',
+                ? 'An okay day. The pieces were there but it did not quite hold together.'
+                : 'A rough day. Long hours, little rest, attention all over the place.',
     },
     baseline,
     d.date,

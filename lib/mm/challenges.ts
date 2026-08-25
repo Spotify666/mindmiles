@@ -12,7 +12,11 @@ import type {
 /**
  * CHALLENGES.
  *
- * Two rules govern every challenge here.
+ * Three rules govern every challenge here.
+ *
+ * They are written the way you would say them out loud. "Do a fifth less fast
+ * scrolling" rather than "reduce rapid-scroll minutes by 20% against baseline".
+ * Somebody deciding whether to start one should not have to decode it first.
  *
  * None of them are about using devices less. "Reclaim three hours" is measured
  * against the user's own baseline, so a person with a nine-hour working day can
@@ -29,24 +33,24 @@ export const CHALLENGES: ChallengeDef[] = [
   {
     id: 'seven-day-reclaim',
     name: '7-Day Reclaim',
-    premise: 'Win back three hours against your own normal week.',
-    criterion: 'Accumulate 180 minutes of reclaimed time over seven days, measured against your personal baseline.',
+    premise: 'Win back three hours on a normal week for you.',
+    criterion: 'Save up three hours over seven days, compared with how you normally spend them.',
     days: 7,
     accent: 'record',
   },
   {
     id: 'deep-work-5',
     name: 'Deep Work 5',
-    premise: 'Five real blocks. Sixty minutes each, uninterrupted.',
-    criterion: 'Complete five separate sessions of 60 minutes or more with no break inside them.',
+    premise: 'Five proper blocks. An hour each, nothing breaking them up.',
+    criterion: 'Do five separate hour-long stretches with no interruptions inside them.',
     days: 14,
     accent: 'focus',
   },
   {
     id: 'scroll-down',
     name: 'Scroll Down',
-    premise: 'Cut rapid scrolling by a fifth.',
-    criterion: 'Average 20% fewer rapid-scroll minutes per day than your baseline, across seven days.',
+    premise: 'Do a fifth less fast scrolling.',
+    criterion: 'Over seven days, average 20% less fast scrolling per day than you normally do.',
     days: 7,
     accent: 'scatter',
   },
@@ -54,31 +58,31 @@ export const CHALLENGES: ChallengeDef[] = [
     id: 'digital-sunrise',
     name: 'Digital Sunrise',
     premise: 'Give the first half hour of the day to something else.',
-    criterion: 'Five days with under 5 engaged minutes in the first hour after your wake time.',
+    criterion: 'Five days where you barely touch a screen in the first hour after getting up.',
     days: 7,
     accent: 'recovery',
   },
   {
     id: 'digital-sunset',
     name: 'Digital Sunset',
-    premise: 'End the day before your screens do.',
-    criterion: 'Five days with no engaged time after your curfew hour.',
+    premise: 'Stop before your screens do.',
+    criterion: 'Five days with no screen time after the hour you set as your cut-off.',
     days: 7,
     accent: 'recovery',
   },
   {
     id: 'fragmentation-breaker',
     name: 'Fragmentation Breaker',
-    premise: 'Switch context 15% less than you normally do.',
-    criterion: 'Average 15% fewer context switches per engaged hour than your baseline, across seven days.',
+    premise: 'Jump between things 15% less than you normally do.',
+    criterion: 'Over seven days, jump away 15% less per hour than you normally do.',
     days: 7,
     accent: 'focus',
   },
   {
     id: 'recovery-week',
     name: 'Recovery Week',
-    premise: 'Seven days, three real breaks each.',
-    criterion: 'Seven consecutive measured days with at least three breaks of ten minutes or more.',
+    premise: 'Seven days, three proper breaks each.',
+    criterion: 'Seven days in a row with at least three breaks of ten minutes or more.',
     days: 7,
     accent: 'recovery',
   },
@@ -104,8 +108,8 @@ const EVALUATORS: Record<string, Evaluator> = {
     progress: Math.min(1, reclaimedMinutes / 180),
     detail:
       reclaimedMinutes > 0
-        ? `${fmtMin(reclaimedMinutes)} reclaimed of 3h`
-        : 'No time reclaimed against baseline yet',
+        ? `${fmtMin(reclaimedMinutes)} saved of 3h`
+        : 'Nothing saved against your usual yet',
   }),
 
   'deep-work-5': ({ window }) => {
@@ -123,11 +127,11 @@ const EVALUATORS: Record<string, Evaluator> = {
 
   'scroll-down': ({ window, baseline }) => {
     const measured = window.filter((r) => r.summary.activeMin >= 15);
-    if (measured.length === 0) return { progress: 0, detail: 'No measured days yet' };
+    if (measured.length === 0) return { progress: 0, detail: 'No days measured yet' };
     const avg = measured.reduce((s, r) => s + r.summary.burstMin, 0) / measured.length;
     const normal = baseline.normal('burstMin', measured[measured.length - 1].date);
     if (!normal || normal.value < 3) {
-      return { progress: 0, detail: 'Needs more baseline history to compare' };
+      return { progress: 0, detail: 'Needs a few more days before we can compare' };
     }
     const target = normal.value * 0.8;
     // Progress is how far the gap has been closed, floored at zero — being
@@ -135,13 +139,13 @@ const EVALUATORS: Record<string, Evaluator> = {
     const progress = Math.min(1, Math.max(0, (normal.value - avg) / Math.max(normal.value - target, 0.001)));
     return {
       progress,
-      detail: `${fmtMin(avg)}/day vs ${fmtMin(normal.value)} baseline · target ${fmtMin(target)}`,
+      detail: `${fmtMin(avg)} a day · you usually do ${fmtMin(normal.value)} · aiming for ${fmtMin(target)}`,
     };
   },
 
   'digital-sunrise': ({ window }) => {
     const clean = window.filter((r) => !r.summary.partial && r.summary.sunriseMin < 5).length;
-    return { progress: Math.min(1, clean / 5), detail: `${clean} of 5 protected mornings` };
+    return { progress: Math.min(1, clean / 5), detail: `${clean} of 5 clear mornings` };
   },
 
   'digital-sunset': ({ window, profile }) => {
@@ -164,13 +168,13 @@ const EVALUATORS: Record<string, Evaluator> = {
     const progress = Math.min(1, Math.max(0, (normal.value - avg) / Math.max(normal.value - target, 0.001)));
     return {
       progress,
-      detail: `${avg.toFixed(1)}/h vs ${normal.value.toFixed(1)} baseline · target ${target.toFixed(1)}`,
+      detail: `${avg.toFixed(1)} an hour · you usually do ${normal.value.toFixed(1)} · aiming for ${target.toFixed(1)}`,
     };
   },
 
   'recovery-week': ({ window }) => {
     const good = window.filter((r) => !r.summary.partial && r.summary.breakCount >= 3).length;
-    return { progress: Math.min(1, good / 7), detail: `${good} of 7 days with 3+ breaks` };
+    return { progress: Math.min(1, good / 7), detail: `${good} of 7 days with 3 or more breaks` };
   },
 };
 
@@ -229,7 +233,7 @@ export function evaluateChallenges(
         status === 'complete'
           ? 'Complete'
           : status === 'expired'
-            ? `Window closed at ${Math.round(progress * 100)}%`
+            ? `Time ran out at ${Math.round(progress * 100)}%`
             : detail,
       daysLeft: enrollment ? daysLeft : undefined,
       startedOn: enrollment?.startedOn,

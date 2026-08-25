@@ -123,7 +123,7 @@ export default function SharePage() {
         return;
       }
       await navigator.clipboard.writeText(summaryText);
-      setStatus('Summary copied to your clipboard.');
+      setStatus('Copied — paste it anywhere.');
     } catch {
       setStatus('Sharing was cancelled.');
     }
@@ -152,7 +152,7 @@ export default function SharePage() {
       a.download = `mind-miles-week.png`;
       a.click();
       URL.revokeObjectURL(url);
-      setStatus('Saved as an image.');
+      setStatus('Saved to your device.');
     }, 'image/png');
   }
 
@@ -163,8 +163,8 @@ export default function SharePage() {
       <div>
         <h1 className="text-[22px] font-[620] tracking-tightest">Share card</h1>
         <p className="mt-1.5 text-[13px] leading-relaxed text-chalk-45">
-          Achievements only. No timeline, no app names, no total screen time — and every line below
-          is switchable in your profile.
+          Only the good bits. No timeline, no app names, no “hours on your phone” — and you can
+          switch any line off in your profile.
         </p>
       </div>
 
@@ -189,8 +189,8 @@ export default function SharePage() {
           {lines.length === 0 ? (
             <p className="mt-6 text-[14px] leading-relaxed text-chalk-45">
               {hasBaseline
-                ? 'Nothing to show for this week yet — the card fills in as the week is measured.'
-                : 'Your baseline is still building. Comparisons appear once there are enough measured days to have a normal.'}
+                ? 'Nothing to show for this week yet. The card fills in as the week goes on.'
+                : 'We are still learning what a normal week looks like for you. Comparisons show up in a few days.'}
             </p>
           ) : (
             <ul className="mt-6 space-y-3.5">
@@ -212,7 +212,7 @@ export default function SharePage() {
                 style={{ background: 'rgba(245,196,81,0.12)' }}
               >
                 <p className="label" style={{ color: ACCENT_HEX.record }}>
-                  New personal best
+                  Your best yet
                 </p>
                 <p className="mt-1 text-[15px] font-[560]">
                   {newRecords[0].label} · {newRecords[0].display}
@@ -245,16 +245,16 @@ export default function SharePage() {
           onClick={downloadPng}
           className="rounded-pill border border-hair px-4 py-2.5 text-[14px] text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
         >
-          Save as image
+          Save as picture
         </button>
       </div>
 
       {status && <p className="text-[12.5px] text-chalk-45">{status}</p>}
 
       <p className="text-[11.5px] leading-relaxed text-chalk-30">
-        The card is drawn on your device and nothing is uploaded to produce it.{' '}
+        The card is made here on your device. Nothing is uploaded to create it.{' '}
         <Link href="/profile" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
-          Change what it includes
+          Change what it shows
         </Link>
         .
       </p>

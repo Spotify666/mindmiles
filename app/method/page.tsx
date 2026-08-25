@@ -3,123 +3,124 @@ import Link from 'next/link';
 import { PROVENANCE_LABEL, PROVENANCE_NOTE, type Provenance } from '@/lib/mm/types';
 
 export const metadata: Metadata = {
-  title: 'Method',
-  description:
-    'Every signal Mind Miles measures, every one it cannot, and the threshold behind each score.',
+  title: 'How it works',
+  description: 'What Mind Miles counts, what it cannot, and the numbers behind every score.',
 };
 
 /**
- * THE METHOD PAGE.
+ * HOW IT WORKS.
  *
- * The product's central claim is that its numbers can be taken apart. This page
- * is where that claim is settled — every threshold used anywhere in lib/mm is
- * listed here, in the same words the code uses, including the ones that make
- * the product look worse.
+ * The product's central claim is that its numbers can be taken apart, and this
+ * page is where that gets settled. Every threshold used anywhere in lib/mm is
+ * listed, including the ones that make the product look less clever.
+ *
+ * Written for someone who has never read a methodology page and does not want
+ * to start now: short lines, no jargon, and the honest answer first.
  */
 
 const SIGNALS: { name: string; provenance: Provenance; note: string }[] = [
   {
-    name: 'Engaged time',
+    name: 'Time on screen',
     provenance: 'measured',
-    note: 'The page visible, the window focused, and input inside the last 60 seconds. A tab left open while you make lunch is not screen time and is not counted.',
+    note: 'The page has to be open, in front of you, and you have to have touched something in the last minute. A tab left open while you make lunch does not count.',
   },
   {
-    name: 'Keystroke count',
+    name: 'Key presses',
     provenance: 'measured',
-    note: 'The number of keydown events. The key value is never read. There is no code path in this app that touches it, and the export contains counts only — you can check.',
+    note: 'We count how many times you press a key. We never look at which key. Not once, anywhere in the app — and your download proves it, because it only contains numbers.',
   },
   {
-    name: 'Clicks and taps',
+    name: 'Taps and clicks',
     provenance: 'measured',
-    note: 'Pointer-down count. Not position, not target, not what was clicked.',
+    note: 'How many. Not where, and not what you tapped.',
   },
   {
-    name: 'Scroll distance and velocity',
+    name: 'Scrolling',
     provenance: 'measured',
-    note: 'Pixels moved, and how fast. Velocity is what separates reading from feed-flicking, and it is the only thing that distinguishes them here — never the site.',
+    note: 'How far the page moved, and how fast. Speed is the only thing that tells reading apart from flicking — never the website you were on.',
   },
   {
-    name: 'Context switches',
+    name: 'Jumping away and back',
     provenance: 'measured',
-    note: 'Every time focus or visibility left this tab and came back, plus in-app navigation.',
+    note: 'Every time you left this page and came back.',
   },
   {
-    name: 'Scroll distance in metres',
+    name: 'How far you scrolled, in metres',
     provenance: 'estimated',
-    note: 'A CSS pixel is defined as 1/96 inch, so the arithmetic is exact against the spec — but the spec’s inch is a reference angle and your device’s pixel ratio moves the real figure. It is reported in metres and never inflated to kilometres.',
+    note: 'Worked out from how far the page moved. Screens differ, so the real figure wobbles. We show it in metres and never puff it up into kilometres.',
   },
   {
     name: 'Screen brightness',
     provenance: 'estimated',
-    note: 'No browser can read display brightness on any platform, and a PWA on your home screen is still a browser. The value you set is used and labelled as declared. If an ambient light sensor is available it is used instead and labelled as measured.',
+    note: 'No web browser can read your screen brightness — on any phone or laptop, ever. So we use the number you set. If your device has a light sensor we use that instead, and say so.',
   },
   {
-    name: 'Which app or website',
+    name: 'Which app or website you used',
     provenance: 'unavailable',
-    note: 'A page cannot see other tabs, other applications or other devices. Mind Miles does not guess, and it does not ask for a permission that would let it. Time elsewhere is logged by hand.',
+    note: 'A web page cannot see your other tabs, your other apps or your other devices. We do not guess, and we do not ask for permission to look. You can add that time by hand instead.',
   },
   {
-    name: 'Operating-system screen time',
+    name: 'Your phone’s own screen time',
     provenance: 'unavailable',
-    note: 'Out of reach of any web page. It would need a native companion app, which this is not.',
+    note: 'Out of reach of any website. It would need an app installed on your phone, and this is not one.',
   },
   {
     name: 'Notifications',
     provenance: 'unavailable',
-    note: 'A page cannot count notifications it did not send. No metric here uses a notification count, which is why fragmentation is built from switches instead.',
+    note: 'A web page cannot count notifications it did not send. No score here uses them — which is why we count your jumps instead.',
   },
 ];
 
 const THRESHOLDS: { rule: string; value: string; why: string }[] = [
   {
-    rule: 'One Mind Mile',
-    value: '20 engaged minutes',
-    why: 'The interval in the 20-20-20 break guideline, and roughly the shortest stretch in which attention research finds people reaching depth. It also puts a normal day between about 5 and 25 miles, which is a range a person can hold in their head.',
+    rule: 'One Mind Mile is',
+    value: '20 minutes on screen',
+    why: 'Twenty minutes is how often eye doctors suggest looking away, and about the shortest stretch in which people get properly stuck into something. It also puts a normal day between about 5 and 25 miles, which is a range you can hold in your head.',
   },
   {
-    rule: 'A minute counts as engaged',
-    value: '20 seconds of activity',
-    why: 'Below a third of a minute the minute was a glance, not use.',
+    rule: 'A minute counts when you used',
+    value: '20 seconds of it',
+    why: 'Less than that and you glanced at your phone rather than used it.',
   },
   {
-    rule: 'A session ends',
-    value: 'after a 5-minute gap',
-    why: 'Shorter gaps are pauses inside a session — standing up, answering a question — not the end of one.',
+    rule: 'A visit ends after',
+    value: 'a 5-minute gap',
+    why: 'Shorter gaps are pauses — standing up, answering someone — not the end of what you were doing.',
   },
   {
-    rule: 'A stretch becomes deep',
+    rule: 'A block counts as long at',
     value: '25 minutes',
-    why: 'Returning to full concentration after an interruption takes around 23 minutes in the classic attention research, so a shorter block rarely contains much depth once the ramp-up is paid for.',
+    why: 'It takes about 23 minutes to get your head fully back into something after an interruption. A shorter block is mostly spent getting started.',
   },
   {
-    rule: 'A session counts as a check',
-    value: 'under 5 minutes',
-    why: 'The signature of compulsive checking rather than use. Fragmentation weighs the share of these heavily.',
+    rule: 'A visit counts as a quick check under',
+    value: '5 minutes',
+    why: 'Too short to have been doing anything. This is what turns hours into nothing much.',
   },
   {
-    rule: 'A gap counts as recovery',
+    rule: 'A break counts at',
     value: '10 minutes',
-    why: 'Shorter pauses are real but do not restore anything measurable. Only gaps between sessions count — time before your first session is not a break you took.',
+    why: 'Shorter pauses are real, but they do not put anything back. Only gaps between visits count — time before you started is not a break you took.',
   },
   {
-    rule: 'Scrolling counts as rapid',
-    value: '1,400 px/second',
-    why: 'Above this, content is moving past faster than it can be read. This is the single threshold that separates a Scroll Mile from a Focus Mile.',
+    rule: 'Scrolling counts as fast at',
+    value: '1,400 pixels a second',
+    why: 'Above that, things are going past faster than you could read them. This one line is what separates a Scroll Mile from a Focus Mile.',
   },
   {
-    rule: 'Evening starts',
-    value: '21:00 · late night 23:00',
-    why: 'Evening light shifts sleep onset even when total sleep is unchanged, and the effect is strongest after 23:00. Light dose weights minutes by how late they fall for the same reason.',
+    rule: 'Evening starts at',
+    value: '9pm · late night 11pm',
+    why: 'Screen light in the evening makes sleep come later even if you sleep just as long, and the effect is strongest after 11pm.',
   },
   {
-    rule: 'A baseline needs',
-    value: '4 comparable days · 28-day window',
-    why: 'Below four days there is no honest normal, and the UI says "baseline building" rather than showing a comparison. Baselines are medians, so one fourteen-hour travel day does not redefine your ordinary Tuesday.',
+    rule: 'Before we can say “usual” we need',
+    value: '4 similar days',
+    why: 'Fewer than four and there is no honest normal, so we say we are still learning instead. We use the middle day rather than the average, so one wild Tuesday does not redefine your ordinary ones. We look back four weeks.',
   },
   {
-    rule: 'History is kept for',
+    rule: 'We keep your history for',
     value: '90 days',
-    why: 'Long enough for a monthly baseline and a real trend, short enough that the store cannot grow without bound on a device nobody clears.',
+    why: 'Long enough to see a real change, short enough that it cannot pile up forever on a device nobody clears.',
   },
 ];
 
@@ -127,16 +128,16 @@ export default function MethodPage() {
   return (
     <div className="mx-auto flex max-w-[680px] flex-col gap-8 pb-6">
       <header>
-        <h1 className="text-[26px] font-[620] tracking-tightest">Method</h1>
+        <h1 className="text-[26px] font-[620] tracking-tightest">How it works</h1>
         <p className="mt-2.5 text-[14.5px] leading-relaxed text-chalk-70">
-          Every score in Mind Miles can be taken apart, and this is where it is taken apart. Below is
-          each signal the app measures, each one it cannot, and every threshold used anywhere in the
-          scoring — including the ones that make the product look less impressive than it could.
+          Every score in this app can be taken apart, and this is where it gets taken apart. Here is
+          what we can count, what we honestly cannot, and every number behind the scores — including
+          the ones that make us look less clever than we would like.
         </p>
       </header>
 
       <section>
-        <h2 className="text-[18px] font-[620] tracking-tightest">What the four labels mean</h2>
+        <h2 className="text-[18px] font-[620] tracking-tightest">Four labels you will see</h2>
         <ul className="mt-3.5 space-y-2.5">
           {(['measured', 'derived', 'estimated', 'unavailable'] as Provenance[]).map((p) => (
             <li key={p} className="rounded-[14px] border border-hair p-3.5">
@@ -148,7 +149,7 @@ export default function MethodPage() {
       </section>
 
       <section>
-        <h2 className="text-[18px] font-[620] tracking-tightest">Every signal</h2>
+        <h2 className="text-[18px] font-[620] tracking-tightest">What we can and cannot see</h2>
         <ul className="mt-3.5 space-y-2.5">
           {SIGNALS.map((s) => (
             <li key={s.name} className="rounded-[14px] border border-hair p-3.5">
@@ -175,11 +176,10 @@ export default function MethodPage() {
       </section>
 
       <section>
-        <h2 className="text-[18px] font-[620] tracking-tightest">Every threshold</h2>
+        <h2 className="text-[18px] font-[620] tracking-tightest">Every number we use</h2>
         <p className="mt-2 text-[13px] leading-relaxed text-chalk-45">
-          These are the constants the scoring actually uses. They are in one file,{' '}
-          <code className="rounded bg-surface-inset px-1.5 py-0.5 text-[12px]">lib/mm/aggregate.ts</code>
-          , with the reasoning attached to each.
+          These are the actual cut-offs behind the scores. They all live in one file, with the reason
+          for each written next to it.
         </p>
         <ul className="mt-3.5 space-y-2.5">
           {THRESHOLDS.map((t) => (
@@ -198,37 +198,35 @@ export default function MethodPage() {
         <h2 className="text-[18px] font-[620] tracking-tightest">What this is not</h2>
         <div className="mt-3 space-y-3 text-[13px] leading-relaxed text-chalk-45">
           <p>
-            <span className="text-chalk">Not a medical instrument.</span> Visual Load estimates how
+            <span className="text-chalk">It is not a doctor.</span> Visual Load is a guess at how
             hard a day asked your eyes to work. It is not a statement about your eyes, and nothing
-            here diagnoses eye strain, sleep disorder or an attention problem. The scores are
-            transparent heuristics over published ergonomic and sleep guidance — a mirror for your
-            own trend.
+            here diagnoses eye strain, sleep problems or anything else. The scores are simple rules
+            built on well-known advice — a mirror, not a medical test.
           </p>
           <p>
-            <span className="text-chalk">Not calibrated against a population.</span> There are no
-            population averages anywhere in this product. Every comparison is against your own
-            history, partly because the alternative would require sending your behaviour somewhere,
-            and mostly because a developer&rsquo;s Tuesday and a nurse&rsquo;s Tuesday have no business being
-            scored on the same curve.
+            <span className="text-chalk">It never compares you to other people.</span> There are no
+            averages from anyone else in this app. Everything is measured against your own past —
+            partly because comparing would mean sending your habits somewhere, and mostly because a
+            builder&rsquo;s Tuesday and a nurse&rsquo;s Tuesday are not the same thing.
           </p>
           <p>
-            <span className="text-chalk">Not a complete picture.</span> This measures one browser on
-            one device. Anything outside it is either logged by hand or absent, and the app says
-            which. A low number here can mean a calm day or a day spent on a different machine, and
-            it will not pretend to know the difference.
+            <span className="text-chalk">It does not see everything.</span> This measures one browser
+            on one device. Anything else is added by you or marked as something we cannot see. A low
+            number might mean a calm day, or a day spent on a different machine — and we will not
+            pretend to know which.
           </p>
           <p>
-            <span className="text-chalk">Not sample-free on first run.</span> A new install seeds 30
-            days of generated history so the charts are readable on day one. It is labelled as sample
-            data and can be cleared in one tap from your profile; real measurement accumulates
-            alongside it from the moment the app is opened.
+            <span className="text-chalk">Day one is made up.</span> A brand new install comes with 30
+            days of example data so the charts make sense straight away. It says so wherever it
+            appears, and you can wipe it in one tap from your profile. Your real days start counting
+            the moment you open the app.
           </p>
         </div>
       </section>
 
       <p className="text-[12.5px] text-chalk-30">
         <Link href="/privacy" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
-          What Mind Miles knows about you
+          What we know about you
         </Link>
       </p>
     </div>

@@ -42,7 +42,7 @@ export function BrightnessControl({
   return (
     <section className="card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="label text-chalk-30">Screen brightness</p>
+        <p className="label text-chalk-30">How bright is your screen?</p>
         <span
           className={`label rounded-pill px-2 py-0.5 ${
             source === 'declared'
@@ -93,13 +93,13 @@ export function IntentionsControl({
   return (
     <section className="card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="label text-chalk-30">Today&rsquo;s intentions</p>
+        <p className="label text-chalk-30">What do you want from today?</p>
         <span className="text-[12.5px] text-chalk-45">{total > 0 ? fmtMin(total) : 'none set'}</span>
       </div>
 
       <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">
-        What you meant this day to contain. Intentionality compares this against what was measured —
-        with nothing set, it stays unscored rather than showing a zero.
+        Set roughly how you want to spend today. We compare it with what actually happens. Leave it
+        blank and we simply do not score it.
       </p>
 
       <ul className="mt-3.5 space-y-1.5">
@@ -162,11 +162,11 @@ export function ManualLog({ onAdd }: { onAdd: () => void }) {
 
   return (
     <section className="card p-4">
-      <p className="label text-chalk-30">Log time elsewhere</p>
+      <p className="label text-chalk-30">Add time from somewhere else</p>
       <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">
-        A browser cannot see other apps, other devices or your phone, and this product will not
-        pretend otherwise. Time spent there is entered by hand and kept visibly separate from what
-        was measured.
+        This app cannot see your other apps, your other devices or your phone — and it will not
+        pretend to. If you want that time counted, add it here. We always keep it separate from what
+        we measured ourselves.
       </p>
 
       <form
@@ -222,15 +222,15 @@ export function ManualLog({ onAdd }: { onAdd: () => void }) {
             </select>
           </label>
           <label className="block">
-            <span className="label text-chalk-30">Intensity</span>
+            <span className="label text-chalk-30">How busy?</span>
             <select
               value={intensity}
               onChange={(e) => setIntensity(e.target.value as typeof intensity)}
               className="mt-1 w-full rounded-[12px] border border-hair bg-surface-inset px-3 py-2 text-[14px] focus:border-focus focus:outline-none"
             >
-              <option value="passive">Passive</option>
-              <option value="moderate">Moderate</option>
-              <option value="heavy">Heavy</option>
+              <option value="passive">Just watching</option>
+              <option value="moderate">A bit of both</option>
+              <option value="heavy">Hands on</option>
             </select>
           </label>
           <label className="block">
@@ -251,7 +251,7 @@ export function ManualLog({ onAdd }: { onAdd: () => void }) {
           type="submit"
           className="w-full rounded-pill bg-focus px-4 py-2.5 text-[14px] font-[560] text-void transition-opacity hover:opacity-90"
         >
-          Add session
+          Add it
         </button>
       </form>
     </section>
@@ -277,9 +277,9 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
 
       <label className="mt-3.5 flex items-start justify-between gap-4">
         <span>
-          <span className="text-[14px]">Measurement</span>
+          <span className="text-[14px]">Keep measuring</span>
           <span className="mt-0.5 block text-[12px] leading-snug text-chalk-45">
-            Switching this off stops recording immediately. Your history is kept.
+            Turn this off and we stop right away. Everything you already have is kept.
           </span>
         </span>
         <input
@@ -301,7 +301,7 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
           onClick={download}
           className="rounded-pill border border-hair px-4 py-2 text-[13.5px] text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
         >
-          Export everything
+          Download my data
         </button>
         <button
           type="button"
@@ -311,7 +311,7 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
           }}
           className="rounded-pill border border-hair px-4 py-2 text-[13.5px] text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
         >
-          Clear measured history
+          Clear my history
         </button>
         <button
           type="button"
@@ -321,7 +321,7 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
           }}
           className="rounded-pill border border-hair px-4 py-2 text-[13.5px] text-chalk-45 transition-colors hover:border-hair-strong hover:text-chalk"
         >
-          Regenerate sample history
+          Make new example data
         </button>
 
         {confirming ? (
@@ -335,7 +335,7 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
               }}
               className="flex-1 rounded-pill bg-strain px-4 py-2 text-[13.5px] font-[560] text-void"
             >
-              Delete it all
+              Yes, delete it all
             </button>
             <button
               type="button"
@@ -357,8 +357,8 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
       </div>
 
       <p className="mt-3.5 text-[11.5px] leading-relaxed text-chalk-30">
-        Export gives you the complete raw record as JSON — every minute bucket, not a summary.
-        Delete removes it from this device, which is the only place it exists.
+        Download gives you everything we have, minute by minute — not a summary. Delete removes it
+        from this device, which is the only place it has ever been.
       </p>
     </section>
   );
@@ -382,10 +382,10 @@ export function SharingControls({
 
   return (
     <section className="card p-4">
-      <p className="label text-chalk-30">What a share card shows</p>
+      <p className="label text-chalk-30">What your share card shows</p>
       <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">
-        Achievements only. A share card never contains a timeline, an app name, a site, a session, or
-        anything about when you were awake.
+        Only things you have achieved. A share card never shows your timeline, an app or website
+        name, or anything about when you were awake.
       </p>
 
       <ul className="mt-3.5 space-y-2">
@@ -419,7 +419,7 @@ export function ProfileControls({
 }) {
   return (
     <section className="card p-4">
-      <p className="label text-chalk-30">You</p>
+      <p className="label text-chalk-30">About you</p>
       <div className="mt-3.5 space-y-2.5">
         <label className="block">
           <span className="label text-chalk-30">Display name</span>
@@ -435,7 +435,7 @@ export function ProfileControls({
 
         <div className="grid grid-cols-2 gap-2.5">
           <label className="block">
-            <span className="label text-chalk-30">Wake hour</span>
+            <span className="label text-chalk-30">You wake at</span>
             <input
               type="number"
               min={0}
@@ -449,7 +449,7 @@ export function ProfileControls({
             />
           </label>
           <label className="block">
-            <span className="label text-chalk-30">Screen curfew</span>
+            <span className="label text-chalk-30">Screens off by</span>
             <input
               type="number"
               min={0}
@@ -465,8 +465,8 @@ export function ProfileControls({
         </div>
       </div>
       <p className="mt-3 text-[11.5px] leading-relaxed text-chalk-30">
-        These two hours anchor the Digital Sunrise and Digital Sunset measurements, and the evening
-        protection input in Recovery. Nothing here is uploaded.
+        We use these two times for the morning and evening challenges, and for the evening part of
+        your Recovery score. Nothing here leaves your device.
       </p>
     </section>
   );

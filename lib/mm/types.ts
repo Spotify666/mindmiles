@@ -263,17 +263,17 @@ export type MetricId =
 export type Provenance = 'measured' | 'derived' | 'estimated' | 'unavailable';
 
 export const PROVENANCE_LABEL: Record<Provenance, string> = {
-  measured: 'Measured',
-  derived: 'Derived',
-  estimated: 'Estimated',
-  unavailable: 'Unavailable',
+  measured: 'Counted',
+  derived: 'Worked out',
+  estimated: 'Best guess',
+  unavailable: "Can't tell",
 };
 
 export const PROVENANCE_NOTE: Record<Provenance, string> = {
-  measured: 'Observed directly by this device. No inference.',
-  derived: 'Calculated arithmetically from measured values. No assumptions beyond the formula.',
-  estimated: 'Inferred from available signals. Directionally useful, not precise — treat it as a trend, not a reading.',
-  unavailable: 'Cannot be measured reliably here, so it is not shown as a number.',
+  measured: 'Your device watched this happen and counted it.',
+  derived: 'Plain maths on things we counted. Nothing guessed.',
+  estimated: 'Worked out from clues. Good for spotting a change, not exact.',
+  unavailable: "We can't measure this properly here, so we don't show a number.",
 };
 
 /** `a` is always the best band, whichever way the metric points. */
@@ -309,6 +309,12 @@ export interface MetricInput {
 export interface Metric {
   id: MetricId;
   label: string;
+  /**
+   * The metric in words a stranger would use. Shown directly under the name
+   * everywhere the metric appears, so nobody has to already know what
+   * "fragmentation" means to read their own screen.
+   */
+  plain: string;
   /** 0–100. */
   value: number;
   polarity: 'higher-better' | 'lower-better';

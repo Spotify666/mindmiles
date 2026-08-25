@@ -54,10 +54,10 @@ export default function ProfilePage() {
 
         <dl className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <Tile label="Mind Miles" value={fmtMiles(miles.total)} note="all time" />
-          <Tile label="Personal bests" value={String(records.length)} accent={ACCENT_HEX.record} />
-          <Tile label="Challenges" value={String(completed)} note="completed" />
+          <Tile label="Best evers" value={String(records.length)} accent={ACCENT_HEX.record} />
+          <Tile label="Challenges" value={String(completed)} note="done" />
           <Tile
-            label="Reclaimed"
+            label="Time got back"
             value={reclaimedMonth.available ? fmtMin(reclaimedMonth.minutes) : '—'}
             note="30 days"
             accent={ACCENT_HEX.recovery}
@@ -68,33 +68,33 @@ export default function ProfilePage() {
           <p className="text-[12.5px] text-chalk-45">
             {streak > 0 ? (
               <>
-                <span className="font-[620] text-chalk">{streak}-day</span> run of protected evenings
-                with a real break
+                <span className="font-[620] text-chalk">{streak} days</span> in a row with a clear
+                evening and a proper break
               </>
             ) : (
-              'No current streak — and a day away from your devices never breaks one.'
+              'No streak going. A day away from your devices never breaks one.'
             )}
           </p>
           <Link
             href="/share"
             className="label ml-auto rounded-pill border border-hair px-3 py-1.5 text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
           >
-            Share card
+            Share
           </Link>
         </div>
       </section>
 
       {/* ── records ──────────────────────────────────────── */}
       <section className="card p-4 md:col-span-2">
-        <p className="label text-chalk-30">Personal records</p>
+        <p className="label text-chalk-30">Your best ever</p>
         <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">
-          Every record that could be won by not using a device carries a minimum engaged time. You
-          have to show up to set one.
+          You cannot win any of these by leaving your phone in a drawer — each one needs a real day
+          of screen time behind it first.
         </p>
 
         {records.length === 0 ? (
           <p className="mt-3.5 text-[13.5px] text-chalk-45">
-            No records yet. They appear once there are a few measured days to compare.
+            Nothing yet. These show up once there are a few days to compare.
           </p>
         ) : (
           <ul className="mt-3.5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -114,7 +114,7 @@ export default function ProfilePage() {
                 <p className="readout mt-1.5 text-[24px]">{r.display}</p>
                 <p className="mt-1.5 text-[11.5px] text-chalk-30">
                   {fmtDate(r.date)}
-                  {r.previousDisplay && ` · previous ${r.previousDisplay}`}
+                  {r.previousDisplay && ` · old best ${r.previousDisplay}`}
                 </p>
               </li>
             ))}
@@ -140,11 +140,11 @@ export default function ProfilePage() {
 
       <p className="text-[11.5px] leading-relaxed text-chalk-30 md:col-span-2">
         <Link href="/privacy" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
-          What Mind Miles knows about you
+          What we know about you
         </Link>{' '}
         ·{' '}
         <Link href="/method" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
-          How every number is measured
+          How we work all this out
         </Link>
       </p>
     </div>
