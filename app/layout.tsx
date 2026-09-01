@@ -3,6 +3,7 @@ import { Inter_Tight, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import MindMilesProvider from '@/components/MindMilesProvider';
 import Splash from '@/components/Splash';
+import ServiceWorker from '@/components/ServiceWorker';
 import TopBar from '@/components/nav/TopBar';
 import { TabBar } from '@/components/nav/TabBar';
 
@@ -61,6 +62,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           subsequent load — so the class is stamped here and CSS hides the
           overlay before anything is painted.
         */}
+        {/*
+          `beforeinstallprompt` frequently fires before React has hydrated, and
+          it cannot be recovered once missed — so it is caught here and parked on
+          window for lib/mm/install to read.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              `window.addEventListener('beforeinstallprompt',function(e){` +
+              `e.preventDefault();window.__mmInstallEvent=e;` +
+              `window.dispatchEvent(new Event('mm:installable'))});` +
+              `window.addEventListener('appinstalled',function(){` +
+              `window.__mmInstalled=true;window.__mmInstallEvent=null});`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html:
@@ -84,6 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
+        <ServiceWorker />
         <Splash />
         <MindMilesProvider>
           <TopBar />

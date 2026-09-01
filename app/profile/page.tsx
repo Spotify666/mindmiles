@@ -17,6 +17,7 @@ import { totalMileage } from '@/lib/mm/metrics';
 import { tracker } from '@/lib/mm/tracker';
 import { ACCENT_HEX } from '@/components/ui/tokens';
 import { Mark } from '@/components/brand/Logo';
+import InstallApp from '@/components/InstallApp';
 
 /**
  * PROFILE.
@@ -123,6 +124,7 @@ export default function ProfilePage() {
       </section>
 
       {/* ── controls ─────────────────────────────────────── */}
+      <InstallApp />
       <IntentionsControl state={state} onChange={refresh} />
       <BrightnessControl
         value={state.brightness}

@@ -137,6 +137,26 @@ Where the extension fills a minute, it contributes **time only** — never
 keystrokes or scroll. It knows you were there; it does not know what you did,
 because it does not look.
 
+## Installing it
+
+`public/sw.js` caches the app shell, so Mind Miles opens and works with **no
+connection at all** — which it always should have, given everything it knows is
+already on the device.
+
+That service worker is also what makes the app installable. Chrome will not fire
+`beforeinstallprompt` — the event every "Install app" button depends on — unless
+a service worker with a fetch handler controls the page. A manifest alone is not
+enough, which is why there was no install button to find before this existed.
+
+The offer is honest per platform: a real button in the header and on the profile
+where the browser can install, plain Share → Add to Home Screen steps on iOS
+where it cannot, and nothing at all once it is already installed.
+
+It also says what installing does **not** do. It does not unlock any extra
+measurement — an installed PWA is still a browser and still cannot see your other
+apps. That is the most tempting lie this product could tell, so it is stated
+plainly on the card.
+
 ## Privacy
 
 There is no account, no server, no analytics and no network call. Everything is
