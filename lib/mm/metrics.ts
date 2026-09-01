@@ -78,6 +78,8 @@ interface Draft {
   label: string;
   /** The metric in ordinary words. Shown under the name, never instead of it. */
   plain: string;
+  /** The one real-units measurement this score is mostly about. */
+  fact: string;
   polarity: 'higher-better' | 'lower-better';
   provenance: Provenance;
   inputs: MetricInput[];
@@ -108,6 +110,7 @@ function assemble(draft: Draft, baseline?: Baseline, date?: string): Metric {
     id: draft.id,
     label: draft.label,
     plain: draft.plain,
+    fact: draft.fact,
     value,
     polarity: draft.polarity,
     band,
@@ -176,6 +179,7 @@ function focusMetric(d: DaySummary, baseline?: Baseline): Metric {
       id: 'focus',
       label: 'Focus',
       plain: 'How long you stuck with one thing',
+      fact: `${fmtMin(d.longestBoutMin)} best run`,
       polarity: 'higher-better',
       provenance: 'derived',
       inputs,
@@ -269,6 +273,7 @@ function fragmentationMetric(d: DaySummary, baseline?: Baseline): Metric {
       id: 'fragmentation',
       label: 'Jumpiness',
       plain: 'How much you hopped about',
+      fact: d.switchRate > 0 ? `${Math.round(d.switchRate)} jumps an hour` : 'no jumps yet',
       polarity: 'lower-better',
       provenance: 'derived',
       inputs,
@@ -361,6 +366,7 @@ function strainMetric(d: DaySummary, baseline?: Baseline): Metric {
       id: 'strain',
       label: 'Effort',
       plain: 'How hard the day was',
+      fact: `${fmtMin(d.activeMin)} on screen`,
       polarity: 'lower-better',
       provenance: 'derived',
       inputs,
@@ -444,6 +450,7 @@ function visualMetric(d: DaySummary, brightnessMeasured: boolean, baseline?: Bas
       id: 'visual',
       label: 'Eyes',
       plain: 'How tired your eyes got',
+      fact: `${fmtMin(d.nightMin)} evening screen`,
       polarity: 'lower-better',
       // Brightness is the input that decides this: without a real reading the
       // whole metric is an estimate, and says so rather than implying a measurement.
@@ -522,6 +529,7 @@ function recoveryMetric(d: DaySummary, fragmentation: number, baseline?: Baselin
       id: 'recovery',
       label: 'Rest',
       plain: 'How much of a break you got',
+      fact: d.breakCount === 1 ? '1 break taken' : `${d.breakCount} breaks taken`,
       polarity: 'higher-better',
       provenance: 'derived',
       inputs,
@@ -564,6 +572,7 @@ function intentionalityMetric(d: DaySummary, baseline?: Baseline): Metric {
       id: 'intentionality',
       label: 'On Plan',
       plain: 'Did the day go how you wanted',
+      fact: 'nothing planned',
       value: 0,
       polarity: 'higher-better',
       band: 'watch',
@@ -668,6 +677,7 @@ function intentionalityMetric(d: DaySummary, baseline?: Baseline): Metric {
       id: 'intentionality',
       label: 'On Plan',
       plain: 'Did the day go how you wanted',
+      fact: `${fmtMin(met)} of ${fmtMin(plannedTotal)}`,
       polarity: 'higher-better',
       provenance: 'estimated',
       inputs,
@@ -763,6 +773,7 @@ function fitnessMetric(
       id: 'fitness',
       label: 'Screen Fitness',
       plain: 'How well you handled your screen time',
+      fact: 'your last 7 days',
       polarity: 'higher-better',
       provenance: 'derived',
       inputs,

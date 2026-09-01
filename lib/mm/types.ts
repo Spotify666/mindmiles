@@ -315,6 +315,18 @@ export interface Metric {
    * "fragmentation" means to read their own screen.
    */
   plain: string;
+  /**
+   * One concrete measurement, in real units, that this score is mostly about.
+   * "2h 12m best run". "3 breaks". "32 jumps an hour".
+   *
+   * This exists because six scores out of 100 look identical however well they
+   * are named — number, word, bar, number, word, bar. A reader cannot tell them
+   * apart, and reasonably concludes the definitions are all the same thing.
+   * A minutes-and-counts figure that only makes sense for THIS metric is what
+   * makes it obviously a different measurement from the one beside it, and it
+   * is also the part someone can actually act on.
+   */
+  fact: string;
   /** 0–100. */
   value: number;
   polarity: 'higher-better' | 'lower-better';

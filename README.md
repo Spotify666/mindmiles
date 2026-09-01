@@ -69,6 +69,14 @@ per input: what it is, what it was, how much it mattered. Each row opens to its
 explanation only if you ask. The full working is always there; nobody has to
 walk past it to leave.
 
+**Every score carries a real measurement, not just a number out of 100.** Six
+abstract scores look interchangeable however carefully they are named — number,
+word, bar, number, word, bar — and a reader reasonably concludes the definitions
+are all the same thing. So each card leads with the concrete figure that score is
+mostly about: *1h 42m best run*, *3 breaks taken*, *3h 8m on screen*, *32 jumps an
+hour*. That is what makes it obvious Rest and Jumpiness are measuring two
+different things, and it is the part anyone can act on.
+
 **It is written the way people talk.** That includes the metric names, which is
 where it was hardest and mattered most — Fragmentation is **Jumpiness**,
 Intentionality is **On Plan**, Visual Load is **Eyes**, Recovery is **Rest**,

@@ -116,9 +116,10 @@ export function MetricExplain({
         <span className="readout text-[60px]" style={{ color: unavailable ? undefined : hex }}>
           {unavailable ? '—' : <Counting value={metric.value} duration={650} />}
         </span>
-        <div className="pb-2.5">
+        <div className="pb-2">
           <p className="text-[17px] font-[620] leading-none">{metric.bandLabel}</p>
-          <p className="label mt-2 text-chalk-30">
+          <p className="mt-2 text-[13.5px] font-[560] tabular-nums text-chalk-70">{metric.fact}</p>
+          <p className="label mt-1.5 text-chalk-30">
             {metric.polarity === 'higher-better' ? 'Higher is better' : 'Lower is easier'}
           </p>
         </div>
@@ -219,7 +220,16 @@ export default function MetricCard({ metric, compact = false }: { metric: Metric
           <span className="pb-1 text-[13px] text-chalk-45">{metric.bandLabel}</span>
         </div>
 
-        <div className="mt-3 h-1 w-full overflow-hidden rounded-pill bg-surface-inset">
+        {/*
+          The concrete measurement, in minutes and counts. Six scores out of 100
+          are indistinguishable from one another however carefully they are
+          named — this line is what makes it obvious that Rest and Jumpiness are
+          measuring two completely different things, and it is the part anyone
+          can actually act on.
+        */}
+        <p className="mt-1.5 text-[12.5px] font-[560] tabular-nums text-chalk-70">{metric.fact}</p>
+
+        <div className="mt-2.5 h-1 w-full overflow-hidden rounded-pill bg-surface-inset">
           <div
             className="h-full rounded-pill transition-[width] duration-700"
             style={{ width: unavailable ? '0%' : `${metric.value}%`, background: hex, opacity: 0.9 }}
