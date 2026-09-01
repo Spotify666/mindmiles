@@ -12,8 +12,7 @@ import { recordsSetOn } from '@/lib/mm/records';
 import { fmtSigned, todayLabel } from '@/lib/mm/labels';
 import { ACCENT_HEX } from '@/components/ui/tokens';
 import { Counting, Enter } from '@/components/ui/motion';
-import Welcome from '@/components/Welcome';
-import { setOnboarded } from '@/lib/mm/store';
+import { useRouter } from 'next/navigation';
 
 /**
  * TODAY.
@@ -27,9 +26,11 @@ import { setOnboarded } from '@/lib/mm/store';
  * screen-time app. The point is the summary, and a user who never scrolls this
  * far has still got what they came for.
  *
- * On a first visit this route is the welcome instead. Landing a stranger on six
- * numbers that mean nothing yet explains nothing about what they have opened —
- * so the door is the idea first, and the dashboard from the second visit on.
+ * A first visit is sent to /welcome instead. Landing a stranger on six numbers
+ * that mean nothing yet explains nothing about what they have opened, so the
+ * door is the idea first and the dashboard from the second visit on — but the
+ * welcome lives at its own address rather than inside this one, so it stays
+ * reachable afterwards.
  */
 export default function TodayPage() {
   const mm = useMindMiles();
@@ -50,16 +51,14 @@ export default function TodayPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newToday.length]);
 
-  if (!mm.state.onboarded) {
-    return (
-      <Welcome
-        onStart={() => {
-          setOnboarded(true);
-          mm.refresh();
-        }}
-      />
-    );
-  }
+  // Send a first-timer to the welcome. Done in an effect rather than by
+  // rendering it here, so there is exactly one welcome and one URL for it.
+  const router = useRouter();
+  useEffect(() => {
+    if (!mm.state.onboarded) router.replace('/welcome');
+  }, [mm.state.onboarded, router]);
+
+  if (!mm.state.onboarded) return null;
 
   return (
     <div className="mx-auto flex max-w-app flex-col gap-3.5 md:max-w-none md:grid md:grid-cols-12 md:items-start md:gap-4">
@@ -123,8 +122,12 @@ export default function TodayPage() {
           <MetricCard metric={today.fragmentation} />
           <MetricCard metric={today.intentionality} />
         </div>
-        <p className="mt-2.5 text-[11.5px] text-chalk-30">
-          Tap any score to see what went into it, in plain words.
+        <p className="mt-2.5 text-[11.5px] leading-relaxed text-chalk-30">
+          Tap any score to see what went into it.{' '}
+          <Link href="/guide" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+            Or read what they all mean
+          </Link>
+          .
         </p>
       </Enter>
 

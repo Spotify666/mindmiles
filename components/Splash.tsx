@@ -28,6 +28,16 @@ import { useEffect, useState } from 'react';
  * repeats on every tab change stops being an entrance and becomes a toll gate.
  * Tap, press any key, or scroll to skip it. Reduced motion gets the frame
  * without the choreography.
+ *
+ * It does NOT play on a first visit. The welcome is the entrance for someone
+ * arriving for the first time, and a title card in front of it only hides the
+ * one screen that explains what they have opened.
+ *
+ * And it can never trap anyone. The overlay is server-rendered visible and
+ * normally removed by React — so if scripting is slow, blocked or broken, a CSS
+ * failsafe fades it out and makes it click-through on its own. A splash screen
+ * that can become a permanent black page is not a splash screen, it is an
+ * outage.
  */
 
 const KEY = 'mindmiles.splash.seen';

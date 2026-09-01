@@ -139,12 +139,20 @@ export default function ProfilePage() {
       <DataControls state={state} onChange={refresh} />
 
       <p className="text-[11.5px] leading-relaxed text-chalk-30 md:col-span-2">
-        <Link href="/privacy" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
-          What we know about you
+        <Link href="/guide" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+          What the numbers mean
+        </Link>{' '}
+        ·{' '}
+        <Link href="/welcome" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+          What Mind Miles is for
         </Link>{' '}
         ·{' '}
         <Link href="/method" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
           How we work all this out
+        </Link>{' '}
+        ·{' '}
+        <Link href="/privacy" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+          What we know about you
         </Link>
       </p>
     </div>

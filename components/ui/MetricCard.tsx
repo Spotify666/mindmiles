@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { PROVENANCE_LABEL, PROVENANCE_NOTE, type Metric, type MetricInput } from '@/lib/mm/types';
 import Delta from './Delta';
@@ -155,8 +156,14 @@ export function MetricExplain({
         ))}
       </ul>
 
+      <p className="mt-5 text-[12.5px] leading-relaxed text-chalk-30">
+        <Link href="/guide" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+          What all the numbers mean
+        </Link>
+      </p>
+
       {/* ── where the number came from ────────────────────── */}
-      <div className="mt-6 rounded-[14px] bg-surface-raised p-3.5">
+      <div className="mt-5 rounded-[14px] bg-surface-raised p-3.5">
         <ProvenanceBadge provenance={metric.provenance} />
         <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">
           {PROVENANCE_NOTE[metric.provenance]}

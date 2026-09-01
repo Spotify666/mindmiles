@@ -145,11 +145,21 @@ place it has ever existed. Both are one tap away in Profile.
 
 ## The way in
 
-A first visit lands on the welcome, not the dashboard — six numbers that mean
+A first visit is sent to `/welcome`, not the dashboard — six numbers that mean
 nothing yet explain nothing about what you have opened. The welcome makes the
 argument in one picture: two days, five hours each, one drawn in solid blocks and
 one in confetti. Screen time counts both as five hours. That is the entire case
 for the product, and it lands before a word about metrics.
+
+It lives at its own URL and is linked from the profile, so it can be read again.
+It first shipped as a branch inside the Today route, which meant pressing its one
+button closed the door permanently — there was no way back to the only screen
+explaining what the product is. The splash does not play in front of it either:
+the welcome *is* the entrance, and a title card over it only hides the thing you
+came to read.
+
+`/guide` is the companion reference — every number on screen, with what it means,
+what goes into it, which way is good, and whether it is worth acting on.
 
 ## The opening
 

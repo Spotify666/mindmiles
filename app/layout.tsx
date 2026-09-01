@@ -63,7 +63,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(sessionStorage.getItem('mindmiles.splash.seen')==='1'){document.documentElement.classList.add('splash-skip')}}catch(e){}`,
+            __html:
+              `try{` +
+              // Already played this session.
+              `var seen=sessionStorage.getItem('mindmiles.splash.seen')==='1';` +
+              // A first-time visitor goes straight to the welcome. The welcome IS
+              // the entrance; putting a 2.5s title card in front of it just hides
+              // the one screen that explains what this is.
+              `var raw=localStorage.getItem('mindmiles.v1');` +
+              `var first=true;try{first=!raw||JSON.parse(raw).onboarded!==true}catch(e){}` +
+              `if(seen||first){document.documentElement.classList.add('splash-skip')}` +
+              `}catch(e){}`,
           }}
         />
       </head>

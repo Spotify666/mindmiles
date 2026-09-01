@@ -427,3 +427,28 @@ body {
     background-image: none;
   }
 }
+
+/*
+ * The failsafe.
+ *
+ * The overlay is painted before React runs and is normally removed by it. If
+ * that never happens — scripting blocked, a bundle that fails to load, a
+ * hydration error — this clears it anyway. Runs well after the scripted exit,
+ * so it never interferes with the real one.
+ */
+.splash {
+  animation: splash-failsafe 1ms linear 6s forwards;
+}
+
+@keyframes splash-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+/* The scripted exit still owns the animation while React is alive. */
+.splash-out {
+  animation: splash-out 480ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

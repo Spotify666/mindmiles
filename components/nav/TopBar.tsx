@@ -23,10 +23,10 @@ export default function TopBar() {
         </Link>
         <DesktopNav />
         <Link
-          href="/method"
+          href="/guide"
           className="label shrink-0 text-chalk-30 transition-colors hover:text-chalk-70"
         >
-          How it works
+          What it all means
         </Link>
       </div>
     </header>
