@@ -148,9 +148,14 @@ That service worker is also what makes the app installable. Chrome will not fire
 a service worker with a fetch handler controls the page. A manifest alone is not
 enough, which is why there was no install button to find before this existed.
 
-The offer is honest per platform: a real button in the header and on the profile
-where the browser can install, plain Share → Add to Home Screen steps on iOS
-where it cannot, and nothing at all once it is already installed.
+Discoverability needed its own answer. An install button that only exists while
+the browser feels like offering it — and never at all on iPhone — is one nobody
+can find on purpose: there when you were not looking, gone when you were. So
+there are three fixed entry points instead: a **Get the app** chip in the header
+that stays until installed, a dismissible row at the top of Today, and
+**`/install`** — a page that explains what installing does, detects your platform
+and gives the actual steps for it, with the real button where the browser
+supports one.
 
 It also says what installing does **not** do. It does not unlock any extra
 measurement — an installed PWA is still a browser and still cannot see your other

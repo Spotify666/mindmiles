@@ -7,6 +7,7 @@ import DayTimeline from '@/components/charts/DayTimeline';
 import Ring from '@/components/ui/Ring';
 import MetricCard from '@/components/ui/MetricCard';
 import LiveNow from '@/components/today/LiveNow';
+import InstallBanner from '@/components/InstallBanner';
 import { MileageCard, OneThingCard, StoryCard, WinCard } from '@/components/today/Cards';
 import { recordsSetOn } from '@/lib/mm/records';
 import { fmtSigned, todayLabel } from '@/lib/mm/labels';
@@ -68,6 +69,10 @@ export default function TodayPage() {
           tab. Nothing went anywhere — there is nowhere for it to go.
         </p>
       )}
+
+      <div className="md:col-span-12">
+        <InstallBanner />
+      </div>
 
       {/* ── status ─────────────────────────────────────────── */}
       <Enter as="section" index={0} className="card p-5 md:col-span-5">

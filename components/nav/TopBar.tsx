@@ -5,7 +5,7 @@ import { Wordmark } from '@/components/brand/Logo';
 import { useEffect, useState } from 'react';
 import { DesktopNav } from './TabBar';
 import { useMindMiles } from '@/components/MindMilesProvider';
-import { installMode, onInstallChange, promptInstall } from '@/lib/mm/install';
+import { installMode, onInstallChange } from '@/lib/mm/install';
 
 /**
  * The header. Deliberately thin: this is a measurement product, and the first
@@ -26,16 +26,19 @@ export default function TopBar() {
         </Link>
         <DesktopNav />
         <div className="flex shrink-0 items-center gap-3">
-          {/* Only shown when the browser can genuinely install — otherwise the
-              profile explains the platform's own route. */}
-          {install.canPrompt && (
-            <button
-              type="button"
-              onClick={install.prompt}
+          {/*
+            Always a way in until it is installed — never a control that appears
+            only when the browser feels like offering it. It leads to /install,
+            which can explain itself on any platform, rather than firing a prompt
+            that may not exist.
+          */}
+          {!install.installed && (
+            <Link
+              href="/install"
               className="label rounded-pill border border-focus/40 bg-focus-dim px-2.5 py-1 text-focus transition-colors hover:bg-focus/20"
             >
-              Install app
-            </button>
+              Get the app
+            </Link>
           )}
           <Link
             href="/guide"
@@ -49,21 +52,15 @@ export default function TopBar() {
   );
 }
 
-/** Whether to offer installing from the header, and how to do it. */
+/** Whether the header should still be offering the app. */
 function useInstallOffer() {
-  const [canPrompt, setCanPrompt] = useState(false);
+  const [installed, setInstalled] = useState(false);
 
   useEffect(() => {
-    const sync = () => setCanPrompt(installMode() === 'ready');
+    const sync = () => setInstalled(installMode() === 'installed');
     sync();
     return onInstallChange(sync);
   }, []);
 
-  return {
-    canPrompt,
-    prompt: async () => {
-      await promptInstall();
-      setCanPrompt(installMode() === 'ready');
-    },
-  };
+  return { installed };
 }

@@ -10,6 +10,7 @@ import {
 } from '@/lib/mm/install';
 import { Mark } from '@/components/brand/Logo';
 import Sheet from '@/components/ui/Sheet';
+import Link from 'next/link';
 
 /**
  * The install offer.
@@ -95,11 +96,12 @@ export default function InstallApp() {
       )}
 
       {mode === 'unavailable' && (
-        <p className="mt-3.5 text-[12px] leading-relaxed text-chalk-30">
-          Your browser has not offered to install this yet. Chrome, Edge and Android usually offer it
-          after a visit or two; on iPhone use Safari&rsquo;s Share menu. Nothing is missing if you
-          never install — the app works exactly the same in a tab.
-        </p>
+        <Link
+          href="/install"
+          className="mt-3.5 block w-full rounded-pill border border-hair px-4 py-2.5 text-center text-[14px] text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
+        >
+          Show me how
+        </Link>
       )}
 
       <p className="mt-3 text-[11.5px] leading-relaxed text-chalk-30">
