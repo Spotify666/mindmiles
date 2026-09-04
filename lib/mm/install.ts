@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * INSTALLING MIND MILES.
+ * INSTALLING PHOTON.
  *
  * A daily instrument belongs on a home screen, not in a tab you have to
  * remember to open. Getting it there is unfortunately three different problems

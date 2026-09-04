@@ -66,11 +66,11 @@ function DayBar({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[13.5px] font-[560]">{label}</span>
-        <span className="label text-chalk-30">5 hours</span>
+        <span className="text-[13.5px] font-semibold">{label}</span>
+        <span className="label text-ink-faint">5 hours</span>
       </div>
 
-      <div className="relative mt-2.5 h-9 w-full overflow-hidden rounded-[8px] bg-surface-inset">
+      <div className="relative mt-2.5 h-9 w-full overflow-hidden rounded-[8px] border-2 border-ink bg-white">
         {segments.map(([x, w], i) => (
           <span
             key={x}
@@ -85,23 +85,16 @@ function DayBar({
         ))}
       </div>
 
-      <p className="mt-2 text-[12.5px] leading-snug text-chalk-45">{caption}</p>
+      <p className="mt-2 text-[12.5px] leading-snug text-ink-faint">{caption}</p>
     </div>
   );
 }
 
-function Point({ title, body, accent }: { title: string; body: string; accent: string }) {
+function Point({ title, body }: { title: string; body: string; accent?: string }) {
   return (
-    <li className="flex gap-3">
-      <span
-        className="mt-[7px] h-2 w-2 shrink-0 rounded-pill"
-        style={{ background: accent }}
-        aria-hidden
-      />
-      <div>
-        <p className="text-[14.5px] font-[560]">{title}</p>
-        <p className="mt-1 text-[13px] leading-relaxed text-chalk-45">{body}</p>
-      </div>
+    <li>
+      <p className="text-[15.5px] font-bold">{title}</p>
+      <p className="mt-1 text-[13.5px] leading-relaxed text-ink-soft">{body}</p>
     </li>
   );
 }
@@ -120,21 +113,22 @@ export default function Welcome({ onStart }: { onStart: () => void }) {
     // so the last card is never sitting underneath it.
     <div className="mx-auto flex max-w-[560px] flex-col gap-9 pb-40 md:pb-10">
       <Enter as="section" index={0} className="pt-6">
-        <Wordmark size="lg" variant="gradient" tagline />
-        <h1 className="mt-9 text-[30px] font-[620] leading-[1.12] tracking-tightest">
-          A fitness tracker
+        <Wordmark size="lg" />
+        <h1 className="display mt-9 text-[34px]">
+          See what your screens
           <br />
-          for your attention.
+          are <span className="marked">really doing.</span>
         </h1>
-        <p className="mt-3.5 text-[15px] leading-relaxed text-chalk-70">
+        <p className="mt-4 text-[15.5px] leading-relaxed text-ink-soft">
           Your phone already tells you how many hours you spent on it. That number cannot tell a
-          good day from a bad one. This can.
+          good day from a bad one. Photon can.
         </p>
       </Enter>
 
       {/* The whole argument, in one picture. */}
-      <Enter as="section" index={1} className="card p-5">
-        <p className="label text-chalk-30">Two people. Same five hours.</p>
+      <Enter as="section" index={1} className="card relative p-5">
+        <span className="tape left-10" aria-hidden />
+        <p className="label text-ink-faint">Two people. Same five hours.</p>
 
         <div className={`mt-4 space-y-5 ${armed ? 'mm-armed' : ''}`}>
           <DayBar
@@ -146,52 +140,53 @@ export default function Welcome({ onStart }: { onStart: () => void }) {
           />
           <DayBar
             segments={SHATTERED}
-            color={ACCENT_HEX.strain}
+            color={ACCENT_HEX.effort}
             delayBase={340}
             label="Someone who had a rough one"
             caption="Eighteen quick check-ins. Nothing to show for it."
           />
         </div>
 
-        <p className="mt-5 text-[14px] leading-relaxed text-chalk-70">
-          Screen time counts both of these as <span className="font-[620] text-chalk">5 hours</span>.
-          We count what actually happened.
+        <p className="mt-5 text-[14px] leading-relaxed text-ink-soft">
+          Screen time counts both of these as <span className="font-bold">5 hours</span>. Photon
+          counts <span className="marked font-bold">what actually happened.</span>
         </p>
       </Enter>
 
       <Enter as="section" index={2}>
-        <p className="label text-chalk-30">What we do</p>
-        <ul className="mt-3.5 space-y-4">
+        <h2 className="display text-[22px]">What Photon does</h2>
+        <ul className="dashes mt-4 space-y-4">
           <Point
             accent={ACCENT_HEX.focus}
             title="We watch how you use it, not how long"
             body="How long you stick with one thing. How often you hop about. How fast you scroll. Whether you take breaks."
           />
           <Point
-            accent={ACCENT_HEX.recovery}
+            accent={ACCENT_HEX.rest}
             title="We compare you to you"
             body="Never to anyone else. After a few days we learn what a normal day looks like for you, and tell you when today is different."
           />
           <Point
-            accent={ACCENT_HEX.record}
+            accent={ACCENT_HEX.gold}
             title="We give you something to beat"
             body="Your longest run of focus. Your calmest day. Your best week. Things worth being pleased about."
           />
           <Point
-            accent={ACCENT_HEX.scatter}
+            accent={ACCENT_HEX.jumpy}
             title="We never tell you off"
             body="A busy day is a busy day, not a failure. Not opening this app for a week because life is going well is a win, not a problem."
           />
         </ul>
       </Enter>
 
-      <Enter as="section" index={3} className="card p-5">
-        <p className="label text-chalk-30">Before you start</p>
-        <p className="mt-2.5 text-[14px] leading-relaxed text-chalk-70">
+      <Enter as="section" index={3} className="card relative p-5">
+        <span className="tape tape-right right-10" aria-hidden />
+        <p className="label text-ink-faint">Before you start</p>
+        <p className="mt-2.5 text-[14px] leading-relaxed text-ink-soft">
           Everything stays on this device. There is no account and nowhere to send anything — we
           count how many keys you press, and never which ones.
         </p>
-        <p className="mt-3 text-[13px] leading-relaxed text-chalk-45">
+        <p className="mt-3 text-[13px] leading-relaxed text-ink-faint">
           To get you started, the charts are filled with a month of made-up example days. You can
           wipe them in one tap. Your real days start counting the moment you begin.
         </p>
@@ -207,11 +202,11 @@ export default function Welcome({ onStart }: { onStart: () => void }) {
           <button
             type="button"
             onClick={onStart}
-            className="w-full rounded-pill bg-focus px-5 py-3.5 text-[15.5px] font-[600] text-void shadow-lg transition-opacity hover:opacity-90"
+            className="w-full btn btn-primary hatch w-full px-5 py-3.5 text-[15.5px]"
           >
             Start measuring
           </button>
-          <p className="mt-2.5 text-center text-[12px] text-chalk-30">
+          <p className="mt-2.5 text-center text-[12px] text-ink-faint">
             Takes no setup. Nothing to sign up for.
           </p>
         </div>

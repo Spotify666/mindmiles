@@ -22,7 +22,7 @@ import { dayKey, ensureDay, getBucket, loadState, saveState } from './store';
  * never written into the behavioural record.
  */
 
-const SOURCE = 'mind-miles-extension';
+const SOURCE = 'photon-extension';
 
 interface ExtSlot {
   /** Active seconds in this minute. */
@@ -59,7 +59,7 @@ export function onExtensionData(fn: () => void): () => void {
 /** Minutes per domain for a day, biggest first. Only the extension can know this. */
 export function sitesFor(date: string): SiteTotal[] {
   try {
-    const raw = localStorage.getItem('mindmiles.sites');
+    const raw = localStorage.getItem('photon.sites');
     if (!raw) return [];
     const all = JSON.parse(raw) as Record<string, Record<string, number>>;
     const day = all[date];
@@ -76,7 +76,7 @@ function mergeDays(days: Record<string, ExtDay>) {
   const state = loadState();
   const sites: Record<string, Record<string, number>> = (() => {
     try {
-      return JSON.parse(localStorage.getItem('mindmiles.sites') || '{}');
+      return JSON.parse(localStorage.getItem('photon.sites') || '{}');
     } catch {
       return {};
     }
@@ -113,7 +113,7 @@ function mergeDays(days: Record<string, ExtDay>) {
 
   saveState(state);
   try {
-    localStorage.setItem('mindmiles.sites', JSON.stringify(sites));
+    localStorage.setItem('photon.sites', JSON.stringify(sites));
   } catch {
     /* the behavioural record matters more than the site roll-up */
   }

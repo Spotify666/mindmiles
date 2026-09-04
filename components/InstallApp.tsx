@@ -40,13 +40,13 @@ export default function InstallApp() {
     return (
       <section className="card p-4">
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-surface-inset text-recovery">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center panel text-rest-text">
             <Mark size={20} />
           </span>
           <div>
-            <p className="text-[14.5px] font-[560]">Installed</p>
-            <p className="mt-0.5 text-[12.5px] text-chalk-45">
-              You are running Mind Miles from your home screen.
+            <p className="text-[14.5px] font-semibold">Installed</p>
+            <p className="mt-0.5 text-[12.5px] text-ink-faint">
+              You are running Photon from your home screen.
             </p>
           </div>
         </div>
@@ -57,12 +57,12 @@ export default function InstallApp() {
   return (
     <section className="card p-4">
       <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-surface-inset text-focus">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center panel text-focus">
           <Mark size={20} />
         </span>
         <div className="min-w-0">
-          <p className="text-[14.5px] font-[560]">Put Mind Miles on your home screen</p>
-          <p className="mt-1 text-[12.5px] leading-relaxed text-chalk-45">
+          <p className="text-[14.5px] font-semibold">Put Photon on your home screen</p>
+          <p className="mt-1 text-[12.5px] leading-relaxed text-ink-faint">
             Opens like an app, in its own window, and works with no connection — everything it knows
             is already on your device.
           </p>
@@ -79,7 +79,7 @@ export default function InstallApp() {
             setMode(installMode());
             setBusy(false);
           }}
-          className="mt-3.5 w-full rounded-pill bg-focus px-4 py-2.5 text-[14px] font-[560] text-void transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="mt-3.5 w-full btn btn-primary hatch px-4 py-2.5 text-[14px] disabled:opacity-50"
         >
           {busy ? 'Opening your browser’s prompt…' : 'Install app'}
         </button>
@@ -89,7 +89,7 @@ export default function InstallApp() {
         <button
           type="button"
           onClick={() => setShowIos(true)}
-          className="mt-3.5 w-full rounded-pill border border-hair px-4 py-2.5 text-[14px] text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
+          className="mt-3.5 w-full btn btn-quiet px-4 py-2.5 text-[14px]"
         >
           How to add it on iPhone
         </button>
@@ -98,33 +98,33 @@ export default function InstallApp() {
       {mode === 'unavailable' && (
         <Link
           href="/install"
-          className="mt-3.5 block w-full rounded-pill border border-hair px-4 py-2.5 text-center text-[14px] text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
+          className="mt-3.5 block w-full rounded-pill border border-ink/15 px-4 py-2.5 text-center text-[14px] text-ink-soft transition-colors hover:border-ink hover:text-ink"
         >
           Show me how
         </Link>
       )}
 
-      <p className="mt-3 text-[11.5px] leading-relaxed text-chalk-30">
+      <p className="mt-3 text-[11.5px] leading-relaxed text-ink-faint">
         Installing does not let us see any more than we already can. An installed web app is still a
         browser, so it still cannot see your other apps — that part is unchanged, and we will not
         pretend otherwise.
       </p>
 
       <Sheet open={showIos} onClose={() => setShowIos(false)} title="Add to your home screen">
-        <p className="text-[14px] leading-relaxed text-chalk-70">
+        <p className="text-[14px] leading-relaxed text-ink-soft">
           iPhone does not let a website install itself, so this takes three taps in Safari.
         </p>
         <ol className="mt-4 space-y-3">
           {IOS_STEPS.map((step, i) => (
             <li key={step} className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-pill bg-surface-inset text-[12px] font-[620] tabular-nums">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-pill bg-paper text-[12px] font-bold tabular-nums">
                 {i + 1}
               </span>
               <span className="text-[14px] leading-relaxed">{step}</span>
             </li>
           ))}
         </ol>
-        <p className="mt-4 text-[12.5px] leading-relaxed text-chalk-45">
+        <p className="mt-4 text-[12.5px] leading-relaxed text-ink-faint">
           It has to be Safari — Chrome on iPhone cannot add to the home screen.
         </p>
       </Sheet>

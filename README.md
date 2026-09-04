@@ -1,21 +1,20 @@
 <div align="center">
   <img src="public/logo-mark.svg" width="72" alt="" />
-  <h1>Mind Miles</h1>
-  <p><strong>Measure where your attention goes.</strong></p>
-  <p>The digital fitness tracker for your mind.</p>
+  <h1>photon</h1>
+  <p><strong>See what your screens are really doing.</strong></p>
 </div>
 
 ---
 
-Mind Miles measures how you actually use a device and turns it into meaningful
-metrics — Mind Miles, Digital Fitness, Focus, Strain, Recovery, Visual Load,
+Photon measures how you actually use a device and turns it into meaningful
+metrics — Photon, Digital Fitness, Focus, Strain, Recovery, Visual Load,
 Fragmentation and Reclaimed Time — then turns improvement into personal records,
 challenges and something worth sharing.
 
 It is not a screen-time tracker. A screen-time app looks at two people who each
 spent five hours on a device and reports the same number. One of them spent
 three hours writing, one reading and one talking to people. The other spent five
-hours fragmented across notifications, feeds and compulsive checking. Mind Miles
+hours fragmented across notifications, feeds and compulsive checking. Photon
 is built to tell those two days apart.
 
 The product principle underneath everything: **don't help people use technology
@@ -58,10 +57,12 @@ lib/mm/extension.ts    merging what the extension saw
 
 ## The ideas that shaped the code
 
-**One Mind Mile is 20 engaged minutes.** Not a gamification point — a unit, with
-a stated conversion, printed next to the number. Every engaged minute is
-classified exactly once as Focus, Scattered or Scroll, so the three always sum
-back to total mileage.
+**Hours and minutes, not an invented unit.** This used to lead with "6.0 Photons"
+and a conversion table beside it. A number that needs a key next to it is a
+number nobody reads, so the day is shown in hours and minutes — and split three
+ways, which is the part that actually says something. Every engaged minute is
+classified exactly once as focused, bits-and-pieces, or scrolling, so the three
+always add back to the total.
 
 **Every score can be taken apart — without reading an essay.** Tap any metric
 and you get the number, the word for it and one sentence. Under that, one row
@@ -118,7 +119,7 @@ A web page can only see itself, and that limit produced a fair complaint: switch
 tabs, work for an hour, come back, and nothing was recorded. Three things get
 past it, and all three are honest about their reach.
 
-**Device presence.** With `IdleDetector` permission granted, Mind Miles knows
+**Device presence.** With `IdleDetector` permission granted, Photon knows
 whether *you* are at your device — at the OS level, while it sits in the
 background. It still cannot see which app you were in, and never claims to. The
 live panel says "This tab only" or "Your whole device", never something vaguer.
@@ -127,9 +128,9 @@ live panel says "This tab only" or "Your whole device", never something vaguer.
 It records, per minute, how many seconds you were active and the **domain** —
 the path, query and page title are discarded the moment a URL is seen. It stores
 to `chrome.storage.local`, makes no network call, and hands its totals to the
-page when you open Mind Miles.
+page when you open Photon.
 
-**One writer.** Several Mind Miles tabs would each count the same minute, so a
+**One writer.** Several Photon tabs would each count the same minute, so a
 lock in `localStorage` elects a single writer. The others keep their own live
 readout and bank nothing.
 
@@ -139,7 +140,7 @@ because it does not look.
 
 ## Installing it
 
-`public/sw.js` caches the app shell, so Mind Miles opens and works with **no
+`public/sw.js` caches the app shell, so Photon opens and works with **no
 connection at all** — which it always should have, given everything it knows is
 already on the device.
 
@@ -207,21 +208,27 @@ wordmark's letter-spacing tightens as it fades up, is most of the feeling.
 
 ## Design
 
-Dark, instrument-grade — the reference points are WHOOP, Oura, Strava's activity
-detail and Linear. Colour is semantic: each metric owns one hue everywhere it
-appears.
+A drawn interface, not a rendered one — paper, hard ink outlines, hand-drawn
+underlines, and strips of tape holding cards to the page. Everything that would
+normally be a soft shadow is a line instead. Three rules carry it: **outlines,
+never shadows**; **one accent, used loudly** (sky blue does all the work);
+**paper is not white** — the canvas is a cool off-white with a faint dot grid,
+and cards are true white on top of it.
 
-The categorical palette is **validated, not chosen by eye** — it passes lightness
-band, chroma floor, normal-vision separation and contrast against the chart
-surface on all pairs, with colour-deficiency separation in the band that requires
-direct labels and surface gaps (which every multi-series chart here carries). An
-earlier blue/violet pair measured ΔE 0.4 under deuteranopia — indistinguishable —
-and was re-fitted by separating the hues in lightness as well as hue. The
-reasoning is in `components/ui/tokens.ts`.
+The mark is a photon as physics draws one: a wave, in a single stroke, ending in
+the particle. It is the same gesture as the hand-drawn underline used throughout
+the interface, which is what makes the whole thing feel like one hand.
 
-The logo is a route profile that spells **M**. Its second peak is higher than the
-first, and it ends above where it started — the distance covered is not the
-achievement, the altitude gained is.
+The categorical palette was **refitted from scratch** when the interface moved
+from a near-black panel to a light page — a set validated against a #08090C
+surface is simply wrong against white. Against white it now passes lightness
+band, chroma floor, all-pairs colour-deficiency separation (worst deutan ΔE 8.6,
+clear of the floor) and 3:1 contrast.
+
+It carries **two tiers**, because a hue legible as a 20px bar is not legible as
+12px text: at mark strength amber manages 3.5:1 and green 3.2:1 on white — fine
+for a fill, below AA for a word. Fills use the mark; words use a darkened step.
+The reasoning is in `components/ui/tokens.ts`.
 
 ## Running it
 

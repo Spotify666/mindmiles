@@ -69,8 +69,8 @@ export default function DayTimeline({ day, title = 'Your day' }: { day: DaySumma
   return (
     <figure className="m-0">
       <figcaption className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <span className="text-[14px] font-[620]">{title}</span>
-        <span className="label text-chalk-30">
+        <span className="text-[14px] font-bold">{title}</span>
+        <span className="label text-ink-faint">
           {day.firstEngagedMin !== null && day.lastEngagedMin !== null
             ? fmtRange(day.firstEngagedMin, day.lastEngagedMin)
             : 'Nothing yet today'}
@@ -86,7 +86,7 @@ export default function DayTimeline({ day, title = 'Your day' }: { day: DaySumma
           aria-label={`Timeline of the day. ${fmtMin(day.activeMin)} engaged across ${day.bouts.length} sessions, with ${day.breakCount} breaks of ten minutes or more.`}
         >
           {/* Empty track. A day with no data must not look like a failed render. */}
-          <rect x={0} y={BAND_TOP} width={100} height={BAND_H} rx={1.5} fill="rgba(244,246,250,0.05)" />
+          <rect x={0} y={BAND_TOP} width={100} height={BAND_H} rx={1.5} fill="#EFF4F9" />
 
           {/* Hour rules, recessive, every three hours. */}
           {Array.from({ length: 9 }, (_, i) => i * 3).map((h) => (
@@ -140,7 +140,7 @@ export default function DayTimeline({ day, title = 'Your day' }: { day: DaySumma
               x2={x(b.endMin + 1)}
               y1={BAND_TOP + BAND_H + 5}
               y2={BAND_TOP + BAND_H + 5}
-              stroke={ACCENT_HEX.recovery}
+              stroke={ACCENT_HEX.rest}
               strokeWidth={2.5}
               strokeLinecap="round"
               vectorEffect="non-scaling-stroke"
@@ -152,7 +152,7 @@ export default function DayTimeline({ day, title = 'Your day' }: { day: DaySumma
             non-uniform viewBox. */}
         <div className="mt-1 flex justify-between">
           {[0, 6, 12, 18, 24].map((h) => (
-            <span key={h} className="label text-chalk-30">
+            <span key={h} className="label text-ink-faint">
               {h === 24 ? '24:00' : fmtTimeOfDay(h * 60)}
             </span>
           ))}
@@ -160,11 +160,11 @@ export default function DayTimeline({ day, title = 'Your day' }: { day: DaySumma
 
         {hover && (
           <div
-            className="pointer-events-none absolute z-10 -translate-x-1/2 rounded-[10px] border border-hair-strong bg-surface-raised px-2.5 py-2 shadow-lg"
+            className="pointer-events-none absolute z-10 -translate-x-1/2 rounded-[10px] border border-ink bg-paper px-2.5 py-2 shadow-lg"
             style={{ left: `${Math.min(88, Math.max(12, x(hover.start) + (x(hover.end + 1) - x(hover.start)) / 2))}%`, top: -8, transform: 'translate(-50%,-100%)' }}
           >
-            <p className="label text-chalk-30">{fmtRange(hover.start, hover.end)}</p>
-            <p className="mt-0.5 text-[13px] font-[620]">
+            <p className="label text-ink-faint">{fmtRange(hover.start, hover.end)}</p>
+            <p className="mt-0.5 text-[13px] font-bold">
               {CLASS_LABEL[hover.cls]} · {fmtMin(hover.end - hover.start + 1)}
             </p>
           </div>
@@ -184,7 +184,7 @@ export default function DayTimeline({ day, title = 'Your day' }: { day: DaySumma
           })),
           {
             label: 'Recovery',
-            accent: 'recovery' as const,
+            accent: 'rest' as const,
             value: `${day.breakCount}`,
             note: 'Gaps of 10 minutes or more.',
           },

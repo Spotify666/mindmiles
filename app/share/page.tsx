@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { useMindMiles } from '@/components/MindMilesProvider';
+import { usePhoton } from '@/components/PhotonProvider';
 import { Wordmark } from '@/components/brand/Logo';
 import { fmtMiles, fmtMin, fmtPercent } from '@/lib/mm/format';
 import { totalMileage } from '@/lib/mm/metrics';
@@ -29,7 +29,7 @@ const CARD_H = 1350;
 
 export default function SharePage() {
   const { summaries, reports, records, challenges, reclaimedWeek, fitness, state, baseline, today } =
-    useMindMiles();
+    usePhoton();
   const cardRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -83,35 +83,35 @@ export default function SharePage() {
     lines.push({ label: 'Focus', value: fmtPercent(focusChange), accent: ACCENT_HEX.focus });
   }
   if (fragChange !== null && fragChange < -1) {
-    lines.push({ label: 'Jumpiness', value: fmtPercent(fragChange), accent: ACCENT_HEX.scatter });
+    lines.push({ label: 'Jumpiness', value: fmtPercent(fragChange), accent: ACCENT_HEX.jumpy });
   }
   if (visualChange !== null && visualChange < -1) {
-    lines.push({ label: 'Tired eyes', value: fmtPercent(visualChange), accent: ACCENT_HEX.strain });
+    lines.push({ label: 'Tired eyes', value: fmtPercent(visualChange), accent: ACCENT_HEX.effort });
   }
   if (state.sharing.reclaimed && reclaimedWeek.available && reclaimedWeek.minutes > 0) {
     lines.push({
       label: 'Reclaimed',
       value: fmtMin(reclaimedWeek.minutes),
-      accent: ACCENT_HEX.recovery,
+      accent: ACCENT_HEX.rest,
     });
   }
   if (state.sharing.challenges && completedChallenges > 0) {
     lines.push({
       label: 'Challenges',
       value: String(completedChallenges),
-      accent: ACCENT_HEX.record,
+      accent: ACCENT_HEX.gold,
     });
   }
 
   const summaryText = [
-    'My week in Mind Miles',
+    'My week in Photon',
     ...lines.map((l) => `${l.label}: ${l.value}`),
     state.sharing.fitness ? `Screen Fitness: ${fitness}` : null,
     state.sharing.records && newRecords.length
       ? `New personal best: ${newRecords[0].label} — ${newRecords[0].display}`
       : null,
     '',
-    'Measured on my own device with Mind Miles.',
+    'Measured on my own device with Photon.',
   ]
     .filter(Boolean)
     .join('\n');
@@ -119,7 +119,7 @@ export default function SharePage() {
   async function share() {
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'My week in Mind Miles', text: summaryText });
+        await navigator.share({ title: 'My week in Photon', text: summaryText });
         return;
       }
       await navigator.clipboard.writeText(summaryText);
@@ -149,7 +149,7 @@ export default function SharePage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `mind-miles-week.png`;
+      a.download = `photon-week.png`;
       a.click();
       URL.revokeObjectURL(url);
       setStatus('Saved to your device.');
@@ -161,8 +161,8 @@ export default function SharePage() {
   return (
     <div className="mx-auto flex max-w-app flex-col gap-3.5">
       <div>
-        <h1 className="text-[22px] font-[620] tracking-tightest">Share card</h1>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-chalk-45">
+        <h1 className="display text-[24px]">Share card</h1>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-faint">
           Only the good bits. No timeline, no app names, no “hours on your phone” — and you can
           switch any line off in your profile.
         </p>
@@ -174,20 +174,20 @@ export default function SharePage() {
           to preserve a ratio is the wrong trade. */}
       <div
         ref={cardRef}
-        className="relative rounded-card border border-hair bg-surface p-6"
+        className="relative rounded-card border border-ink/15 bg-card p-6"
         style={{ minHeight: 'min(74vh, 560px)' }}
       >
         <div className="flex min-h-[inherit] flex-col">
-          <Wordmark size="sm" variant="gradient" />
+          <Wordmark size="sm" />
 
-          <p className="mt-7 text-[26px] font-[620] leading-tight tracking-tightest">
+          <p className="mt-7 text-[26px] font-bold leading-tight tracking-tightest">
             My week in
             <br />
-            Mind Miles
+            Photon
           </p>
 
           {lines.length === 0 ? (
-            <p className="mt-6 text-[14px] leading-relaxed text-chalk-45">
+            <p className="mt-6 text-[14px] leading-relaxed text-ink-faint">
               {hasBaseline
                 ? 'Nothing to show for this week yet. The card fills in as the week goes on.'
                 : 'We are still learning what a normal week looks like for you. Comparisons show up in a few days.'}
@@ -196,7 +196,7 @@ export default function SharePage() {
             <ul className="mt-6 space-y-3.5">
               {lines.map((l) => (
                 <li key={l.label} className="flex items-baseline justify-between gap-4">
-                  <span className="text-[15px] text-chalk-70">{l.label}</span>
+                  <span className="text-[15px] text-ink-soft">{l.label}</span>
                   <span className="readout text-[26px]" style={{ color: l.accent }}>
                     {l.value}
                   </span>
@@ -211,19 +211,19 @@ export default function SharePage() {
                 className="mb-3.5 rounded-[14px] px-3.5 py-3"
                 style={{ background: 'rgba(245,196,81,0.12)' }}
               >
-                <p className="label" style={{ color: ACCENT_HEX.record }}>
+                <p className="label text-ink-faint" style={{ color: ACCENT_HEX.gold }}>
                   Your best yet
                 </p>
-                <p className="mt-1 text-[15px] font-[560]">
+                <p className="mt-1 text-[15px] font-semibold">
                   {newRecords[0].label} · {newRecords[0].display}
                 </p>
               </div>
             )}
 
             {state.sharing.fitness && (
-              <div className="flex items-baseline justify-between gap-4 border-t border-hair pt-4">
-                <span className="label text-chalk-30">Screen Fitness</span>
-                <span className="readout text-[36px]" style={{ color: ACCENT_HEX.record }}>
+              <div className="flex items-baseline justify-between gap-4 border-t border-ink/15 pt-4">
+                <span className="label text-ink-faint">Screen Fitness</span>
+                <span className="readout text-[36px]" style={{ color: ACCENT_HEX.gold }}>
                   {fitness}
                 </span>
               </div>
@@ -236,24 +236,24 @@ export default function SharePage() {
         <button
           type="button"
           onClick={share}
-          className="rounded-pill bg-focus px-4 py-2.5 text-[14px] font-[560] text-void transition-opacity hover:opacity-90"
+          className="btn btn-primary hatch px-4 py-2.5 text-[14px]"
         >
           Share
         </button>
         <button
           type="button"
           onClick={downloadPng}
-          className="rounded-pill border border-hair px-4 py-2.5 text-[14px] text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
+          className="btn btn-quiet px-4 py-2.5 text-[14px]"
         >
           Save as picture
         </button>
       </div>
 
-      {status && <p className="text-[12.5px] text-chalk-45">{status}</p>}
+      {status && <p className="text-[12.5px] text-ink-faint">{status}</p>}
 
-      <p className="text-[11.5px] leading-relaxed text-chalk-30">
+      <p className="text-[11.5px] leading-relaxed text-ink-faint">
         The card is made here on your device. Nothing is uploaded to create it.{' '}
-        <Link href="/profile" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+        <Link href="/profile" className="text-ink-faint underline underline-offset-2 hover:text-ink">
           Change what it shows
         </Link>
         .
@@ -280,104 +280,125 @@ function drawCard(
   },
 ) {
   const PAD = 88;
+  const INK = '#14181F';
   const sans = (size: number, weight = 400) =>
-    `${weight} ${size}px "Inter Tight", ui-sans-serif, system-ui, sans-serif`;
+    `${weight} ${size}px Figtree, ui-sans-serif, system-ui, sans-serif`;
 
-  ctx.fillStyle = '#08090C';
+  // Paper, with the same faint dot grid the app uses.
+  ctx.fillStyle = '#EFF4F9';
   ctx.fillRect(0, 0, CARD_W, CARD_H);
+  ctx.fillStyle = 'rgba(20,24,31,0.055)';
+  for (let y = 22; y < CARD_H; y += 44) {
+    for (let x = 22; x < CARD_W; x += 44) {
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 
-  // The mark: the same five-point route, scaled from its 40-unit field.
-  const s = 1.6;
+  // A drawn card, outlined rather than shadowed — the same rule as the app.
+  const cx = 48;
+  const cy = 48;
+  const cw = CARD_W - 96;
+  const ch = CARD_H - 96;
+  ctx.fillStyle = '#FFFFFF';
+  roundRect(ctx, cx, cy, cw, ch, 28);
+  ctx.fill();
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 5;
+  roundRect(ctx, cx, cy, cw, ch, 28);
+  ctx.stroke();
+
+  // The wave, at the same proportions as everywhere else.
+  const s = 3.1;
   const ox = PAD;
-  const oy = PAD;
-  const route: [number, number][] = [
-    [4, 30.5],
-    [11.5, 13],
-    [18.5, 21.5],
-    [26.5, 6.5],
-    [33, 19],
-  ];
-  const grad = ctx.createLinearGradient(ox + 4 * s, oy + 30 * s, ox + 33 * s, oy + 19 * s);
-  grad.addColorStop(0, '#497CFD');
-  grad.addColorStop(0.62, '#7C9BFF');
-  grad.addColorStop(1, '#F5C451');
-  ctx.strokeStyle = grad;
-  ctx.lineWidth = 4 * s;
+  const oy = PAD + 10;
+  ctx.strokeStyle = '#2B90E0';
+  ctx.lineWidth = 3.4 * s;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.beginPath();
-  route.forEach(([x, y], i) => {
-    const px = ox + x * s;
-    const py = oy + y * s;
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
-  });
+  ctx.moveTo(ox + 3 * s, oy + 12 * s);
+  ctx.bezierCurveTo(ox + 6 * s, oy + 4 * s, ox + 10 * s, oy + 4 * s, ox + 13 * s, oy + 12 * s);
+  ctx.bezierCurveTo(ox + 16 * s, oy + 20 * s, ox + 20 * s, oy + 20 * s, ox + 23 * s, oy + 12 * s);
+  ctx.bezierCurveTo(ox + 26 * s, oy + 4 * s, ox + 30 * s, oy + 4 * s, ox + 33 * s, oy + 12 * s);
   ctx.stroke();
-  ctx.fillStyle = '#08090C';
+  ctx.fillStyle = '#2B90E0';
   ctx.beginPath();
-  ctx.arc(ox + 33 * s, oy + 19 * s, 5.6 * s, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#F5C451';
-  ctx.beginPath();
-  ctx.arc(ox + 33 * s, oy + 19 * s, 3.4 * s, 0, Math.PI * 2);
+  ctx.arc(ox + 38.5 * s, oy + 12 * s, 3.1 * s, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.fillStyle = '#F4F6FA';
-  ctx.font = sans(30, 620);
+  ctx.fillStyle = INK;
+  ctx.font = sans(44, 800);
   ctx.textBaseline = 'middle';
-  ctx.fillText('MIND MILES', ox + 40 * s + 16, oy + 19 * s);
+  ctx.fillText('photon', ox + 44 * s + 22, oy + 12 * s);
 
-  let y = PAD + 190;
+  let y = PAD + 210;
   ctx.textBaseline = 'alphabetic';
-  ctx.font = sans(74, 620);
-  ctx.fillText('My week in', PAD, y);
-  ctx.fillText('Mind Miles', PAD, y + 82);
-  y += 200;
+  ctx.font = sans(70, 800);
+  ctx.fillText('My week', PAD, y);
+  ctx.fillText('on screens', PAD, y + 78);
+
+  // The hand-drawn underline, under the second line.
+  const uw = ctx.measureText('on screens').width;
+  ctx.strokeStyle = '#2B90E0';
+  ctx.lineWidth = 7;
+  ctx.beginPath();
+  ctx.moveTo(PAD, y + 96);
+  ctx.bezierCurveTo(PAD + uw * 0.3, y + 90, PAD + uw * 0.55, y + 102, PAD + uw, y + 93);
+  ctx.stroke();
+
+  y += 190;
 
   for (const line of data.lines) {
-    ctx.fillStyle = 'rgba(244,246,250,0.70)';
-    ctx.font = sans(38);
+    ctx.fillStyle = '#4B5563';
+    ctx.font = sans(36);
     ctx.fillText(line.label, PAD, y);
 
     ctx.fillStyle = line.accent;
-    ctx.font = sans(58, 620);
+    ctx.font = sans(56, 800);
     ctx.textAlign = 'right';
     ctx.fillText(line.value, CARD_W - PAD, y + 6);
     ctx.textAlign = 'left';
-    y += 92;
+    y += 88;
   }
 
   if (data.record) {
-    y += 20;
-    ctx.fillStyle = 'rgba(245,196,81,0.12)';
-    roundRect(ctx, PAD, y - 46, CARD_W - PAD * 2, 128, 22);
+    y += 18;
+    ctx.fillStyle = '#FAF1DC';
+    roundRect(ctx, PAD, y - 46, CARD_W - PAD * 2, 126, 18);
     ctx.fill();
-    ctx.fillStyle = '#F5C451';
-    ctx.font = sans(26, 500);
-    ctx.fillText('NEW PERSONAL BEST', PAD + 32, y);
-    ctx.fillStyle = '#F4F6FA';
-    ctx.font = sans(38, 560);
-    ctx.fillText(`${data.record.label} · ${data.record.value}`, PAD + 32, y + 50);
-    y += 150;
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 3;
+    roundRect(ctx, PAD, y - 46, CARD_W - PAD * 2, 126, 18);
+    ctx.stroke();
+
+    ctx.fillStyle = '#8F630B';
+    ctx.font = sans(26, 700);
+    ctx.fillText('Best yet', PAD + 30, y);
+    ctx.fillStyle = INK;
+    ctx.font = sans(36, 600);
+    ctx.fillText(`${data.record.label} · ${data.record.value}`, PAD + 30, y + 50);
+    y += 148;
   }
 
   if (data.fitness !== null) {
-    const baseY = CARD_H - PAD - 40;
-    ctx.strokeStyle = 'rgba(244,246,250,0.09)';
+    const baseY = CARD_H - PAD - 46;
+    ctx.strokeStyle = 'rgba(20,24,31,0.16)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(PAD, baseY - 86);
-    ctx.lineTo(CARD_W - PAD, baseY - 86);
+    ctx.moveTo(PAD, baseY - 84);
+    ctx.lineTo(CARD_W - PAD, baseY - 84);
     ctx.stroke();
 
-    ctx.fillStyle = 'rgba(244,246,250,0.45)';
-    ctx.font = sans(28, 500);
-    ctx.fillText('SCREEN FITNESS', PAD, baseY - 10);
+    ctx.fillStyle = '#4B5563';
+    ctx.font = sans(30, 600);
+    ctx.fillText('Screen Fitness', PAD, baseY - 8);
 
-    ctx.fillStyle = '#F5C451';
-    ctx.font = sans(84, 620);
+    ctx.fillStyle = '#8F630B';
+    ctx.font = sans(82, 800);
     ctx.textAlign = 'right';
-    ctx.fillText(String(data.fitness), CARD_W - PAD, baseY + 6);
+    ctx.fillText(String(data.fitness), CARD_W - PAD, baseY + 8);
     ctx.textAlign = 'left';
   }
 }

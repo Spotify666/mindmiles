@@ -1,9 +1,9 @@
 /**
- * MIND MILES — service worker.
+ * PHOTON — service worker.
  *
  * Two jobs, and the second is the reason this file exists at all.
  *
- *   1. Work offline. Everything Mind Miles knows already lives in this browser,
+ *   1. Work offline. Everything Photon knows already lives in this browser,
  *      so there is nothing it genuinely needs a network for. Without a service
  *      worker it still showed a connection error on the underground, which is
  *      absurd for an app whose entire dataset is on the device.
@@ -18,8 +18,8 @@
  */
 
 const VERSION = 'v1';
-const SHELL = `mindmiles-shell-${VERSION}`;
-const ASSETS = `mindmiles-assets-${VERSION}`;
+const SHELL = `photon-shell-${VERSION}`;
+const ASSETS = `photon-assets-${VERSION}`;
 
 /** Routes worth having available cold, with no connection at all. */
 const PRECACHE = ['/', '/trends', '/challenges', '/profile', '/guide', '/welcome'];

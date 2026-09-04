@@ -4,7 +4,7 @@ import { ACCENT_HEX } from '@/components/ui/tokens';
 
 export const metadata: Metadata = {
   title: 'What the numbers mean',
-  description: 'Every number Mind Miles shows you, explained in plain words.',
+  description: 'Every number Photon shows you, explained in plain words.',
 };
 
 /**
@@ -33,7 +33,7 @@ interface Entry {
 
 const MILEAGE: Entry[] = [
   {
-    name: 'Mind Miles',
+    name: 'Photon',
     meaning: 'How much attention the day took. One mile is twenty minutes of screen time.',
     accent: ACCENT_HEX.focus,
     direction: 'Neither good nor bad — it is a distance, like miles run.',
@@ -56,7 +56,7 @@ const MILEAGE: Entry[] = [
   {
     name: 'Scattered miles',
     meaning: 'Real time, spent in bits and pieces.',
-    accent: ACCENT_HEX.scatter,
+    accent: ACCENT_HEX.jumpy,
     direction: 'Less is better.',
     madeOf: ['Minutes that were not in a long block and were not fast scrolling.'],
     good: 'A small slice. Some scattered time is normal and fine.',
@@ -66,7 +66,7 @@ const MILEAGE: Entry[] = [
   {
     name: 'Scroll miles',
     meaning: 'Time where things went past faster than you could read them.',
-    accent: ACCENT_HEX.strain,
+    accent: ACCENT_HEX.effort,
     direction: 'Less is better.',
     madeOf: ['Minutes where you scrolled faster than 1,400 pixels a second and typed almost nothing.'],
     good: 'Under a mile.',
@@ -79,7 +79,7 @@ const SCORES: Entry[] = [
   {
     name: 'Screen Fitness',
     meaning: 'The one number for how well you are handling your screen time.',
-    accent: ACCENT_HEX.record,
+    accent: ACCENT_HEX.gold,
     direction: 'Higher is better. Out of 100.',
     madeOf: [
       'Focus (counts most)',
@@ -112,7 +112,7 @@ const SCORES: Entry[] = [
   {
     name: 'Rest',
     meaning: 'How much of a break you actually got.',
-    accent: ACCENT_HEX.recovery,
+    accent: ACCENT_HEX.rest,
     direction: 'Higher is better.',
     madeOf: [
       'How many breaks of 10 minutes or more you took',
@@ -128,7 +128,7 @@ const SCORES: Entry[] = [
   {
     name: 'Effort',
     meaning: 'How hard the day was.',
-    accent: ACCENT_HEX.strain,
+    accent: ACCENT_HEX.effort,
     direction:
       'Lower is easier — but this one is not a score you are trying to win. A hard day of real work is meant to read as hard.',
     madeOf: [
@@ -147,7 +147,7 @@ const SCORES: Entry[] = [
   {
     name: 'Eyes',
     meaning: 'How tired your eyes probably got.',
-    accent: ACCENT_HEX.strain,
+    accent: ACCENT_HEX.effort,
     direction: 'Lower is better.',
     madeOf: [
       'Your longest look without a break',
@@ -164,7 +164,7 @@ const SCORES: Entry[] = [
   {
     name: 'Jumpiness',
     meaning: 'How much you hopped between things.',
-    accent: ACCENT_HEX.scatter,
+    accent: ACCENT_HEX.jumpy,
     direction: 'Lower is better.',
     madeOf: [
       'How often you jumped away, per hour',
@@ -197,7 +197,7 @@ const OTHER: Entry[] = [
   {
     name: 'Time you got back',
     meaning: 'Time won back compared with a normal day for you.',
-    accent: ACCENT_HEX.recovery,
+    accent: ACCENT_HEX.rest,
     direction: 'More is better.',
     madeOf: [
       'Less fast scrolling than usual',
@@ -230,34 +230,34 @@ function Card({ e }: { e: Entry }) {
     <article className="card p-4">
       <div className="flex items-baseline gap-2.5">
         <span className="h-2.5 w-2.5 shrink-0 rounded-pill" style={{ background: e.accent }} aria-hidden />
-        <h3 className="text-[17px] font-[620] tracking-tightest">{e.name}</h3>
+        <h3 className="text-[17px] font-bold tracking-tightest">{e.name}</h3>
       </div>
 
-      <p className="mt-2 text-[14.5px] leading-relaxed text-chalk-70">{e.meaning}</p>
-      <p className="mt-2 text-[13px] leading-relaxed text-chalk-45">{e.direction}</p>
+      <p className="mt-2 text-[14.5px] leading-relaxed text-ink-soft">{e.meaning}</p>
+      <p className="mt-2 text-[13px] leading-relaxed text-ink-faint">{e.direction}</p>
 
-      <p className="label mt-4 text-chalk-30">What goes into it</p>
+      <p className="label mt-4 text-ink-faint">What goes into it</p>
       <ul className="mt-1.5 space-y-1">
         {e.madeOf.map((m) => (
-          <li key={m} className="flex gap-2 text-[13px] leading-relaxed text-chalk-70">
-            <span className="text-chalk-30">·</span>
+          <li key={m} className="flex gap-2 text-[13px] leading-relaxed text-ink-soft">
+            <span className="text-ink-faint">·</span>
             {m}
           </li>
         ))}
       </ul>
 
       <dl className="mt-4 grid gap-2 sm:grid-cols-2">
-        <div className="rounded-[12px] bg-surface-inset px-3 py-2.5">
-          <dt className="label text-recovery">Looks good</dt>
-          <dd className="mt-1 text-[13px] leading-snug text-chalk-70">{e.good}</dd>
+        <div className="panel px-3 py-2.5">
+          <dt className="label text-rest-text">Looks good</dt>
+          <dd className="mt-1 text-[13px] leading-snug text-ink-soft">{e.good}</dd>
         </div>
-        <div className="rounded-[12px] bg-surface-inset px-3 py-2.5">
-          <dt className="label text-strain">Worth a look</dt>
-          <dd className="mt-1 text-[13px] leading-snug text-chalk-70">{e.bad}</dd>
+        <div className="panel px-3 py-2.5">
+          <dt className="label text-effort">Worth a look</dt>
+          <dd className="mt-1 text-[13px] leading-snug text-ink-soft">{e.bad}</dd>
         </div>
       </dl>
 
-      <p className="mt-3.5 text-[13px] leading-relaxed text-chalk-45">{e.soWhat}</p>
+      <p className="mt-3.5 text-[13px] leading-relaxed text-ink-faint">{e.soWhat}</p>
     </article>
   );
 }
@@ -265,8 +265,8 @@ function Card({ e }: { e: Entry }) {
 function Section({ title, blurb, entries }: { title: string; blurb: string; entries: Entry[] }) {
   return (
     <section>
-      <h2 className="text-[19px] font-[620] tracking-tightest">{title}</h2>
-      <p className="mt-1.5 text-[13.5px] leading-relaxed text-chalk-45">{blurb}</p>
+      <h2 className="display text-[19px]">{title}</h2>
+      <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-faint">{blurb}</p>
       <div className="mt-4 grid gap-2.5 md:grid-cols-2">
         {entries.map((e) => (
           <Card key={e.name} e={e} />
@@ -280,13 +280,13 @@ export default function GuidePage() {
   return (
     <div className="mx-auto flex max-w-[760px] flex-col gap-9 pb-8">
       <header>
-        <h1 className="text-[26px] font-[620] tracking-tightest">What the numbers mean</h1>
-        <p className="mt-2.5 text-[14.5px] leading-relaxed text-chalk-70">
+        <h1 className="display text-[28px]">What the numbers <span className="marked">mean</span></h1>
+        <p className="mt-2.5 text-[14.5px] leading-relaxed text-ink-soft">
           Every number the app shows you, in plain words: what it means, what goes into it, which way
           is good, and whether it is worth doing anything about.
         </p>
-        <p className="mt-3 text-[13px] leading-relaxed text-chalk-45">
-          Short version: <span className="text-chalk">Screen Fitness</span> is the one to look at.
+        <p className="mt-3 text-[13px] leading-relaxed text-ink-faint">
+          Short version: <span className="text-ink">Screen Fitness</span> is the one to look at.
           Everything else explains why it is what it is.
         </p>
       </header>
@@ -310,29 +310,29 @@ export default function GuidePage() {
       />
 
       <section className="card p-4">
-        <h2 className="text-[17px] font-[620] tracking-tightest">Two things worth knowing</h2>
-        <div className="mt-3 space-y-3 text-[13.5px] leading-relaxed text-chalk-45">
+        <h2 className="text-[17px] font-bold tracking-tightest">Two things worth knowing</h2>
+        <div className="mt-3 space-y-3 text-[13.5px] leading-relaxed text-ink-faint">
           <p>
-            <span className="text-chalk">A high number is not always the goal.</span> Effort and Eyes
+            <span className="text-ink">A high number is not always the goal.</span> Effort and Eyes
             are readings, not targets. A busy day of real work should read as busy. The app is not
             trying to get you to use screens less — it is trying to help you notice the difference
             between five hours that went somewhere and five hours that did not.
           </p>
           <p>
-            <span className="text-chalk">Nothing here is a diagnosis.</span> The Eyes score is a
+            <span className="text-ink">Nothing here is a diagnosis.</span> The Eyes score is a
             guess at how hard a day asked your eyes to work, based on how long you looked and how
             few breaks you took. It is not a statement about your eyes.
           </p>
         </div>
       </section>
 
-      <p className="text-[12.5px] text-chalk-30">
-        <Link href="/method" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+      <p className="text-[12.5px] text-ink-faint">
+        <Link href="/method" className="text-ink-faint underline underline-offset-2 hover:text-ink">
           How we work all this out
         </Link>{' '}
         ·{' '}
-        <Link href="/welcome" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
-          What Mind Miles is for
+        <Link href="/welcome" className="text-ink-faint underline underline-offset-2 hover:text-ink">
+          What Photon is for
         </Link>
       </p>
     </div>

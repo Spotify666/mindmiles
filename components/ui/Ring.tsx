@@ -59,7 +59,7 @@ export default function Ring({
             cy={size / 2}
             r={r}
             fill="none"
-            stroke="rgba(244,246,250,0.10)"
+            stroke="#DCE6F0"
             strokeWidth={thickness}
             strokeLinecap="round"
             strokeDasharray={`${arc} ${c}`}
@@ -84,8 +84,8 @@ export default function Ring({
             <span className="readout" style={{ fontSize: size * 0.3 }}>
               {Math.round(value)}
             </span>
-            {label && <span className="label mt-1.5 text-chalk-45">{label}</span>}
-            {sublabel && <span className="mt-0.5 text-[11px] text-chalk-30">{sublabel}</span>}
+            {label && <span className="label mt-1.5 text-ink-faint">{label}</span>}
+            {sublabel && <span className="mt-0.5 text-[11px] text-ink-faint">{sublabel}</span>}
           </>
         )}
       </div>

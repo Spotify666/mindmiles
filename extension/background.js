@@ -1,5 +1,5 @@
 /**
- * MIND MILES — the part that can see your other tabs.
+ * PHOTON — the part that can see your other tabs.
  *
  * A web page cannot look outside itself. An extension can, so this does the one
  * job the page genuinely cannot: notice which tab is in front, and for how long.
@@ -14,7 +14,7 @@
  *
  * Where it goes: chrome.storage.local, on this machine. There is no network
  * call anywhere in this file, and no server for one to reach. When you open
- * Mind Miles, bridge.js hands the totals to the page and the page merges them
+ * Photon, bridge.js hands the totals to the page and the page merges them
  * in, clearly labelled as having come from here.
  */
 
@@ -117,12 +117,12 @@ chrome.idle.onStateChanged.addListener((state) => {
 });
 
 // The page asks for the totals when it opens; this is the only way data leaves
-// the extension, and it only ever goes to the Mind Miles page on this machine.
+// the extension, and it only ever goes to the Photon page on this machine.
 chrome.runtime.onMessage.addListener((msg, _sender, respond) => {
-  if (msg?.type !== 'mind-miles:pull') return false;
+  if (msg?.type !== 'photon:pull') return false;
   bank().then(async () => {
     const store = await chrome.storage.local.get('days');
-    respond({ type: 'mind-miles:data', days: store.days || {} });
+    respond({ type: 'photon:data', days: store.days || {} });
   });
   return true;
 });

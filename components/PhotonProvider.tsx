@@ -34,7 +34,7 @@ import type {
   DayReport,
   DaySummary,
   Insight,
-  MindMilesState,
+  PhotonState,
   MetricId,
   Metric,
   PersonalRecord,
@@ -57,9 +57,9 @@ import type {
 /** How often day aggregates are rebuilt while the app is open. */
 const REBUILD_MS = 15_000;
 
-interface MindMilesValue {
+interface PhotonValue {
   ready: boolean;
-  state: MindMilesState;
+  state: PhotonState;
   /**
    * The live snapshot at the time the aggregates were last rebuilt. Fine for
    * things that change slowly — the brightness source, say. Anything showing a
@@ -97,7 +97,7 @@ interface MindMilesValue {
   markRecordsSeen: () => void;
 }
 
-const Ctx = createContext<MindMilesValue | null>(null);
+const Ctx = createContext<PhotonValue | null>(null);
 
 /**
  * The live readout gets its own context, and this is not an optimisation — it
@@ -121,19 +121,19 @@ export function useLive(): LiveStats | null {
   return useContext(LiveCtx);
 }
 
-export function useMindMiles(): MindMilesValue {
+export function usePhoton(): PhotonValue {
   const v = useContext(Ctx);
-  if (!v) throw new Error('useMindMiles must be used inside <MindMilesProvider>');
+  if (!v) throw new Error('usePhoton must be used inside <PhotonProvider>');
   return v;
 }
 
 /** A metric for one id, for the explain sheet. */
 export function useMetric(id: MetricId): Metric {
-  return useMindMiles().today.byId[id];
+  return usePhoton().today.byId[id];
 }
 
-export default function MindMilesProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<MindMilesState | null>(null);
+export default function PhotonProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<PhotonState | null>(null);
   const [live, setLive] = useState<LiveStats | null>(null);
   const [tick, setTick] = useState(0);
   const started = useRef(false);
@@ -174,7 +174,7 @@ export default function MindMilesProvider({ children }: { children: React.ReactN
 
   const refresh = useCallback(() => setState({ ...loadState() }), []);
 
-  const value = useMemo<MindMilesValue | null>(() => {
+  const value = useMemo<PhotonValue | null>(() => {
     if (!state) return null;
 
     const today = todayKey();
@@ -256,7 +256,7 @@ export default function MindMilesProvider({ children }: { children: React.ReactN
   if (!value) {
     return (
       <div className="flex min-h-[100svh] items-center justify-center">
-        <p className="label animate-breathe text-chalk-45">Reading your device</p>
+        <p className="label animate-breathe text-ink-faint">Reading your device</p>
       </div>
     );
   }

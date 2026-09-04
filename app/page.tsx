@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { useMindMiles } from '@/components/MindMilesProvider';
+import { usePhoton } from '@/components/PhotonProvider';
 import DayTimeline from '@/components/charts/DayTimeline';
 import Ring from '@/components/ui/Ring';
 import MetricCard from '@/components/ui/MetricCard';
 import LiveNow from '@/components/today/LiveNow';
 import InstallBanner from '@/components/InstallBanner';
-import { MileageCard, OneThingCard, StoryCard, WinCard } from '@/components/today/Cards';
+import { TimeCard, OneThingCard, StoryCard, WinCard } from '@/components/today/Cards';
 import { recordsSetOn } from '@/lib/mm/records';
 import { fmtSigned, todayLabel } from '@/lib/mm/labels';
 import { ACCENT_HEX } from '@/components/ui/tokens';
@@ -34,7 +34,7 @@ import { useRouter } from 'next/navigation';
  * reachable afterwards.
  */
 export default function TodayPage() {
-  const mm = useMindMiles();
+  const mm = usePhoton();
   const { today, fitness, fitnessLastMonth, records, insights, story, storageBlocked } = mm;
 
   const newToday = recordsSetOn(records, today.date).filter((r) => r.isNew);
@@ -64,7 +64,7 @@ export default function TodayPage() {
   return (
     <div className="mx-auto flex max-w-app flex-col gap-3.5 md:max-w-none md:grid md:grid-cols-12 md:items-start md:gap-4">
       {storageBlocked && (
-        <p className="rounded-card border border-strain/30 bg-strain-dim p-3 text-[12.5px] leading-relaxed text-chalk-70 md:col-span-12">
+        <p className="rounded-card border border-effort/40 bg-effort-wash p-3 text-[12.5px] leading-relaxed text-ink-soft md:col-span-12">
           Your browser is not letting us save anything, so today will disappear when you close this
           tab. Nothing went anywhere — there is nowhere for it to go.
         </p>
@@ -75,42 +75,43 @@ export default function TodayPage() {
       </div>
 
       {/* ── status ─────────────────────────────────────────── */}
-      <Enter as="section" index={0} className="card p-5 md:col-span-5">
+      <Enter as="section" index={0} className="card relative p-5 md:col-span-5">
+        <span className="tape left-9" aria-hidden />
         <div className="flex items-baseline justify-between gap-3">
-          <p className="label text-chalk-30">{todayLabel(today.date)}</p>
+          <p className="label text-ink-faint">{todayLabel(today.date)}</p>
         </div>
 
         <div className="mt-4 flex items-center gap-5">
-          <Ring value={fitness} accent="record" size={124}>
-            <span className="readout text-[40px]" style={{ color: ACCENT_HEX.record }}>
+          <Ring value={fitness} accent="gold" size={124}>
+            <span className="readout text-[40px]" style={{ color: ACCENT_HEX.gold }}>
               <Counting value={fitness} duration={1100} />
             </span>
-            <span className="label mt-1.5 text-chalk-30">Fitness</span>
+            <span className="label mt-1.5 text-ink-faint">Fitness</span>
           </Ring>
 
           <div className="min-w-0">
-            <p className="text-[17px] font-[620] leading-snug tracking-tightest">
+            <p className="text-[17px] font-bold leading-snug tracking-tightest">
               {today.fitness.bandLabel}
             </p>
-            <p className="label mt-1.5 text-chalk-45">
+            <p className="label mt-1.5 text-ink-faint">
               {monthChange === null
                 ? 'still learning your normal'
                 : `${monthChange === 0 ? 'level' : fmtSigned(monthChange)} this month`}
             </p>
-            <p className="mt-3 text-[12.5px] leading-relaxed text-chalk-45">
+            <p className="mt-3 text-[12.5px] leading-relaxed text-ink-faint">
               This covers your last seven days, not just today. One rough day should not decide how
               you are doing.
             </p>
           </div>
         </div>
 
-        <div className="mt-4 border-t border-hair pt-3.5">
-          <p className="text-[13.5px] leading-relaxed text-chalk-70">{today.fitness.headline}</p>
+        <div className="mt-4 border-t border-ink/15 pt-3.5">
+          <p className="text-[13.5px] leading-relaxed text-ink-soft">{today.fitness.headline}</p>
         </div>
       </Enter>
 
       <Enter index={1} className="md:col-span-7">
-        <MileageCard
+        <TimeCard
           miles={today.summary.miles}
           activeMin={today.summary.activeMin}
           scrollMeters={today.summary.scrollMeters}
@@ -127,9 +128,9 @@ export default function TodayPage() {
           <MetricCard metric={today.fragmentation} />
           <MetricCard metric={today.intentionality} />
         </div>
-        <p className="mt-2.5 text-[11.5px] leading-relaxed text-chalk-30">
+        <p className="mt-2.5 text-[11.5px] leading-relaxed text-ink-faint">
           Tap any score to see what went into it.{' '}
-          <Link href="/guide" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+          <Link href="/guide" className="text-ink-faint underline underline-offset-2 hover:text-ink">
             Or read what they all mean
           </Link>
           .
@@ -152,11 +153,11 @@ export default function TodayPage() {
         <LiveNow />
       </Enter>
 
-      <p className="text-[11.5px] leading-relaxed text-chalk-30 md:col-span-12">
+      <p className="text-[11.5px] leading-relaxed text-ink-faint md:col-span-12">
         Everything here was worked out in this browser and saved on this device. We count key
         presses; we never see which keys. Nothing is uploaded, because there is nowhere to upload
         it to.{' '}
-        <Link href="/method" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+        <Link href="/method" className="text-ink-faint underline underline-offset-2 hover:text-ink">
           How we work all this out
         </Link>
         .

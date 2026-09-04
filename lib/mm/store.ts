@@ -5,7 +5,7 @@ import {
   type ChallengeEnrollment,
   type DayRecord,
   type ExternalSession,
-  type MindMilesState,
+  type PhotonState,
   type MinuteBucket,
   type Profile,
   type SharingPrefs,
@@ -23,7 +23,9 @@ import {
  * when that happens rather than being quietly given a broken product.
  */
 
-const KEY = 'mindmiles.v1';
+const KEY = 'photon.v1';
+/** What the store was called before the app was renamed. Read once, then retired. */
+const LEGACY_KEY = 'mindmiles.v1';
 const VERSION = 1;
 
 /**
@@ -50,7 +52,7 @@ export const DEFAULT_SHARING: SharingPrefs = {
   streak: true,
 };
 
-function emptyState(): MindMilesState {
+function emptyState(): PhotonState {
   return {
     version: VERSION,
     brightness: 70,
@@ -65,7 +67,7 @@ function emptyState(): MindMilesState {
   };
 }
 
-let memo: MindMilesState | null = null;
+let memo: PhotonState | null = null;
 let storageBlocked = false;
 
 /** True when localStorage refused a write — the UI surfaces this honestly. */
@@ -99,15 +101,25 @@ export function recentKeys(n: number): string[] {
 
 // ─────────────────────────── load / save ───────────────────────────
 
-export function loadState(): MindMilesState {
+export function loadState(): PhotonState {
   if (memo) return memo;
   try {
-    const raw = localStorage.getItem(KEY);
+    // A rename should not cost anyone their history. If the old key is still
+    // there and the new one is not, adopt it and move on.
+    let raw = localStorage.getItem(KEY);
+    if (!raw) {
+      const legacy = localStorage.getItem(LEGACY_KEY);
+      if (legacy) {
+        localStorage.setItem(KEY, legacy);
+        localStorage.removeItem(LEGACY_KEY);
+        raw = legacy;
+      }
+    }
     if (!raw) {
       memo = emptyState();
       return memo;
     }
-    const parsed = JSON.parse(raw) as Partial<MindMilesState>;
+    const parsed = JSON.parse(raw) as Partial<PhotonState>;
     if (parsed.version !== VERSION || typeof parsed.days !== 'object') {
       memo = emptyState();
       return memo;
@@ -130,7 +142,7 @@ export function loadState(): MindMilesState {
   }
 }
 
-export function saveState(state: MindMilesState): MindMilesState {
+export function saveState(state: PhotonState): PhotonState {
   memo = state;
   try {
     const cutoff = dayKeyOffset(-RETAIN_DAYS);
@@ -150,7 +162,7 @@ export function saveState(state: MindMilesState): MindMilesState {
 
 // ─────────────────────────── record access ───────────────────────────
 
-export function ensureDay(state: MindMilesState, date = todayKey()): DayRecord {
+export function ensureDay(state: PhotonState, date = todayKey()): DayRecord {
   let day = state.days[date];
   if (!day) {
     day = { date, buckets: {}, switches: 0, externals: [], intents: {} };
@@ -174,7 +186,7 @@ export function getBucket(day: DayRecord, minuteOfDay: number, brightness: numbe
 
 // ─────────────────────────── mutations ───────────────────────────
 
-export function addExternal(session: Omit<ExternalSession, 'id'>): MindMilesState {
+export function addExternal(session: Omit<ExternalSession, 'id'>): PhotonState {
   const state = loadState();
   const day = ensureDay(state, dayKey(new Date(session.start)));
   day.externals.push({
@@ -184,14 +196,14 @@ export function addExternal(session: Omit<ExternalSession, 'id'>): MindMilesStat
   return saveState(state);
 }
 
-export function removeExternal(date: string, id: string): MindMilesState {
+export function removeExternal(date: string, id: string): PhotonState {
   const state = loadState();
   const day = state.days[date];
   if (day) day.externals = day.externals.filter((e) => e.id !== id);
   return saveState(state);
 }
 
-export function setIntent(date: string, category: Category, minutes: number): MindMilesState {
+export function setIntent(date: string, category: Category, minutes: number): PhotonState {
   const state = loadState();
   const day = ensureDay(state, date);
   if (minutes <= 0) delete day.intents[category];
@@ -199,49 +211,49 @@ export function setIntent(date: string, category: Category, minutes: number): Mi
   return saveState(state);
 }
 
-export function setBrightness(value: number): MindMilesState {
+export function setBrightness(value: number): PhotonState {
   const state = loadState();
   state.brightness = Math.max(0, Math.min(100, Math.round(value)));
   return saveState(state);
 }
 
-export function setEnabled(enabled: boolean): MindMilesState {
+export function setEnabled(enabled: boolean): PhotonState {
   const state = loadState();
   state.enabled = enabled;
   return saveState(state);
 }
 
-export function setOnboarded(v: boolean): MindMilesState {
+export function setOnboarded(v: boolean): PhotonState {
   const state = loadState();
   state.onboarded = v;
   return saveState(state);
 }
 
-export function updateProfile(patch: Partial<Profile>): MindMilesState {
+export function updateProfile(patch: Partial<Profile>): PhotonState {
   const state = loadState();
   state.profile = { ...state.profile, ...patch };
   return saveState(state);
 }
 
-export function updateSharing(patch: Partial<SharingPrefs>): MindMilesState {
+export function updateSharing(patch: Partial<SharingPrefs>): PhotonState {
   const state = loadState();
   state.sharing = { ...state.sharing, ...patch };
   return saveState(state);
 }
 
-export function joinChallenge(id: string): MindMilesState {
+export function joinChallenge(id: string): PhotonState {
   const state = loadState();
   state.challenges[id] = { id, startedOn: todayKey() };
   return saveState(state);
 }
 
-export function leaveChallenge(id: string): MindMilesState {
+export function leaveChallenge(id: string): PhotonState {
   const state = loadState();
   delete state.challenges[id];
   return saveState(state);
 }
 
-export function completeChallenge(id: string, on: string): MindMilesState {
+export function completeChallenge(id: string, on: string): PhotonState {
   const state = loadState();
   const e: ChallengeEnrollment | undefined = state.challenges[id];
   if (e && !e.completedOn) {
@@ -252,7 +264,7 @@ export function completeChallenge(id: string, on: string): MindMilesState {
 }
 
 /** Mark a personal record as seen so it stops being flagged as new. */
-export function acknowledgeRecords(entries: Record<string, number>): MindMilesState {
+export function acknowledgeRecords(entries: Record<string, number>): PhotonState {
   const state = loadState();
   state.seenRecords = { ...state.seenRecords, ...entries };
   return saveState(state);
@@ -268,7 +280,7 @@ export function exportJson(): string {
  * Wipe everything. Deliberately total and deliberately one call — a delete
  * that leaves residue behind is not a delete.
  */
-export function clearAll(): MindMilesState {
+export function clearAll(): PhotonState {
   memo = emptyState();
   try {
     localStorage.removeItem(KEY);
@@ -279,7 +291,7 @@ export function clearAll(): MindMilesState {
 }
 
 /** Drop measured history but keep profile, intentions and sharing settings. */
-export function clearHistory(): MindMilesState {
+export function clearHistory(): PhotonState {
   const state = loadState();
   state.days = {};
   state.seeded = false;

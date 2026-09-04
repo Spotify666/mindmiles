@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useMindMiles } from '@/components/MindMilesProvider';
+import { usePhoton } from '@/components/PhotonProvider';
 import MileageChart from '@/components/charts/MileageChart';
 import TrendLine, { type TrendPoint } from '@/components/charts/TrendLine';
 import DayTimeline from '@/components/charts/DayTimeline';
@@ -34,7 +34,7 @@ const SERIES: { id: MetricId; label: string }[] = [
 ];
 
 export default function TrendsPage() {
-  const { reports, summaries, baseline, byDate, today } = useMindMiles();
+  const { reports, summaries, baseline, byDate, today } = usePhoton();
   const [days, setDays] = useState<number>(30);
   const [selected, setSelected] = useState<string>(today.date);
   const [series, setSeries] = useState<MetricId>('fitness');
@@ -70,9 +70,9 @@ export default function TrendsPage() {
   return (
     <div className="mx-auto flex max-w-app flex-col gap-3.5 md:max-w-none">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-[22px] font-[620] tracking-tightest">Trends</h1>
+        <h1 className="display text-[24px]">Trends</h1>
         {/* Filters sit in one row above the charts, never between them. */}
-        <div role="group" aria-label="Date range" className="flex gap-1 rounded-pill bg-surface p-1">
+        <div role="group" aria-label="Date range" className="flex gap-1 rounded-pill bg-card p-1">
           {RANGES.map((r) => (
             <button
               key={r.days}
@@ -80,7 +80,7 @@ export default function TrendsPage() {
               onClick={() => setDays(r.days)}
               aria-pressed={days === r.days}
               className={`rounded-pill px-3 py-1 text-[12.5px] transition-colors ${
-                days === r.days ? 'bg-surface-inset text-chalk' : 'text-chalk-45 hover:text-chalk'
+                days === r.days ? 'bg-paper text-ink' : 'text-ink-faint hover:text-ink'
               }`}
             >
               {r.label}
@@ -100,7 +100,7 @@ export default function TrendsPage() {
           <Stat
             label="Recovery"
             value={fmtMin(miles.recovery * 20)}
-            accent={ACCENT_HEX.recovery}
+            accent={ACCENT_HEX.rest}
             note="in breaks"
           />
           <Stat label="Scrolled" value={totalScroll(window)} note="roughly" />
@@ -117,8 +117,8 @@ export default function TrendsPage() {
               aria-pressed={series === s.id}
               className={`rounded-pill px-3 py-1 text-[12.5px] transition-colors ${
                 series === s.id
-                  ? 'bg-surface-inset text-chalk'
-                  : 'text-chalk-45 hover:bg-surface-raised hover:text-chalk'
+                  ? 'bg-paper text-ink'
+                  : 'text-ink-faint hover:bg-paper hover:text-ink'
               }`}
             >
               {s.label}
@@ -131,18 +131,18 @@ export default function TrendsPage() {
           accent={METRIC_ACCENT[series]}
           baseline={seriesBaseline?.value}
         />
-        <p className="mt-3 text-[11.5px] leading-relaxed text-chalk-30">
+        <p className="mt-3 text-[11.5px] leading-relaxed text-ink-faint">
           Days with almost no screen time show as gaps, not zeroes. A day away from your devices is
           not a bad day.
         </p>
       </section>
 
       <section className="card p-4">
-        <p className="label text-chalk-30">Your week</p>
-        <p className="mt-2.5 text-[15px] leading-relaxed text-chalk-70">
+        <p className="label text-ink-faint">Your week</p>
+        <p className="mt-2.5 text-[15px] leading-relaxed text-ink-soft">
           {thisMiles.total < 1
             ? 'Not enough measured time this week to summarise yet.'
-            : `${fmtMiles(thisMiles.total)} Mind Miles, of which ${fmtMiles(thisMiles.focus)} were focus miles.` +
+            : `${fmtMiles(thisMiles.total)} Photon, of which ${fmtMiles(thisMiles.focus)} were focus miles.` +
               (focusChange !== null ? ` Focused time ${fmtPercent(focusChange)} on last week.` : '') +
               (scrollChange !== null ? ` Fast scrolling ${fmtPercent(scrollChange)}.` : '')}
         </p>
@@ -162,7 +162,7 @@ export default function TrendsPage() {
             value={today.summary.longestBoutMin}
             baseline={baseline.normal('longestBoutMin', today.date)?.value}
             max={120}
-            accent="strain"
+            accent="effort"
             format={fmtMin}
             lowerIsBetter
           />
@@ -171,7 +171,7 @@ export default function TrendsPage() {
             value={today.summary.burstMin}
             baseline={baseline.normal('burstMin', today.date)?.value}
             max={90}
-            accent="strain"
+            accent="effort"
             format={fmtMin}
             lowerIsBetter
           />
@@ -180,7 +180,7 @@ export default function TrendsPage() {
             value={today.summary.breakCount}
             baseline={baseline.normal('breakCount', today.date)?.value}
             max={8}
-            accent="recovery"
+            accent="rest"
             format={(n) => `${Math.round(n)}`}
           />
         </div>
@@ -188,11 +188,11 @@ export default function TrendsPage() {
 
       <section className="card p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="label text-chalk-30">{fmtDate(selected)}</p>
+          <p className="label text-ink-faint">{fmtDate(selected)}</p>
           <button
             type="button"
             onClick={() => setSelected(today.date)}
-            className="label text-chalk-30 transition-colors hover:text-chalk-70"
+            className="label text-ink-faint transition-colors hover:text-ink-soft"
           >
             Back to today
           </button>
@@ -217,7 +217,7 @@ export default function TrendsPage() {
                 Every visit to the screen on {selected}, with when it started, how long it lasted, and what you did.
               </caption>
               <thead>
-                <tr className="label text-chalk-30">
+                <tr className="label text-ink-faint">
                   <th scope="col" className="py-2 font-normal">Started</th>
                   <th scope="col" className="py-2 font-normal">Length</th>
                   <th scope="col" className="py-2 text-right font-normal">Keys</th>
@@ -227,25 +227,25 @@ export default function TrendsPage() {
               </thead>
               <tbody>
                 {selectedReport.summary.bouts.map((b) => (
-                  <tr key={`${b.startMin}-${b.source}`} className="border-t border-hair">
-                    <td className="py-2 tabular-nums text-chalk-70">
+                  <tr key={`${b.startMin}-${b.source}`} className="border-t border-ink/15">
+                    <td className="py-2 tabular-nums text-ink-soft">
                       {String(Math.floor(b.startMin / 60)).padStart(2, '0')}:
                       {String(b.startMin % 60).padStart(2, '0')}
-                      {b.label && <span className="ml-2 text-chalk-30">{b.label}</span>}
+                      {b.label && <span className="ml-2 text-ink-faint">{b.label}</span>}
                       {b.source === 'logged' && (
-                        <span className="label ml-2 rounded-pill border border-hair px-1.5 py-0.5 text-chalk-30">
+                        <span className="label ml-2 rounded-pill border border-ink/15 px-1.5 py-0.5 text-ink-faint">
                           logged
                         </span>
                       )}
                     </td>
                     <td className="py-2 tabular-nums">{fmtMin(b.endMin - b.startMin + 1)}</td>
-                    <td className="py-2 text-right tabular-nums text-chalk-45">
+                    <td className="py-2 text-right tabular-nums text-ink-faint">
                       {b.keys.toLocaleString()}
                     </td>
-                    <td className="py-2 text-right tabular-nums text-chalk-45">
+                    <td className="py-2 text-right tabular-nums text-ink-faint">
                       {(b.scrollPx / 1000).toFixed(1)}k
                     </td>
-                    <td className="py-2 text-right tabular-nums text-chalk-45">{b.switches}</td>
+                    <td className="py-2 text-right tabular-nums text-ink-faint">{b.switches}</td>
                   </tr>
                 ))}
               </tbody>
@@ -269,12 +269,12 @@ function Stat({
   note?: string;
 }) {
   return (
-    <div className="rounded-[12px] bg-surface-inset px-3 py-2.5">
-      <dt className="label text-chalk-30">{label}</dt>
+    <div className="panel px-3 py-2.5">
+      <dt className="label text-ink-faint">{label}</dt>
       <dd className="readout mt-1.5 text-[19px]" style={accent ? { color: accent } : undefined}>
         {value}
       </dd>
-      {note && <p className="mt-1 text-[10.5px] text-chalk-30">{note}</p>}
+      {note && <p className="mt-1 text-[10.5px] text-ink-faint">{note}</p>}
     </div>
   );
 }

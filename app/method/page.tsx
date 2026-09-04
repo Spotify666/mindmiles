@@ -4,7 +4,7 @@ import { PROVENANCE_LABEL, PROVENANCE_NOTE, type Provenance } from '@/lib/mm/typ
 
 export const metadata: Metadata = {
   title: 'How it works',
-  description: 'What Mind Miles counts, what it cannot, and the numbers behind every score.',
+  description: 'What Photon counts, what it cannot, and the numbers behind every score.',
 };
 
 /**
@@ -128,8 +128,8 @@ export default function MethodPage() {
   return (
     <div className="mx-auto flex max-w-[680px] flex-col gap-8 pb-6">
       <header>
-        <h1 className="text-[26px] font-[620] tracking-tightest">How it works</h1>
-        <p className="mt-2.5 text-[14.5px] leading-relaxed text-chalk-70">
+        <h1 className="display text-[28px]">How it <span className="marked">works</span></h1>
+        <p className="mt-2.5 text-[14.5px] leading-relaxed text-ink-soft">
           Every score in this app can be taken apart, and this is where it gets taken apart. Here is
           what we can count, what we honestly cannot, and every number behind the scores — including
           the ones that make us look less clever than we would like.
@@ -137,86 +137,86 @@ export default function MethodPage() {
       </header>
 
       <section>
-        <h2 className="text-[18px] font-[620] tracking-tightest">Four labels you will see</h2>
+        <h2 className="display text-[18px]">Four labels you will see</h2>
         <ul className="mt-3.5 space-y-2.5">
           {(['measured', 'derived', 'estimated', 'unavailable'] as Provenance[]).map((p) => (
-            <li key={p} className="rounded-[14px] border border-hair p-3.5">
-              <p className="label text-chalk-70">{PROVENANCE_LABEL[p]}</p>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-chalk-45">{PROVENANCE_NOTE[p]}</p>
+            <li key={p} className="panel p-3.5">
+              <p className="label text-ink-soft">{PROVENANCE_LABEL[p]}</p>
+              <p className="mt-1.5 text-[13px] leading-relaxed text-ink-faint">{PROVENANCE_NOTE[p]}</p>
             </li>
           ))}
         </ul>
       </section>
 
       <section>
-        <h2 className="text-[18px] font-[620] tracking-tightest">What we can and cannot see</h2>
+        <h2 className="display text-[18px]">What we can and cannot see</h2>
         <ul className="mt-3.5 space-y-2.5">
           {SIGNALS.map((s) => (
-            <li key={s.name} className="rounded-[14px] border border-hair p-3.5">
+            <li key={s.name} className="panel p-3.5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="text-[14.5px] font-[560]">{s.name}</span>
+                <span className="text-[14.5px] font-semibold">{s.name}</span>
                 <span
                   className={`label rounded-pill px-1.5 py-0.5 ${
                     s.provenance === 'measured'
-                      ? 'text-recovery'
+                      ? 'text-rest-text'
                       : s.provenance === 'estimated'
-                        ? 'border border-strain/25 bg-strain-dim text-strain'
+                        ? 'border border-effort/40 bg-effort-wash text-effort'
                         : s.provenance === 'unavailable'
-                          ? 'border border-hair text-chalk-30'
-                          : 'text-chalk-45'
+                          ? 'border border-ink/15 text-ink-faint'
+                          : 'text-ink-faint'
                   }`}
                 >
                   {PROVENANCE_LABEL[s.provenance]}
                 </span>
               </div>
-              <p className="mt-2 text-[13px] leading-relaxed text-chalk-45">{s.note}</p>
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-faint">{s.note}</p>
             </li>
           ))}
         </ul>
       </section>
 
       <section>
-        <h2 className="text-[18px] font-[620] tracking-tightest">Every number we use</h2>
-        <p className="mt-2 text-[13px] leading-relaxed text-chalk-45">
+        <h2 className="display text-[18px]">Every number we use</h2>
+        <p className="mt-2 text-[13px] leading-relaxed text-ink-faint">
           These are the actual cut-offs behind the scores. They all live in one file, with the reason
           for each written next to it.
         </p>
         <ul className="mt-3.5 space-y-2.5">
           {THRESHOLDS.map((t) => (
-            <li key={t.rule} className="rounded-[14px] border border-hair p-3.5">
+            <li key={t.rule} className="panel p-3.5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="text-[14.5px] font-[560]">{t.rule}</span>
-                <span className="text-[14px] font-[620] tabular-nums text-focus">{t.value}</span>
+                <span className="text-[14.5px] font-semibold">{t.rule}</span>
+                <span className="text-[14px] font-bold tabular-nums text-focus">{t.value}</span>
               </div>
-              <p className="mt-2 text-[13px] leading-relaxed text-chalk-45">{t.why}</p>
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-faint">{t.why}</p>
             </li>
           ))}
         </ul>
       </section>
 
-      <section className="rounded-card border border-hair bg-surface p-4">
-        <h2 className="text-[18px] font-[620] tracking-tightest">What this is not</h2>
-        <div className="mt-3 space-y-3 text-[13px] leading-relaxed text-chalk-45">
+      <section className="rounded-card border border-ink/15 bg-card p-4">
+        <h2 className="display text-[18px]">What this is not</h2>
+        <div className="mt-3 space-y-3 text-[13px] leading-relaxed text-ink-faint">
           <p>
-            <span className="text-chalk">It is not a doctor.</span> The Eyes score is a guess at how
+            <span className="text-ink">It is not a doctor.</span> The Eyes score is a guess at how
             hard a day asked your eyes to work. It is not a statement about your eyes, and nothing
             here diagnoses eye strain, sleep problems or anything else. The scores are simple rules
             built on well-known advice — a mirror, not a medical test.
           </p>
           <p>
-            <span className="text-chalk">It never compares you to other people.</span> There are no
+            <span className="text-ink">It never compares you to other people.</span> There are no
             averages from anyone else in this app. Everything is measured against your own past —
             partly because comparing would mean sending your habits somewhere, and mostly because a
             builder&rsquo;s Tuesday and a nurse&rsquo;s Tuesday are not the same thing.
           </p>
           <p>
-            <span className="text-chalk">It does not see everything.</span> This measures one browser
+            <span className="text-ink">It does not see everything.</span> This measures one browser
             on one device. Anything else is added by you or marked as something we cannot see. A low
             number might mean a calm day, or a day spent on a different machine — and we will not
             pretend to know which.
           </p>
           <p>
-            <span className="text-chalk">Day one is made up.</span> A brand new install comes with 30
+            <span className="text-ink">Day one is made up.</span> A brand new install comes with 30
             days of example data so the charts make sense straight away. It says so wherever it
             appears, and you can wipe it in one tap from your profile. Your real days start counting
             the moment you open the app.
@@ -224,8 +224,8 @@ export default function MethodPage() {
         </div>
       </section>
 
-      <p className="text-[12.5px] text-chalk-30">
-        <Link href="/privacy" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+      <p className="text-[12.5px] text-ink-faint">
+        <Link href="/privacy" className="text-ink-faint underline underline-offset-2 hover:text-ink">
           What we know about you
         </Link>
       </p>

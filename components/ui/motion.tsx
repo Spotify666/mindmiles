@@ -136,11 +136,11 @@ export function Heartbeat({ active }: { active: boolean }) {
       aria-hidden
     >
       {active && (
-        <span className="mm-ping absolute inline-flex h-full w-full rounded-pill bg-recovery" />
+        <span className="mm-ping absolute inline-flex h-full w-full rounded-pill bg-rest" />
       )}
       <span
         className="relative inline-flex h-2 w-2 rounded-pill"
-        style={{ background: active ? '#00AA6A' : 'rgba(244,246,250,0.25)' }}
+        style={{ background: active ? '#09A668' : '#C3CCD8' }}
       />
     </span>
   );

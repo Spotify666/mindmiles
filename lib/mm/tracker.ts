@@ -28,7 +28,7 @@ import { dayKey, ensureDay, getBucket, loadState, saveState } from './store';
  *
  *   With the extension installed, time in other tabs arrives separately.
  *
- *   With several Mind Miles tabs open, only one of them banks time.
+ *   With several Photon tabs open, only one of them banks time.
  *
  * What is still NOT measured, and is never guessed at: which application or
  * site you were in, OS-level screen time, notification counts, and anything at
@@ -75,7 +75,7 @@ export interface LiveStats {
   presenceSource: PresenceSource;
   /** True when OS-level idle detection is running. */
   deviceAware: boolean;
-  /** False when another Mind Miles tab is the one banking time. */
+  /** False when another Photon tab is the one banking time. */
   writing: boolean;
   /** Last 60 one-second activity samples, 0–1, oldest first. */
   wave: number[];
@@ -329,7 +329,7 @@ class Tracker {
 
     this.refreshBrightness();
 
-    // Only one Mind Miles tab banks time. Everyone else keeps their own live
+    // Only one Photon tab banks time. Everyone else keeps their own live
     // readout and writes nothing, so an open second tab cannot double the day.
     this.writing = claimWriter();
 
@@ -415,9 +415,9 @@ class Tracker {
 }
 
 /** Held on globalThis so hot reload in development does not reset the clock. */
-const g = globalThis as unknown as { __mindMilesTracker?: Tracker };
+const g = globalThis as unknown as { __photonTracker?: Tracker };
 
 export function tracker(): Tracker {
-  if (!g.__mindMilesTracker) g.__mindMilesTracker = new Tracker();
-  return g.__mindMilesTracker;
+  if (!g.__photonTracker) g.__photonTracker = new Tracker();
+  return g.__photonTracker;
 }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useMindMiles } from '@/components/MindMilesProvider';
+import { usePhoton } from '@/components/PhotonProvider';
 
 /**
  * Primary navigation.
@@ -29,13 +29,13 @@ export function TabBar() {
   // Nothing to navigate to until the welcome has been read — four tabs under a
   // "Start measuring" button is an invitation to skip the only screen that
   // explains what this is.
-  const { state } = useMindMiles();
+  const { state } = usePhoton();
   if (!state.onboarded) return null;
 
   return (
     <nav
       aria-label="Primary"
-      className="safe-b fixed inset-x-0 bottom-0 z-40 border-t border-hair bg-void/92 backdrop-blur-lg md:hidden"
+      className="safe-b fixed inset-x-0 bottom-0 z-40 border-t border-ink/15 bg-paper/92 backdrop-blur-lg md:hidden"
     >
       <ul className="mx-auto flex max-w-app items-stretch">
         {TABS.map((t) => (
@@ -55,17 +55,17 @@ function TabLink({ href, label, icon: Icon }: (typeof TABS)[number]) {
       href={href}
       aria-current={active ? 'page' : undefined}
       className={`flex flex-col items-center gap-1 px-1 pb-2 pt-2.5 transition-colors ${
-        active ? 'text-chalk' : 'text-chalk-30 hover:text-chalk-70'
+        active ? 'text-ink' : 'text-ink-faint hover:text-ink-soft'
       }`}
     >
       <Icon active={active} />
-      <span className="text-[10.5px] font-[560] tracking-[0.01em]">{label}</span>
+      <span className="text-[10.5px] font-semibold tracking-[0.01em]">{label}</span>
     </Link>
   );
 }
 
 export function DesktopNav() {
-  const { state } = useMindMiles();
+  const { state } = usePhoton();
   if (!state.onboarded) return null;
 
   return (
@@ -84,7 +84,7 @@ function DesktopLink({ href, label }: (typeof TABS)[number]) {
       href={href}
       aria-current={active ? 'page' : undefined}
       className={`rounded-pill px-3.5 py-1.5 text-[14px] transition-colors ${
-        active ? 'bg-surface-raised text-chalk' : 'text-chalk-45 hover:text-chalk'
+        active ? 'bg-paper text-ink' : 'text-ink-faint hover:text-ink'
       }`}
     >
       {label}

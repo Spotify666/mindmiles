@@ -5,7 +5,7 @@
  *
  * The honest limit of a web page is that it sees its own tab and nothing else.
  * That limit produced a fair complaint: you switch to another tab, keep working
- * for an hour, come back, and Mind Miles recorded nothing. Which is true to
+ * for an hour, come back, and Photon recorded nothing. Which is true to
  * what a page can see, and useless as a measure of your day.
  *
  * There are three ways past it, and this file uses all three:
@@ -13,7 +13,7 @@
  *   1. IDLE DETECTION. Chromium exposes `IdleDetector`, which reports whether
  *      the USER is active and whether the screen is locked — at the operating
  *      system level, and it keeps reporting while this tab is in the
- *      background. With permission granted, Mind Miles measures your device
+ *      background. With permission granted, Photon measures your device
  *      rather than its own tab. It still cannot see WHICH app you were in, and
  *      it never claims to.
  *
@@ -21,7 +21,7 @@
  *      installed it posts per-site time into the page, and that arrives here
  *      labelled as coming from the extension. See extension/ in this repo.
  *
- *   3. ONE WRITER. With several Mind Miles tabs open, every one of them would
+ *   3. ONE WRITER. With several Photon tabs open, every one of them would
  *      otherwise count the same minute. A lock in localStorage elects a single
  *      writer, so the same second is never banked twice.
  *
@@ -174,7 +174,7 @@ export function presence(tabActive: boolean): PresenceState {
 
 // ── One writer across tabs ────────────────────────────────────────
 
-const LOCK_KEY = 'mindmiles.writer';
+const LOCK_KEY = 'photon.writer';
 /** A lock older than this is assumed dead — the tab holding it was closed. */
 const LOCK_STALE_MS = 4_000;
 
@@ -219,7 +219,7 @@ export function releaseWriter(): void {
 export const SOURCE_COPY: Record<PresenceSource, { label: string; note: string }> = {
   tab: {
     label: 'This tab only',
-    note: 'Right now we can only see this page. Switch to another tab and we stop counting — because we genuinely cannot see it. Turn on device tracking below and we can tell whether you are at your device at all, even when Mind Miles is in the background.',
+    note: 'Right now we can only see this page. Switch to another tab and we stop counting — because we genuinely cannot see it. Turn on device tracking below and we can tell whether you are at your device at all, even when Photon is in the background.',
   },
   device: {
     label: 'Your whole device',
@@ -227,6 +227,6 @@ export const SOURCE_COPY: Record<PresenceSource, { label: string; note: string }
   },
   extension: {
     label: 'Every tab',
-    note: 'The Mind Miles extension is running, so time in your other tabs counts too.',
+    note: 'The Photon extension is running, so time in your other tabs counts too.',
   },
 };

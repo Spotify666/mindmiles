@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PARTICLE, WAVE_PATH } from '@/components/brand/Logo';
 
 /**
  * THE OPENING.
  *
- * A cold, quiet frame, then the route draws itself, a spark runs the length of
- * it, the mile marker lands, and the name settles. Two and a half seconds, then
- * it gets out of the way.
+ * A quiet paper frame, then the wave draws itself, a spark runs its length, the
+ * particle lands, and the name settles. Two and a half seconds, then it gets out
+ * of the way.
  *
  * The reference is the moment before a film starts — not the logo itself but
  * the pause around it. Three things do the work:
@@ -40,7 +41,7 @@ import { useEffect, useState } from 'react';
  * outage.
  */
 
-const KEY = 'mindmiles.splash.seen';
+const KEY = 'photon.splash.seen';
 const TOTAL_MS = 2650;
 const REDUCED_MS = 900;
 
@@ -121,54 +122,52 @@ export default function Splash() {
       aria-hidden
     >
       <div className="splash-stage">
-        <svg viewBox="1.45 0 37 37" width="132" height="132" fill="none" className="splash-mark">
+        <svg viewBox="0 0 44 24" width="220" height="120" fill="none" className="splash-mark">
           <defs>
-            <linearGradient id="splash-route" x1="4" y1="30.5" x2="33" y2="19" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#497CFD" />
-              <stop offset="0.62" stopColor="#7C9BFF" />
-              <stop offset="1" stopColor="#F5C451" />
-            </linearGradient>
             <radialGradient id="splash-bloom">
-              <stop offset="0%" stopColor="#F5C451" stopOpacity="0.55" />
-              <stop offset="100%" stopColor="#F5C451" stopOpacity="0" />
+              <stop offset="0%" stopColor="#2B90E0" stopOpacity="0.30" />
+              <stop offset="100%" stopColor="#2B90E0" stopOpacity="0" />
             </radialGradient>
           </defs>
 
-          {/* The bloom the marker lands into. */}
-          <circle cx="33" cy="19" r="15" fill="url(#splash-bloom)" className="splash-bloom" />
+          {/* The glow the particle lands into. */}
+          <circle cx={PARTICLE.x} cy={PARTICLE.y} r="11" fill="url(#splash-bloom)" className="splash-bloom" />
 
-          {/* The route, drawing itself. pathLength normalises the dash maths so
+          {/* The wave, drawing itself. pathLength normalises the dash maths so
               the timing does not depend on the geometry. */}
           <path
-            d="M4,30.5 L11.5,13 L18.5,21.5 L26.5,6.5 L33,19"
-            stroke="url(#splash-route)"
-            strokeWidth={4}
+            d={WAVE_PATH}
+            stroke="#2B90E0"
+            strokeWidth={3.4}
             strokeLinecap="round"
             strokeLinejoin="round"
             pathLength={1}
             className="splash-route"
           />
 
-          {/* A spark running the length of it, one beat ahead of nothing. */}
+          {/* A spark running its length, one beat ahead of nothing. */}
           <path
-            d="M4,30.5 L11.5,13 L18.5,21.5 L26.5,6.5 L33,19"
-            stroke="#FFFFFF"
-            strokeWidth={4}
+            d={WAVE_PATH}
+            stroke="#8FC8F2"
+            strokeWidth={3.4}
             strokeLinecap="round"
             strokeLinejoin="round"
             pathLength={1}
             className="splash-spark"
           />
 
-          {/* The mile marker, landing. */}
-          <g className="splash-node">
-            <circle cx="33" cy="19" r={4.9} fill="#08090C" />
-            <circle cx="33" cy="19" r={3.3} fill="#F5C451" />
-          </g>
+          {/* The particle, arriving. */}
+          <circle
+            cx={PARTICLE.x}
+            cy={PARTICLE.y}
+            r={PARTICLE.r}
+            fill="#2B90E0"
+            className="splash-node"
+          />
         </svg>
 
-        <p className="splash-word">Mind Miles</p>
-        <p className="splash-tag">Measure where your attention goes</p>
+        <p className="splash-word">photon</p>
+        <p className="splash-tag">See what your screens are really doing</p>
       </div>
     </div>
   );

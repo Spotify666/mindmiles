@@ -16,7 +16,7 @@ import {
 import { seedSampleHistory } from '@/lib/mm/seed';
 import { tracker } from '@/lib/mm/tracker';
 import { SOURCE_LABEL, SOURCE_NOTE, type BrightnessSource } from '@/lib/mm/brightness';
-import { CATEGORIES, CATEGORY_LABEL, type Category, type MindMilesState } from '@/lib/mm/types';
+import { CATEGORIES, CATEGORY_LABEL, type Category, type PhotonState } from '@/lib/mm/types';
 import { fmtMin } from '@/lib/mm/format';
 
 /**
@@ -42,12 +42,12 @@ export function BrightnessControl({
   return (
     <section className="card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="label text-chalk-30">How bright is your screen?</p>
+        <p className="label text-ink-faint">How bright is your screen?</p>
         <span
           className={`label rounded-pill px-2 py-0.5 ${
             source === 'declared'
-              ? 'border border-strain/25 bg-strain-dim text-strain'
-              : 'border border-recovery/25 bg-recovery-dim text-recovery'
+              ? 'border border-effort/40 bg-effort-wash text-effort'
+              : 'border border-rest/40 bg-rest-wash text-rest-text'
           }`}
         >
           {SOURCE_LABEL[source]}
@@ -65,11 +65,11 @@ export function BrightnessControl({
           disabled={source !== 'declared'}
           onChange={(e) => onChange(Number(e.target.value))}
           aria-label="Declared screen brightness"
-          className="h-1.5 flex-1 cursor-pointer appearance-none rounded-pill bg-surface-inset accent-[#497CFD] disabled:cursor-not-allowed disabled:opacity-40"
+          className="h-1.5 flex-1 cursor-pointer appearance-none rounded-pill bg-paper accent-[#497CFD] disabled:cursor-not-allowed disabled:opacity-40"
         />
       </div>
 
-      <p className="mt-3 text-[11.5px] leading-relaxed text-chalk-45">{SOURCE_NOTE[source]}</p>
+      <p className="mt-3 text-[11.5px] leading-relaxed text-ink-faint">{SOURCE_NOTE[source]}</p>
     </section>
   );
 }
@@ -78,7 +78,7 @@ export function IntentionsControl({
   state,
   onChange,
 }: {
-  state: MindMilesState;
+  state: PhotonState;
   onChange: () => void;
 }) {
   const today = todayKey();
@@ -93,11 +93,11 @@ export function IntentionsControl({
   return (
     <section className="card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="label text-chalk-30">What do you want from today?</p>
-        <span className="text-[12.5px] text-chalk-45">{total > 0 ? fmtMin(total) : 'none set'}</span>
+        <p className="label text-ink-faint">What do you want from today?</p>
+        <span className="text-[12.5px] text-ink-faint">{total > 0 ? fmtMin(total) : 'none set'}</span>
       </div>
 
-      <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">
+      <p className="mt-2 text-[12.5px] leading-relaxed text-ink-faint">
         Set roughly how you want to spend today. We compare it with what actually happens. Leave it
         blank and we simply do not score it.
       </p>
@@ -107,14 +107,14 @@ export function IntentionsControl({
           const v = intents[cat] ?? 0;
           return (
             <li key={cat} className="flex items-center gap-3">
-              <span className={`flex-1 text-[13.5px] ${v > 0 ? 'text-chalk' : 'text-chalk-45'}`}>
+              <span className={`flex-1 text-[13.5px] ${v > 0 ? 'text-ink' : 'text-ink-faint'}`}>
                 {CATEGORY_LABEL[cat]}
               </span>
               <div className="flex items-center gap-1.5">
                 <Step label={`Less ${CATEGORY_LABEL[cat]}`} onClick={() => step(cat, -15)} disabled={v === 0}>
                   −
                 </Step>
-                <span className="w-[52px] text-right text-[13px] tabular-nums text-chalk-70">
+                <span className="w-[52px] text-right text-[13px] tabular-nums text-ink-soft">
                   {v > 0 ? fmtMin(v) : '—'}
                 </span>
                 <Step label={`More ${CATEGORY_LABEL[cat]}`} onClick={() => step(cat, 15)}>
@@ -146,7 +146,7 @@ function Step({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="h-7 w-7 rounded-pill border border-hair text-[15px] leading-none text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk disabled:opacity-30"
+      className="h-7 w-7 rounded-pill border border-ink/15 text-[15px] leading-none text-ink-soft transition-colors hover:border-ink hover:text-ink disabled:opacity-30"
     >
       {children}
     </button>
@@ -162,8 +162,8 @@ export function ManualLog({ onAdd }: { onAdd: () => void }) {
 
   return (
     <section className="card p-4">
-      <p className="label text-chalk-30">Add time from somewhere else</p>
-      <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">
+      <p className="label text-ink-faint">Add time from somewhere else</p>
+      <p className="mt-2 text-[12.5px] leading-relaxed text-ink-faint">
         This app cannot see your other apps, your other devices or your phone — and it will not
         pretend to. If you want that time counted, add it here. We always keep it separate from what
         we measured ourselves.
@@ -192,27 +192,27 @@ export function ManualLog({ onAdd }: { onAdd: () => void }) {
           placeholder="Phone — messages"
           aria-label="What were you doing"
           maxLength={40}
-          className="w-full rounded-[12px] border border-hair bg-surface-inset px-3 py-2 text-[14px] placeholder:text-chalk-30 focus:border-focus focus:outline-none"
+          className="w-full panel px-3 py-2 text-[14px] placeholder:text-ink-faint focus:border-focus focus:outline-none"
         />
 
         <div className="grid grid-cols-2 gap-2.5">
           <label className="block">
-            <span className="label text-chalk-30">Minutes</span>
+            <span className="label text-ink-faint">Minutes</span>
             <input
               type="number"
               min={1}
               max={720}
               value={minutes}
               onChange={(e) => setMinutes(Number(e.target.value))}
-              className="mt-1 w-full rounded-[12px] border border-hair bg-surface-inset px-3 py-2 text-[14px] tabular-nums focus:border-focus focus:outline-none"
+              className="mt-1 w-full panel px-3 py-2 text-[14px] tabular-nums focus:border-focus focus:outline-none"
             />
           </label>
           <label className="block">
-            <span className="label text-chalk-30">Category</span>
+            <span className="label text-ink-faint">Category</span>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as Category)}
-              className="mt-1 w-full rounded-[12px] border border-hair bg-surface-inset px-3 py-2 text-[14px] focus:border-focus focus:outline-none"
+              className="mt-1 w-full panel px-3 py-2 text-[14px] focus:border-focus focus:outline-none"
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -222,11 +222,11 @@ export function ManualLog({ onAdd }: { onAdd: () => void }) {
             </select>
           </label>
           <label className="block">
-            <span className="label text-chalk-30">How busy?</span>
+            <span className="label text-ink-faint">How busy?</span>
             <select
               value={intensity}
               onChange={(e) => setIntensity(e.target.value as typeof intensity)}
-              className="mt-1 w-full rounded-[12px] border border-hair bg-surface-inset px-3 py-2 text-[14px] focus:border-focus focus:outline-none"
+              className="mt-1 w-full panel px-3 py-2 text-[14px] focus:border-focus focus:outline-none"
             >
               <option value="passive">Just watching</option>
               <option value="moderate">A bit of both</option>
@@ -234,7 +234,7 @@ export function ManualLog({ onAdd }: { onAdd: () => void }) {
             </select>
           </label>
           <label className="block">
-            <span className="label text-chalk-30">Brightness</span>
+            <span className="label text-ink-faint">Brightness</span>
             <input
               type="number"
               min={0}
@@ -242,14 +242,14 @@ export function ManualLog({ onAdd }: { onAdd: () => void }) {
               step={5}
               value={brightness}
               onChange={(e) => setBright(Number(e.target.value))}
-              className="mt-1 w-full rounded-[12px] border border-hair bg-surface-inset px-3 py-2 text-[14px] tabular-nums focus:border-focus focus:outline-none"
+              className="mt-1 w-full panel px-3 py-2 text-[14px] tabular-nums focus:border-focus focus:outline-none"
             />
           </label>
         </div>
 
         <button
           type="submit"
-          className="w-full rounded-pill bg-focus px-4 py-2.5 text-[14px] font-[560] text-void transition-opacity hover:opacity-90"
+          className="w-full btn btn-primary hatch px-4 py-2.5 text-[14px]"
         >
           Add it
         </button>
@@ -258,7 +258,7 @@ export function ManualLog({ onAdd }: { onAdd: () => void }) {
   );
 }
 
-export function DataControls({ state, onChange }: { state: MindMilesState; onChange: () => void }) {
+export function DataControls({ state, onChange }: { state: PhotonState; onChange: () => void }) {
   const [confirming, setConfirming] = useState(false);
 
   const download = () => {
@@ -266,19 +266,19 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mind-miles-${todayKey()}.json`;
+    a.download = `photon-${todayKey()}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
   return (
     <section className="card p-4">
-      <p className="label text-chalk-30">Your data</p>
+      <p className="label text-ink-faint">Your data</p>
 
       <label className="mt-3.5 flex items-start justify-between gap-4">
         <span>
           <span className="text-[14px]">Keep measuring</span>
-          <span className="mt-0.5 block text-[12px] leading-snug text-chalk-45">
+          <span className="mt-0.5 block text-[12px] leading-snug text-ink-faint">
             Turn this off and we stop right away. Everything you already have is kept.
           </span>
         </span>
@@ -291,7 +291,7 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
             else tracker().stop();
             onChange();
           }}
-          className="mt-1 h-5 w-9 shrink-0 cursor-pointer appearance-none rounded-pill bg-surface-inset transition-colors checked:bg-recovery"
+          className="mt-1 h-5 w-9 shrink-0 cursor-pointer appearance-none rounded-pill bg-paper transition-colors checked:bg-rest"
         />
       </label>
 
@@ -299,7 +299,7 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
         <button
           type="button"
           onClick={download}
-          className="rounded-pill border border-hair px-4 py-2 text-[13.5px] text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
+          className="btn btn-quiet px-4 py-2 text-[13.5px]"
         >
           Download my data
         </button>
@@ -309,7 +309,7 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
             clearHistory();
             onChange();
           }}
-          className="rounded-pill border border-hair px-4 py-2 text-[13.5px] text-chalk-70 transition-colors hover:border-hair-strong hover:text-chalk"
+          className="btn btn-quiet px-4 py-2 text-[13.5px]"
         >
           Clear my history
         </button>
@@ -319,7 +319,7 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
             seedSampleHistory(true);
             onChange();
           }}
-          className="rounded-pill border border-hair px-4 py-2 text-[13.5px] text-chalk-45 transition-colors hover:border-hair-strong hover:text-chalk"
+          className="rounded-pill border border-ink/15 px-4 py-2 text-[13.5px] text-ink-faint transition-colors hover:border-ink hover:text-ink"
         >
           Make new example data
         </button>
@@ -333,14 +333,14 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
                 setConfirming(false);
                 onChange();
               }}
-              className="flex-1 rounded-pill bg-strain px-4 py-2 text-[13.5px] font-[560] text-void"
+              className="flex-1 rounded-pill bg-effort px-4 py-2 text-[13.5px] font-semibold text-white"
             >
               Yes, delete it all
             </button>
             <button
               type="button"
               onClick={() => setConfirming(false)}
-              className="rounded-pill border border-hair px-4 py-2 text-[13.5px] text-chalk-45"
+              className="rounded-pill border border-ink/15 px-4 py-2 text-[13.5px] text-ink-faint"
             >
               Cancel
             </button>
@@ -349,14 +349,14 @@ export function DataControls({ state, onChange }: { state: MindMilesState; onCha
           <button
             type="button"
             onClick={() => setConfirming(true)}
-            className="rounded-pill border border-strain/30 px-4 py-2 text-[13.5px] text-strain transition-colors hover:bg-strain-dim"
+            className="rounded-pill border border-effort/40 px-4 py-2 text-[13.5px] text-effort transition-colors hover:bg-effort-wash"
           >
             Delete everything
           </button>
         )}
       </div>
 
-      <p className="mt-3.5 text-[11.5px] leading-relaxed text-chalk-30">
+      <p className="mt-3.5 text-[11.5px] leading-relaxed text-ink-faint">
         Download gives you everything we have, minute by minute — not a summary. Delete removes it
         from this device, which is the only place it has ever been.
       </p>
@@ -368,12 +368,12 @@ export function SharingControls({
   state,
   onChange,
 }: {
-  state: MindMilesState;
+  state: PhotonState;
   onChange: () => void;
 }) {
   const FIELDS = [
     ['fitness', 'Screen Fitness'],
-    ['miles', 'Mind Miles'],
+    ['miles', 'Photon'],
     ['records', 'Personal records'],
     ['challenges', 'Challenges completed'],
     ['reclaimed', 'Time reclaimed'],
@@ -382,8 +382,8 @@ export function SharingControls({
 
   return (
     <section className="card p-4">
-      <p className="label text-chalk-30">What your share card shows</p>
-      <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">
+      <p className="label text-ink-faint">What your share card shows</p>
+      <p className="mt-2 text-[12.5px] leading-relaxed text-ink-faint">
         Only things you have achieved. A share card never shows your timeline, an app or website
         name, or anything about when you were awake.
       </p>
@@ -400,7 +400,7 @@ export function SharingControls({
                   updateSharing({ [key]: e.target.checked });
                   onChange();
                 }}
-                className="h-5 w-9 shrink-0 cursor-pointer appearance-none rounded-pill bg-surface-inset transition-colors checked:bg-recovery"
+                className="h-5 w-9 shrink-0 cursor-pointer appearance-none rounded-pill bg-paper transition-colors checked:bg-rest"
               />
             </label>
           </li>
@@ -414,28 +414,28 @@ export function ProfileControls({
   state,
   onChange,
 }: {
-  state: MindMilesState;
+  state: PhotonState;
   onChange: () => void;
 }) {
   return (
     <section className="card p-4">
-      <p className="label text-chalk-30">About you</p>
+      <p className="label text-ink-faint">About you</p>
       <div className="mt-3.5 space-y-2.5">
         <label className="block">
-          <span className="label text-chalk-30">Display name</span>
+          <span className="label text-ink-faint">Display name</span>
           <input
             value={state.profile.displayName}
             onChange={(e) => {
               updateProfile({ displayName: e.target.value.slice(0, 24) });
               onChange();
             }}
-            className="mt-1 w-full rounded-[12px] border border-hair bg-surface-inset px-3 py-2 text-[14px] focus:border-focus focus:outline-none"
+            className="mt-1 w-full panel px-3 py-2 text-[14px] focus:border-focus focus:outline-none"
           />
         </label>
 
         <div className="grid grid-cols-2 gap-2.5">
           <label className="block">
-            <span className="label text-chalk-30">You wake at</span>
+            <span className="label text-ink-faint">You wake at</span>
             <input
               type="number"
               min={0}
@@ -445,11 +445,11 @@ export function ProfileControls({
                 updateProfile({ wakeHour: Math.max(0, Math.min(23, Number(e.target.value))) });
                 onChange();
               }}
-              className="mt-1 w-full rounded-[12px] border border-hair bg-surface-inset px-3 py-2 text-[14px] tabular-nums focus:border-focus focus:outline-none"
+              className="mt-1 w-full panel px-3 py-2 text-[14px] tabular-nums focus:border-focus focus:outline-none"
             />
           </label>
           <label className="block">
-            <span className="label text-chalk-30">Screens off by</span>
+            <span className="label text-ink-faint">Screens off by</span>
             <input
               type="number"
               min={0}
@@ -459,12 +459,12 @@ export function ProfileControls({
                 updateProfile({ curfewHour: Math.max(0, Math.min(23, Number(e.target.value))) });
                 onChange();
               }}
-              className="mt-1 w-full rounded-[12px] border border-hair bg-surface-inset px-3 py-2 text-[14px] tabular-nums focus:border-focus focus:outline-none"
+              className="mt-1 w-full panel px-3 py-2 text-[14px] tabular-nums focus:border-focus focus:outline-none"
             />
           </label>
         </div>
       </div>
-      <p className="mt-3 text-[11.5px] leading-relaxed text-chalk-30">
+      <p className="mt-3 text-[11.5px] leading-relaxed text-ink-faint">
         We use these two times for the morning and evening challenges, and for the evening part of
         your Recovery score. Nothing here leaves your device.
       </p>

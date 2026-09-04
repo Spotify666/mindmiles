@@ -1,8 +1,8 @@
 {
-  "name": "mind-miles",
+  "name": "photon",
   "version": "0.1.0",
   "private": true,
-  "description": "Mind Miles — measure where your attention goes. A digital fitness tracker for your mind.",
+  "description": "Photon \u2014 see what your screens are really doing. A light, honest tracker for your attention.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

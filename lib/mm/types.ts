@@ -1,5 +1,5 @@
 /**
- * MIND MILES — data model.
+ * PHOTON — data model.
  *
  * Everything defined here lives in one browser, in localStorage, on one device.
  * There is no account, no sync and no server, which is the only reason a model
@@ -126,7 +126,7 @@ export interface ChallengeEnrollment {
   completedOn?: string;
 }
 
-export interface MindMilesState {
+export interface PhotonState {
   version: number;
   /** The brightness the user declared, used when nothing better can be read. */
   brightness: number;
@@ -383,7 +383,7 @@ export interface ChallengeDef {
   criterion: string;
   /** Window length in days. */
   days: number;
-  accent: 'focus' | 'recovery' | 'strain' | 'scatter' | 'record';
+  accent: 'focus' | 'rest' | 'effort' | 'jumpy' | 'gold';
 }
 
 export interface ChallengeProgress {
@@ -420,5 +420,5 @@ export interface Insight {
   action: string;
   /** Why that action follows from that evidence. */
   because: string;
-  accent: 'focus' | 'recovery' | 'strain' | 'scatter' | 'record';
+  accent: 'focus' | 'rest' | 'effort' | 'jumpy' | 'gold';
 }

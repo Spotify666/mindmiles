@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { fmtDate, fmtMin, fmtMiles } from '@/lib/mm/format';
+import { fmtDate, fmtMin } from '@/lib/mm/format';
 import type { Insight, PersonalRecord, Reclaimed } from '@/lib/mm/types';
 import { ACCENT_HEX, type Accent } from '@/components/ui/tokens';
 
@@ -17,8 +17,8 @@ import { ACCENT_HEX, type Accent } from '@/components/ui/tokens';
 export function StoryCard({ story }: { story: string }) {
   return (
     <section className="card p-4">
-      <p className="label text-chalk-30">How today went</p>
-      <p className="mt-2.5 text-[15px] leading-relaxed text-chalk-70">{story}</p>
+      <p className="label text-ink-faint">How today went</p>
+      <p className="mt-2.5 text-[15px] leading-relaxed text-ink-soft">{story}</p>
     </section>
   );
 }
@@ -30,23 +30,23 @@ export function WinCard({ record }: { record: PersonalRecord }) {
       className="card relative overflow-hidden p-4"
       style={{ borderColor: 'rgba(245,196,81,0.30)' }}
     >
-      <div className="absolute inset-0 bg-record-dim" aria-hidden />
+      <div className="absolute inset-0 bg-gold-wash" aria-hidden />
       <div className="relative">
-        <p className="label flex items-center gap-1.5" style={{ color: ACCENT_HEX.record }}>
+        <p className="label flex items-center gap-1.5 text-ink-faint" style={{ color: ACCENT_HEX.gold }}>
           <TrophyGlyph />
           Your best yet
         </p>
-        <p className="mt-2.5 text-[15px] font-[560]">{record.label}</p>
-        <p className="readout mt-1.5 text-[36px]" style={{ color: ACCENT_HEX.record }}>
+        <p className="mt-2.5 text-[15px] font-semibold">{record.label}</p>
+        <p className="readout mt-1.5 text-[36px]" style={{ color: ACCENT_HEX.gold }}>
           {record.display}
         </p>
         {record.previousDisplay && (
-          <p className="mt-2 text-[12.5px] text-chalk-45">
+          <p className="mt-2 text-[12.5px] text-ink-faint">
             Old best {record.previousDisplay}
             {record.previousDate && ` · ${fmtDate(record.previousDate)}`}
           </p>
         )}
-        <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">{record.blurb}</p>
+        <p className="mt-2 text-[12.5px] leading-relaxed text-ink-faint">{record.blurb}</p>
       </div>
     </section>
   );
@@ -59,18 +59,18 @@ export function OneThingCard({ insight }: { insight: Insight }) {
     <section className="card p-4">
       <div className="flex items-center gap-2">
         <span className="h-1.5 w-1.5 rounded-pill" style={{ background: hex }} aria-hidden />
-        <p className="label text-chalk-30">
+        <p className="label text-ink-faint">
           {insight.tone === 'win' ? 'Nice one' : insight.tone === 'watch' ? 'One thing to try' : 'Something we noticed'}
         </p>
       </div>
 
-      <p className="mt-2.5 text-[16px] font-[620] leading-snug tracking-tightest">{insight.title}</p>
-      <p className="mt-2 text-[13.5px] leading-relaxed text-chalk-70">{insight.evidence}</p>
+      <p className="mt-2.5 text-[16px] font-bold leading-snug tracking-tightest">{insight.title}</p>
+      <p className="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{insight.evidence}</p>
 
-      <div className="mt-3.5 rounded-[12px] bg-surface-inset p-3">
+      <div className="mt-3.5 panel p-3">
         <p className="text-[13.5px] leading-relaxed">{insight.action}</p>
-        <p className="mt-2 text-[12px] leading-relaxed text-chalk-45">
-          <span className="label mr-1.5 text-chalk-30">Why</span>
+        <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
+          <span className="label mr-1.5 text-ink-faint">Why</span>
           {insight.because}
         </p>
       </div>
@@ -83,8 +83,8 @@ export function ReclaimedCard({ reclaimed, window }: { reclaimed: Reclaimed; win
   if (!reclaimed.available) {
     return (
       <section className="card p-4">
-        <p className="label text-chalk-30">Time you got back</p>
-        <p className="mt-2.5 text-[14px] leading-relaxed text-chalk-45">
+        <p className="label text-ink-faint">Time you got back</p>
+        <p className="mt-2.5 text-[14px] leading-relaxed text-ink-faint">
           This compares each day with a normal day for you — so it needs a few more days before it
           can say anything. Keep the app around and it fills in.
         </p>
@@ -95,12 +95,12 @@ export function ReclaimedCard({ reclaimed, window }: { reclaimed: Reclaimed; win
   return (
     <section className="card p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="label text-chalk-30">Time you got back · {window}</p>
+        <p className="label text-ink-faint">Time you got back · {window}</p>
       </div>
-      <p className="readout mt-2 text-[44px]" style={{ color: ACCENT_HEX.recovery }}>
+      <p className="readout mt-2 text-[44px]" style={{ color: ACCENT_HEX.rest }}>
         {fmtMin(reclaimed.minutes)}
       </p>
-      <p className="mt-1.5 text-[12.5px] text-chalk-45">
+      <p className="mt-1.5 text-[12.5px] text-ink-faint">
         Compared with a normal {reclaimed.days} days for you.
       </p>
 
@@ -109,16 +109,16 @@ export function ReclaimedCard({ reclaimed, window }: { reclaimed: Reclaimed; win
           {reclaimed.breakdown.map((b) => (
             <li key={b.label}>
               <div className="flex items-baseline justify-between gap-3">
-                <span className="text-[13px] text-chalk-70">{b.label}</span>
-                <span className="text-[13px] font-[620] tabular-nums">{fmtMin(b.minutes)}</span>
+                <span className="text-[13px] text-ink-soft">{b.label}</span>
+                <span className="text-[13px] font-bold tabular-nums">{fmtMin(b.minutes)}</span>
               </div>
-              <p className="mt-0.5 text-[11.5px] leading-snug text-chalk-30">{b.detail}</p>
+              <p className="mt-0.5 text-[11.5px] leading-snug text-ink-faint">{b.detail}</p>
             </li>
           ))}
         </ul>
       )}
 
-      <p className="mt-4 text-[11.5px] leading-relaxed text-chalk-30">
+      <p className="mt-4 text-[11.5px] leading-relaxed text-ink-faint">
         Focused time never counts here. Getting less done is not the same as getting time back —
         counting it would just reward you for avoiding things.
       </p>
@@ -126,8 +126,16 @@ export function ReclaimedCard({ reclaimed, window }: { reclaimed: Reclaimed; win
   );
 }
 
-/** Mileage summary for the day. The base unit, always with its definition attached. */
-export function MileageCard({
+/**
+ * The day's screen time, split three ways.
+ *
+ * This used to lead with an invented unit — "6.0 Mind Miles", with "1 mi = 20
+ * min" printed beside it to explain itself. A number that needs a conversion
+ * table next to it is a number nobody reads. It now shows hours and minutes,
+ * which everyone already understands, and the split underneath is the part that
+ * actually says something.
+ */
+export function TimeCard({
   miles,
   activeMin,
   scrollMeters,
@@ -136,45 +144,52 @@ export function MileageCard({
   activeMin: number;
   scrollMeters: number;
 }) {
+  const parts = [
+    { label: 'Focused', minutes: miles.focus * 20, accent: 'focus' as const },
+    { label: 'Bits and pieces', minutes: miles.scatter * 20, accent: 'jumpy' as const },
+    { label: 'Scrolling', minutes: miles.scroll * 20, accent: 'effort' as const },
+  ];
+
   return (
-    <section className="card p-4">
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="label text-chalk-30">Mind Miles today</p>
-        <Link href="/method" className="label text-chalk-30 transition-colors hover:text-chalk-70">
-          1 mi = 20 min
-        </Link>
+    <section className="card relative p-5">
+      <span className="tape left-8" aria-hidden />
+
+      <p className="label text-ink-faint">Time on screen today</p>
+      <p className="readout mt-2 text-[46px]">{fmtMin(activeMin)}</p>
+
+      {/* One bar, three parts, each directly labelled below. */}
+      <div className="mt-4 flex h-3 w-full gap-[3px] overflow-hidden rounded-pill border-2 border-ink bg-paper p-[2px]">
+        {parts.map((p) =>
+          p.minutes < 1 ? null : (
+            <span
+              key={p.label}
+              className="h-full rounded-pill"
+              style={{
+                width: `${(p.minutes / Math.max(activeMin, 1)) * 100}%`,
+                background: ACCENT_HEX[p.accent],
+              }}
+            />
+          ),
+        )}
       </div>
 
-      <div className="mt-2 flex items-end gap-3">
-        <span className="readout text-[46px]">{fmtMiles(miles.total)}</span>
-        <span className="pb-2 text-[13px] text-chalk-45">{fmtMin(activeMin)} engaged</span>
-      </div>
-
-      <dl className="mt-4 grid grid-cols-3 gap-2">
-        {(
-          [
-            ['Focus', miles.focus, 'focus'],
-            ['Scattered', miles.scatter, 'scatter'],
-            ['Scroll', miles.scroll, 'strain'],
-          ] as const
-        ).map(([label, value, accent]) => (
-          <div key={label} className="rounded-[12px] bg-surface-inset px-3 py-2.5">
-            <dt className="label flex items-center gap-1.5 text-chalk-30">
-              <span
-                className="h-2 w-2 shrink-0 rounded-[2px]"
-                style={{ background: ACCENT_HEX[accent] }}
-                aria-hidden
-              />
-              {label}
-            </dt>
-            <dd className="readout mt-1.5 text-[20px]">{fmtMiles(value)}</dd>
+      <dl className="mt-4 space-y-2.5">
+        {parts.map((p) => (
+          <div key={p.label} className="flex items-baseline gap-2.5">
+            <span
+              className="h-2.5 w-2.5 shrink-0 rounded-[3px]"
+              style={{ background: ACCENT_HEX[p.accent] }}
+              aria-hidden
+            />
+            <dt className="text-[14px] text-ink-soft">{p.label}</dt>
+            <dd className="ml-auto text-[15px] font-bold tabular-nums">{fmtMin(p.minutes)}</dd>
           </div>
         ))}
       </dl>
 
-      <p className="mt-3.5 text-[11.5px] leading-relaxed text-chalk-30">
-        You scrolled about {fmtDistanceLabel(scrollMeters)} today. That is worked out from how far the
-        page moved, so treat it as a rough figure.
+      <p className="mt-4 text-[12.5px] leading-relaxed text-ink-faint">
+        You scrolled about {fmtDistanceLabel(scrollMeters)} today — worked out from how far the page
+        moved, so treat it as a rough figure.
       </p>
     </section>
   );

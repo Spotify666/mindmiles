@@ -23,25 +23,25 @@ export default function Delta({
   className?: string;
 }) {
   if (!delta) {
-    return <span className={`label text-chalk-30 ${className}`}>Learning your normal</span>;
+    return <span className={`label text-ink-faint ${className}`}>Learning your normal</span>;
   }
   if (delta.samples < MIN_BASELINE_DAYS) {
     return (
-      <span className={`label text-chalk-30 ${className}`}>
+      <span className={`label text-ink-faint ${className}`}>
         {delta.samples} of {MIN_BASELINE_DAYS} days
       </span>
     );
   }
 
   const level = Math.abs(delta.percent ?? delta.change) < 1;
-  const tone = level ? 'text-chalk-45' : delta.better ? 'text-recovery' : 'text-strain';
+  const tone = level ? 'text-ink-faint' : delta.better ? 'text-rest-text' : 'text-effort';
   const text =
     delta.percent !== null ? fmtPercent(delta.percent) : `${fmtSigned(delta.change)}${unit ?? ''}`;
 
   return (
     <span className={`label whitespace-nowrap ${tone} ${className}`}>
       {text}
-      <span className="ml-1.5 text-chalk-30">vs your usual</span>
+      <span className="ml-1.5 text-ink-faint">vs your usual</span>
     </span>
   );
 }

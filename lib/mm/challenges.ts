@@ -36,7 +36,7 @@ export const CHALLENGES: ChallengeDef[] = [
     premise: 'Win back three hours on a normal week for you.',
     criterion: 'Save up three hours over seven days, compared with how you normally spend them.',
     days: 7,
-    accent: 'record',
+    accent: 'gold',
   },
   {
     id: 'deep-work-5',
@@ -52,7 +52,7 @@ export const CHALLENGES: ChallengeDef[] = [
     premise: 'Do a fifth less fast scrolling.',
     criterion: 'Over seven days, average 20% less fast scrolling per day than you normally do.',
     days: 7,
-    accent: 'scatter',
+    accent: 'jumpy',
   },
   {
     id: 'digital-sunrise',
@@ -60,7 +60,7 @@ export const CHALLENGES: ChallengeDef[] = [
     premise: 'Give the first half hour of the day to something else.',
     criterion: 'Five days where you barely touch a screen in the first hour after getting up.',
     days: 7,
-    accent: 'recovery',
+    accent: 'rest',
   },
   {
     id: 'digital-sunset',
@@ -68,7 +68,7 @@ export const CHALLENGES: ChallengeDef[] = [
     premise: 'Stop before your screens do.',
     criterion: 'Five days with no screen time after the hour you set as your cut-off.',
     days: 7,
-    accent: 'recovery',
+    accent: 'rest',
   },
   {
     id: 'fragmentation-breaker',
@@ -84,7 +84,7 @@ export const CHALLENGES: ChallengeDef[] = [
     premise: 'Seven days, three proper breaks each.',
     criterion: 'Seven days in a row with at least three breaks of ten minutes or more.',
     days: 7,
-    accent: 'recovery',
+    accent: 'rest',
   },
 ];
 

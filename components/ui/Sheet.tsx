@@ -72,7 +72,7 @@ export default function Sheet({
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="absolute inset-0 bg-void/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-paper/80 backdrop-blur-sm"
       />
       <div
         ref={panel}
@@ -80,14 +80,14 @@ export default function Sheet({
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className="animate-fade-up relative max-h-[86svh] w-full overflow-y-auto rounded-t-[22px] border border-hair bg-surface sm:max-w-[520px] sm:rounded-card"
+        className="animate-fade-up relative max-h-[86svh] w-full overflow-y-auto rounded-t-[22px] border border-ink/15 bg-card sm:max-w-[520px] sm:rounded-card"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-hair bg-surface/95 px-5 py-4 backdrop-blur">
-          <h2 className="text-[17px] font-[620] tracking-tightest">{title}</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-ink/15 bg-card/95 px-5 py-4 backdrop-blur">
+          <h2 className="text-[17px] font-bold tracking-tightest">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-pill border border-hair px-3 py-1.5 text-[13px] text-chalk-70 transition-colors hover:bg-surface-inset hover:text-chalk"
+            className="rounded-pill border border-ink/15 px-3 py-1.5 text-[13px] text-ink-soft transition-colors hover:bg-paper hover:text-ink"
           >
             Close
           </button>

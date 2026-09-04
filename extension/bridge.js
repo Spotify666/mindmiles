@@ -1,7 +1,7 @@
 /**
  * The hand-off.
  *
- * Runs only on the Mind Miles page. Pulls the totals from the extension and
+ * Runs only on the Photon page. Pulls the totals from the extension and
  * posts them into the page, where lib/mm/extension.ts merges them in — labelled
  * as extension data, kept separate from what the page measured itself.
  *
@@ -9,10 +9,10 @@
  * cannot ask the extension to do anything.
  */
 (function () {
-  const SOURCE = 'mind-miles-extension';
+  const SOURCE = 'photon-extension';
 
   function push() {
-    chrome.runtime.sendMessage({ type: 'mind-miles:pull' }, (reply) => {
+    chrome.runtime.sendMessage({ type: 'photon:pull' }, (reply) => {
       if (chrome.runtime.lastError || !reply) return;
       window.postMessage({ source: SOURCE, days: reply.days }, window.location.origin);
     });

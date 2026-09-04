@@ -1,6 +1,6 @@
 'use client';
 
-import { useMindMiles } from '@/components/MindMilesProvider';
+import { usePhoton } from '@/components/PhotonProvider';
 import { joinChallenge, leaveChallenge } from '@/lib/mm/store';
 import { plural } from '@/lib/mm/format';
 import type { ChallengeProgress } from '@/lib/mm/types';
@@ -19,7 +19,7 @@ import { ACCENT_HEX } from '@/components/ui/tokens';
  * you got rather than that you did not finish.
  */
 export default function ChallengesPage() {
-  const { challenges, refresh } = useMindMiles();
+  const { challenges, refresh } = usePhoton();
 
   const active = challenges.filter((c) => c.status === 'active');
   const complete = challenges.filter((c) => c.status === 'complete');
@@ -28,8 +28,8 @@ export default function ChallengesPage() {
   return (
     <div className="mx-auto flex max-w-app flex-col gap-3.5 md:max-w-none">
       <div>
-        <h1 className="text-[22px] font-[620] tracking-tightest">Challenges</h1>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-chalk-45">
+        <h1 className="display text-[24px]">Challenges</h1>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-faint">
           Every challenge is measured against how you normally are — so a long working day is no
           barrier to any of them. None of them are about using your phone less.
         </p>
@@ -63,7 +63,7 @@ export default function ChallengesPage() {
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <p className="label mb-2.5 text-chalk-30">{title}</p>
+      <p className="label mb-2.5 text-ink-faint">{title}</p>
       <div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-3">{children}</div>
     </section>
   );
@@ -82,14 +82,14 @@ function Card({ c, onChange }: { c: ChallengeProgress; onChange: () => void }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-[15.5px] font-[620] tracking-tightest">{c.def.name}</h2>
-          <p className="mt-1 text-[13px] leading-snug text-chalk-70">{c.def.premise}</p>
+          <h2 className="text-[15.5px] font-bold tracking-tightest">{c.def.name}</h2>
+          <p className="mt-1 text-[13px] leading-snug text-ink-soft">{c.def.premise}</p>
         </div>
         <span
-          className="label shrink-0 rounded-pill px-2 py-0.5"
+          className="label shrink-0 rounded-pill px-2 py-0.5 text-ink-faint"
           style={
             done
-              ? { color: ACCENT_HEX.record, background: 'rgba(245,196,81,0.12)' }
+              ? { color: ACCENT_HEX.gold, background: 'rgba(245,196,81,0.12)' }
               : { color: 'rgba(244,246,250,0.45)', border: '1px solid rgba(244,246,250,0.09)' }
           }
         >
@@ -107,25 +107,25 @@ function Card({ c, onChange }: { c: ChallengeProgress; onChange: () => void }) {
         {started ? (
           <>
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-[12.5px] text-chalk-45">{c.detail}</span>
-              <span className="text-[12.5px] font-[620] tabular-nums">{pct}%</span>
+              <span className="text-[12.5px] text-ink-faint">{c.detail}</span>
+              <span className="text-[12.5px] font-bold tabular-nums">{pct}%</span>
             </div>
-            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-pill bg-surface-inset">
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-pill bg-paper">
               <div
                 className="h-full rounded-pill transition-[width] duration-700"
-                style={{ width: `${pct}%`, background: done ? ACCENT_HEX.record : hex }}
+                style={{ width: `${pct}%`, background: done ? ACCENT_HEX.gold : hex }}
               />
             </div>
           </>
         ) : (
-          <div className="rounded-[12px] bg-surface-inset px-3 py-2.5">
-            <p className="label text-chalk-30">Where you are right now</p>
-            <p className="mt-1 text-[12.5px] text-chalk-70">{c.detail}</p>
+          <div className="panel px-3 py-2.5">
+            <p className="label text-ink-faint">Where you are right now</p>
+            <p className="mt-1 text-[12.5px] text-ink-soft">{c.detail}</p>
           </div>
         )}
       </div>
 
-      <p className="mt-3.5 text-[11.5px] leading-relaxed text-chalk-30">{c.def.criterion}</p>
+      <p className="mt-3.5 text-[11.5px] leading-relaxed text-ink-faint">{c.def.criterion}</p>
 
       <div className="mt-4 flex items-center gap-2 pt-0.5">
         {c.status === 'available' || c.status === 'expired' ? (
@@ -135,14 +135,14 @@ function Card({ c, onChange }: { c: ChallengeProgress; onChange: () => void }) {
               joinChallenge(c.def.id);
               onChange();
             }}
-            className="rounded-pill px-3.5 py-1.5 text-[13px] font-[560] text-void transition-opacity hover:opacity-90"
+            className="rounded-pill px-3.5 py-1.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
             style={{ background: hex }}
           >
             {c.status === 'expired' ? 'Try again' : 'Start'}
           </button>
         ) : !done ? (
           <>
-            <span className="label text-chalk-30">
+            <span className="label text-ink-faint">
               {c.daysLeft === 0 ? 'Last day' : `${plural(c.daysLeft ?? 0, 'day')} left`}
             </span>
             <button
@@ -151,13 +151,13 @@ function Card({ c, onChange }: { c: ChallengeProgress; onChange: () => void }) {
                 leaveChallenge(c.def.id);
                 onChange();
               }}
-              className="label ml-auto text-chalk-30 transition-colors hover:text-chalk-70"
+              className="label ml-auto text-ink-faint transition-colors hover:text-ink-soft"
             >
               Leave
             </button>
           </>
         ) : (
-          <span className="label" style={{ color: ACCENT_HEX.record }}>
+          <span className="label text-ink-faint" style={{ color: ACCENT_HEX.gold }}>
             Done{c.completedOn ? ` · ${c.completedOn}` : ''}
           </span>
         )}

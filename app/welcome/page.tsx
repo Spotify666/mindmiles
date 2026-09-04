@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Welcome from '@/components/Welcome';
-import { useMindMiles } from '@/components/MindMilesProvider';
+import { usePhoton } from '@/components/PhotonProvider';
 import { setOnboarded } from '@/lib/mm/store';
 
 /**
@@ -18,7 +18,7 @@ import { setOnboarded } from '@/lib/mm/store';
  * times as anyone likes.
  */
 export default function WelcomePage() {
-  const { refresh } = useMindMiles();
+  const { refresh } = usePhoton();
   const router = useRouter();
 
   return (

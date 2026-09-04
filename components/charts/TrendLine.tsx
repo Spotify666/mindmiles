@@ -74,9 +74,9 @@ export default function TrendLine({
   return (
     <figure className="m-0">
       <figcaption className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <span className="text-[14px] font-[620]">{title}</span>
+        <span className="text-[14px] font-bold">{title}</span>
         {latest && (
-          <span className="label text-chalk-30">
+          <span className="label text-ink-faint">
             Now {Math.round(latest.value)}
             {unit}
           </span>
@@ -98,8 +98,8 @@ export default function TrendLine({
                 y={y(t) + 3.5}
                 textAnchor="end"
                 fontSize={9}
-                fill="rgba(244,246,250,0.30)"
-                fontFamily="var(--font-mono)"
+                fill="#646D7B"
+                fontFamily="var(--font-sans)"
               >
                 {Math.round(t)}
               </text>
@@ -113,7 +113,7 @@ export default function TrendLine({
                 x2={W - PAD.right}
                 y1={y(baseline)}
                 y2={y(baseline)}
-                stroke="rgba(244,246,250,0.42)"
+                stroke="#14181F"
                 strokeWidth={1.5}
                 strokeDasharray="5 4"
               />
@@ -124,8 +124,8 @@ export default function TrendLine({
                 y={y(baseline) - 6}
                 textAnchor="start"
                 fontSize={9}
-                fill="rgba(244,246,250,0.45)"
-                fontFamily="var(--font-mono)"
+                fill="#646D7B"
+                fontFamily="var(--font-sans)"
               >
                 YOUR NORMAL
               </text>
@@ -143,7 +143,7 @@ export default function TrendLine({
                 x2={x(hover)}
                 y1={PAD.top}
                 y2={PAD.top + plotH}
-                stroke="rgba(244,246,250,0.28)"
+                stroke="rgba(20,24,31,0.35)"
                 strokeWidth={1}
               />
               <circle cx={x(hover)} cy={y(points[hover].value)} r={5} fill={hex} stroke={SURFACE} strokeWidth={2} />
@@ -174,8 +174,8 @@ export default function TrendLine({
                 y={H - 7}
                 textAnchor={i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle'}
                 fontSize={9}
-                fill="rgba(244,246,250,0.30)"
-                fontFamily="var(--font-mono)"
+                fill="#646D7B"
+                fontFamily="var(--font-sans)"
               >
                 {p.date.slice(5)}
               </text>
@@ -185,11 +185,11 @@ export default function TrendLine({
 
         {hover !== null && !points[hover].missing && (
           <div
-            className="pointer-events-none absolute z-10 rounded-[10px] border border-hair-strong bg-surface-raised px-3 py-2 shadow-lg"
+            className="pointer-events-none absolute z-10 rounded-[10px] border border-ink bg-paper px-3 py-2 shadow-lg"
             style={{ left: `${(x(hover) / W) * 100}%`, top: 0, transform: 'translate(-50%,-104%)' }}
           >
-            <p className="label whitespace-nowrap text-chalk-30">{fmtDate(points[hover].date)}</p>
-            <p className="mt-0.5 whitespace-nowrap text-[15px] font-[620] tabular-nums" style={{ color: hex }}>
+            <p className="label whitespace-nowrap text-ink-faint">{fmtDate(points[hover].date)}</p>
+            <p className="mt-0.5 whitespace-nowrap text-[15px] font-bold tabular-nums" style={{ color: hex }}>
               {Math.round(points[hover].value)}
               {unit}
             </p>

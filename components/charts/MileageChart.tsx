@@ -7,7 +7,7 @@ import { ACCENT_HEX, CLASS_ACCENT, CLASS_LABEL, CLASS_ORDER, GRID, SURFACE } fro
 import Legend from './Legend';
 
 /**
- * Mind Miles per day, split by how the mileage was spent.
+ * Photon per day, split by how the mileage was spent.
  *
  * Part-to-whole across ordered time buckets, so: stacked bars on one axis.
  * Never two axes — mileage and any second measure would need a second chart.
@@ -26,7 +26,7 @@ export default function MileageChart({
   days,
   selected,
   onSelect,
-  title = 'Mind Miles',
+  title = 'Photon',
 }: {
   days: DaySummary[];
   selected?: string;
@@ -58,8 +58,8 @@ export default function MileageChart({
   return (
     <figure className="m-0">
       <figcaption className="mb-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <span className="text-[14px] font-[620]">{title}</span>
-        <span className="label text-chalk-30">{fmtMiles(grand)} mi over {days.length} days</span>
+        <span className="text-[14px] font-bold">{title}</span>
+        <span className="label text-ink-faint">{fmtMiles(grand)} mi over {days.length} days</span>
       </figcaption>
 
       <div className="relative">
@@ -67,7 +67,7 @@ export default function MileageChart({
           viewBox={`0 0 ${W} ${H}`}
           className="w-full"
           role="img"
-          aria-label={`Mind Miles per day. ${fmtMiles(grand)} miles total: ${fmtMiles(totals.focus)} focus, ${fmtMiles(totals.scatter)} scattered, ${fmtMiles(totals.scroll)} scroll.`}
+          aria-label={`Photon per day. ${fmtMiles(grand)} miles total: ${fmtMiles(totals.focus)} focus, ${fmtMiles(totals.scatter)} scattered, ${fmtMiles(totals.scroll)} scroll.`}
         >
           {[0, max / 2, max].map((t) => (
             <g key={t}>
@@ -77,8 +77,8 @@ export default function MileageChart({
                 y={y(t) + 3.5}
                 textAnchor="end"
                 fontSize={9}
-                fill="rgba(244,246,250,0.30)"
-                fontFamily="var(--font-mono)"
+                fill="#646D7B"
+                fontFamily="var(--font-sans)"
               >
                 {Math.round(t)}
               </text>
@@ -127,7 +127,7 @@ export default function MileageChart({
                 <rect x={PAD.left + i * band} y={PAD.top} width={band} height={plotH} fill="transparent" />
 
                 {isSel && (
-                  <rect x={x} y={PAD.top + plotH + 4} width={barW} height={2} rx={1} fill="#F4F6FA" />
+                  <rect x={x} y={PAD.top + plotH + 4} width={barW} height={2} rx={1} fill="#14181F" />
                 )}
               </g>
             );
@@ -144,8 +144,8 @@ export default function MileageChart({
                 y={H - 8}
                 textAnchor="middle"
                 fontSize={9}
-                fill="rgba(244,246,250,0.30)"
-                fontFamily="var(--font-mono)"
+                fill="#646D7B"
+                fontFamily="var(--font-sans)"
               >
                 {days.length > 10 ? d.date.slice(8) : weekdayShort(d.date)}
               </text>
@@ -155,15 +155,15 @@ export default function MileageChart({
 
         {hover !== null && days[hover] && (
           <div
-            className="pointer-events-none absolute z-10 rounded-[10px] border border-hair-strong bg-surface-raised px-3 py-2 shadow-lg"
+            className="pointer-events-none absolute z-10 rounded-[10px] border border-ink bg-paper px-3 py-2 shadow-lg"
             style={{
               left: `${((PAD.left + hover * band + band / 2) / W) * 100}%`,
               top: 0,
               transform: 'translate(-50%,-104%)',
             }}
           >
-            <p className="label whitespace-nowrap text-chalk-30">{days[hover].date}</p>
-            <p className="mt-0.5 whitespace-nowrap text-[14px] font-[620] tabular-nums">
+            <p className="label whitespace-nowrap text-ink-faint">{days[hover].date}</p>
+            <p className="mt-0.5 whitespace-nowrap text-[14px] font-bold tabular-nums">
               {fmtMiles(days[hover].miles.total)} mi · {fmtMin(days[hover].activeMin)}
             </p>
             <ul className="mt-1.5 space-y-0.5">
@@ -173,8 +173,8 @@ export default function MileageChart({
                     className="h-2 w-2 shrink-0 rounded-[2px]"
                     style={{ background: ACCENT_HEX[CLASS_ACCENT[cls]] }}
                   />
-                  <span className="text-chalk-45">{CLASS_LABEL[cls]}</span>
-                  <span className="ml-auto pl-2 font-[620] tabular-nums">
+                  <span className="text-ink-faint">{CLASS_LABEL[cls]}</span>
+                  <span className="ml-auto pl-2 font-bold tabular-nums">
                     {fmtMiles(days[hover].miles[cls])}
                   </span>
                 </li>

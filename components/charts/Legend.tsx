@@ -24,9 +24,9 @@ export default function Legend({
             aria-hidden
           />
           <div className="min-w-0">
-            <span className="text-[12.5px] text-chalk-70">{i.label}</span>
-            {i.value && <span className="ml-1.5 text-[12.5px] font-[620] tabular-nums">{i.value}</span>}
-            {i.note && <span className="block text-[11px] leading-snug text-chalk-30">{i.note}</span>}
+            <span className="text-[12.5px] text-ink-soft">{i.label}</span>
+            {i.value && <span className="ml-1.5 text-[12.5px] font-bold tabular-nums">{i.value}</span>}
+            {i.note && <span className="block text-[11px] leading-snug text-ink-faint">{i.note}</span>}
           </div>
         </li>
       ))}

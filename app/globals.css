@@ -3,14 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --void: #08090c;
-  --chalk: #f4f6fa;
-  --focus: #497CFD;
-  --recovery: #00AA6A;
-  --strain: #CD7707;
-  --scatter: #CE52D7;
-  --record: #f5c451;
-  color-scheme: dark;
+  --paper: #eff4f9;
+  --card: #ffffff;
+  --ink: #14181f;
+  --sky: #2b90e0;
+  --sky-soft: #bfdff6;
+  color-scheme: light;
 }
 
 * {
@@ -18,90 +16,234 @@
 }
 
 html {
-  background: var(--void);
+  background: var(--paper);
 }
 
 body {
-  background: var(--void);
-  color: var(--chalk);
+  background: var(--paper);
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  /* Numbers are the content here, so tabular figures are the default and the
-     UI opts out rather than in. */
   font-feature-settings: 'tnum', 'ss01';
+  /*
+   * A faint dot grid, barely there. It is the difference between a page that
+   * reads as paper and one that reads as an empty browser window — at 3% you
+   * cannot see it, but you can tell when it is gone.
+   */
+  background-image: radial-gradient(rgba(20, 24, 31, 0.055) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
 ::selection {
-  background: rgba(73, 124, 253, 0.32);
+  background: var(--sky-soft);
 }
 
-/* ── Type utilities ───────────────────────────────────────────── */
+/*
+ * These live in Tailwind's components layer on purpose.
+ *
+ * Outside a layer they are emitted after the utilities and quietly win every
+ * conflict — which is how `.label` ended up overriding the colour on every
+ * `text-*` class beside it, greying out deltas that were supposed to be green
+ * or amber. Inside the layer, a utility on the element beats the component
+ * default, which is the behaviour anyone reading the markup expects.
+ */
+@layer components {
+  /* ── Type ─────────────────────────────────────────────────────── */
 
-/* Metric readouts. Tight, optically aligned, never wrapping mid-number. */
-.readout {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.045em;
-  font-weight: 620;
-  line-height: 0.86;
+  .display {
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+  }
+
+  .readout {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+  }
+
+  /*
+   * Small labels are sentence-case and spaced, not uppercase monospace. The
+   * previous system shouted every label in tracked-out caps, which is an
+   * instrument-panel convention and completely wrong for a page that is meant to
+   * feel like something a person wrote.
+   */
+  .label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: #646d7b;
+  }
+
+  /* ── Structure ────────────────────────────────────────────────── */
+
+  /*
+   * Cards are outlines. There is no elevation model in this design — no blur, no
+   * ambient shadow, no layered greys. A 2px ink border on white, and that is the
+   * entire treatment.
+   */
+  .card {
+    background: var(--card);
+    border: 2px solid var(--ink);
+    border-radius: 14px;
+  }
+
+  /* An inner panel: same idea, lighter line, so nesting does not read as noise. */
+  .panel {
+    background: var(--card);
+    border: 1.5px solid rgba(20, 24, 31, 0.16);
+    border-radius: 11px;
+  }
+
+  .safe-x {
+    padding-left: max(1.15rem, env(safe-area-inset-left));
+    padding-right: max(1.15rem, env(safe-area-inset-right));
+  }
+
+  .safe-b {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .rail {
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .rail::-webkit-scrollbar {
+    display: none;
+  }
+  .rail > * {
+    scroll-snap-align: start;
+  }
+
+  /* ── The drawn marks ──────────────────────────────────────────── */
+
+  /*
+   * A hand-drawn underline, as an SVG background sitting under the text.
+   *
+   * The path is deliberately uneven — it dips and rises and does not end where a
+   * ruled line would. A straight rule reads as a border; this reads as somebody
+   * having gone over the words with a marker, which is the whole point.
+   */
+  .marked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 14' preserveAspectRatio='none'%3E%3Cpath d='M3,9.5 C28,4.8 52,11 78,7.2 C104,3.4 128,10.6 152,6.4 C170,3.6 186,8.2 197,6' fill='none' stroke='%232B90E0' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 0.42em;
+    padding-bottom: 0.1em;
+  }
+
+  /* The same mark in gold, for achievements. */
+  .marked-gold {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 14' preserveAspectRatio='none'%3E%3Cpath d='M3,9.5 C28,4.8 52,11 78,7.2 C104,3.4 128,10.6 152,6.4 C170,3.6 186,8.2 197,6' fill='none' stroke='%23B07A0E' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 0.42em;
+    padding-bottom: 0.1em;
+  }
+
+  /*
+   * A strip of tape. Sits half off the top edge of a card, slightly rotated,
+   * with the faint parallel banding real washi tape has. It is what makes a card
+   * feel stuck onto the page rather than rendered in it.
+   */
+  .tape {
+    position: absolute;
+    top: -11px;
+    width: 74px;
+    height: 24px;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.34) 0 2px,
+        transparent 2px 7px
+      ),
+      var(--sky-soft);
+    border-left: 1.5px solid rgba(20, 24, 31, 0.14);
+    border-right: 1.5px solid rgba(20, 24, 31, 0.14);
+    opacity: 0.95;
+    transform: rotate(-4deg);
+    pointer-events: none;
+  }
+
+  .tape-right {
+    transform: rotate(3.5deg);
+  }
+
+  /*
+   * The diagonal hatch on the primary button. Fine, low-contrast, and set at 45°
+   * so it reads as a printed fill rather than a gradient.
+   */
+  .hatch {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(20, 24, 31, 0.085) 0 1px,
+      transparent 1px 6px
+    );
+  }
+
+  /* ── Controls ─────────────────────────────────────────────────── */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 2px solid var(--ink);
+    border-radius: 11px;
+    font-weight: 700;
+    transition: transform 90ms ease, box-shadow 90ms ease;
+  }
+
+  .btn-primary {
+    background: var(--sky);
+    color: #fff;
+    box-shadow: 3px 3px 0 0 var(--ink);
+  }
+
+  .btn-primary:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 0 var(--ink);
+  }
+
+  .btn-primary:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 0 var(--ink);
+  }
+
+  .btn-quiet {
+    background: var(--card);
+    color: var(--ink);
+  }
+
+  .btn-quiet:hover {
+    background: #f3f8fd;
+  }
+
+  /* A dash bullet, the way the reference marks its list items. */
+  .dashes > li {
+    position: relative;
+    padding-left: 1.35rem;
+  }
+
+  .dashes > li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 0.75rem;
+    height: 2.5px;
+    border-radius: 2px;
+    background: var(--sky);
+  }
 }
 
-.label {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 500;
-}
+/* ── Focus ────────────────────────────────────────────────────── */
 
-/* ── Structure ────────────────────────────────────────────────── */
-
-.card {
-  background: #101219;
-  border: 1px solid rgba(244, 246, 250, 0.09);
-  border-radius: 18px;
-}
-
-/* Safe-area aware gutter — the tab bar sits on the home indicator otherwise. */
-.safe-x {
-  padding-left: max(1.15rem, env(safe-area-inset-left));
-  padding-right: max(1.15rem, env(safe-area-inset-right));
-}
-
-.safe-b {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Horizontal card rails: snap, and hide the scrollbar without hiding the
-   affordance (the cards are visibly clipped at the edge). */
-.rail {
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.rail::-webkit-scrollbar {
-  display: none;
-}
-.rail > * {
-  scroll-snap-align: start;
-}
-
-/* Hairline that fades at both ends — used to separate rows without boxing
-   them in, which is what makes a dense list feel heavy. */
-.rule-fade {
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(244, 246, 250, 0.13) 12%,
-    rgba(244, 246, 250, 0.13) 88%,
-    transparent
-  );
-}
-
-/* ── Focus ring ───────────────────────────────────────────────── */
 :where(a, button, [tabindex]):focus-visible {
-  outline: 2px solid var(--focus);
+  outline: 2.5px solid var(--sky);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -125,20 +267,30 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--void);
+  background: var(--paper);
   opacity: 1;
+  /* Failsafe: the overlay is painted before React runs and normally removed by
+     it. If scripting is blocked or broken this clears it anyway, well after the
+     scripted exit so it never interferes with the real one. */
+  animation: splash-failsafe 1ms linear 6s forwards;
+}
+
+@keyframes splash-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
 .splash-out {
-  /* The exit is the pull-in: the frame lifts toward the viewer as it clears,
-     so the app appears to be behind it rather than replacing it. */
   animation: splash-out 480ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes splash-out {
   to {
     opacity: 0;
-    transform: scale(1.07);
+    transform: scale(1.06);
   }
 }
 
@@ -154,7 +306,6 @@ body {
   overflow: visible;
 }
 
-/* The draw. A beat of black first — the pause is the point. */
 .splash-route {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
@@ -167,7 +318,6 @@ body {
   }
 }
 
-/* A short bright segment chasing the leading edge, then gone. */
 .splash-spark {
   stroke-dasharray: 0.05 1;
   stroke-dashoffset: 1.05;
@@ -176,114 +326,67 @@ body {
 }
 
 @keyframes splash-spark {
-  0% {
-    stroke-dashoffset: 1.05;
-    opacity: 0;
-  }
-  12% {
-    opacity: 0.9;
-  }
-  88% {
-    opacity: 0.9;
-  }
-  100% {
-    stroke-dashoffset: 0.05;
-    opacity: 0;
-  }
+  0% { stroke-dashoffset: 1.05; opacity: 0; }
+  12% { opacity: 0.95; }
+  88% { opacity: 0.95; }
+  100% { stroke-dashoffset: 0.05; opacity: 0; }
 }
 
 .splash-node {
   opacity: 0;
-  transform-origin: 33px 19px;
+  transform-origin: 38.5px 12px;
   animation: splash-land 460ms cubic-bezier(0.16, 1, 0.3, 1) 1010ms forwards;
 }
 
 @keyframes splash-land {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  60% {
-    opacity: 1;
-    transform: scale(1.18);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0% { opacity: 0; transform: scale(0.25); }
+  60% { opacity: 1; transform: scale(1.25); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 .splash-bloom {
   opacity: 0;
-  transform-origin: 33px 19px;
+  transform-origin: 38.5px 12px;
   animation: splash-bloom 900ms ease-out 1040ms forwards;
 }
 
 @keyframes splash-bloom {
-  0% {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-  35% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.9);
-  }
+  0% { opacity: 0; transform: scale(0.4); }
+  35% { opacity: 1; }
+  100% { opacity: 0; transform: scale(2); }
 }
 
-/* The settle. Arrives wide, tightens into place — this is the part that reads
-   as expensive, and the part nobody consciously notices. */
+/* Arrives wide, tightens into place. That last 200ms is most of the feeling. */
 .splash-word {
-  margin-top: 1.6rem;
-  font-size: clamp(1.75rem, 8vw, 2.5rem);
-  font-weight: 620;
-  text-transform: uppercase;
+  margin-top: 0.6rem;
+  font-size: clamp(2rem, 9vw, 2.9rem);
+  font-weight: 800;
+  text-transform: lowercase;
   line-height: 1;
-  color: var(--chalk);
+  color: var(--ink);
   opacity: 0;
-  letter-spacing: 0.34em;
-  text-indent: 0.34em;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
   animation: splash-settle 760ms cubic-bezier(0.16, 1, 0.3, 1) 1180ms forwards;
 }
 
 @keyframes splash-settle {
-  0% {
-    opacity: 0;
-    letter-spacing: 0.34em;
-    text-indent: 0.34em;
-    transform: translateY(8px);
-  }
-  100% {
-    opacity: 1;
-    letter-spacing: -0.03em;
-    text-indent: 0;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; letter-spacing: 0.3em; text-indent: 0.3em; transform: translateY(8px); }
+  100% { opacity: 1; letter-spacing: -0.035em; text-indent: 0; transform: none; }
 }
 
 .splash-tag {
-  margin-top: 0.9rem;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(244, 246, 250, 0.45);
+  margin-top: 0.85rem;
+  font-size: 0.9rem;
+  color: #4b5563;
   opacity: 0;
   animation: splash-fade 620ms ease-out 1620ms forwards;
 }
 
 @keyframes splash-fade {
-  to {
-    opacity: 1;
-  }
+  to { opacity: 1; }
 }
 
-/*
- * Reduced motion: the frame, not the choreography. Everything is placed at its
- * final state and only opacity moves — no drawing, no travel, no scale.
- */
 .splash-still .splash-route,
 .splash-still .splash-node,
 .splash-still .splash-word,
@@ -292,7 +395,7 @@ body {
   stroke-dashoffset: 0;
   opacity: 1;
   transform: none;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   text-indent: 0;
 }
 
@@ -308,77 +411,27 @@ body {
 
 /* ── Arrival ──────────────────────────────────────────────────── */
 
-/*
- * Cards land rather than appear. Runs once, forwards, so the end state is the
- * normal state and nothing depends on the animation having played.
- */
 .mm-enter {
   opacity: 0;
   animation: mm-enter 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes mm-enter {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.985);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: none; }
 }
 
-/* The live pulse — one of only two things in the app that loops, and it loops
-   because it is marking real time passing. */
 .mm-ping {
   animation: mm-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 @keyframes mm-ping {
-  0% {
-    transform: scale(1);
-    opacity: 0.55;
-  }
-  75%,
-  100% {
-    transform: scale(2.6);
-    opacity: 0;
-  }
-}
-
-/* A slow sheen across the live panel, so the surface itself reads as awake. */
-.mm-live-sheen::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    100deg,
-    transparent 30%,
-    rgba(73, 124, 253, 0.07) 48%,
-    transparent 66%
-  );
-  transform: translateX(-100%);
-  animation: mm-sheen 7s ease-in-out infinite;
-}
-
-@keyframes mm-sheen {
-  0%,
-  55% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+  0% { transform: scale(1); opacity: 0.5; }
+  75%, 100% { transform: scale(2.6); opacity: 0; }
 }
 
 /* ── The welcome comparison ───────────────────────────────────── */
 
-/*
- * Segments grow from nothing into place. The shattered day arrives after the
- * solid one so the contrast is watched rather than merely seen — the point of
- * the picture is the difference, and a difference needs two beats.
- */
 .mm-seg {
   transform: scaleX(0);
   transform-origin: left center;
@@ -390,65 +443,25 @@ body {
 }
 
 @keyframes mm-seg {
-  from {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  to {
-    transform: scaleX(1);
-    opacity: 1;
-  }
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mm-seg {
-    transform: none;
-    opacity: 1;
-  }
+  .mm-seg { transform: none; opacity: 1; }
 }
 
-/*
- * The welcome's action bar. A long fade rather than a short one: text passing
- * underneath has to be clearly on its way out, not half-legible behind the
- * button. Dropped entirely once the bar stops floating.
- */
+/* The welcome's action bar scrim. */
 .mm-cta {
   background-image: linear-gradient(
     to top,
-    #08090c 0%,
-    #08090c 62%,
-    rgba(8, 9, 12, 0.92) 78%,
-    rgba(8, 9, 12, 0) 100%
+    #eff4f9 0%,
+    #eff4f9 62%,
+    rgba(239, 244, 249, 0.92) 78%,
+    rgba(239, 244, 249, 0) 100%
   );
 }
 
 @media (min-width: 768px) {
-  .mm-cta {
-    background-image: none;
-  }
-}
-
-/*
- * The failsafe.
- *
- * The overlay is painted before React runs and is normally removed by it. If
- * that never happens — scripting blocked, a bundle that fails to load, a
- * hydration error — this clears it anyway. Runs well after the scripted exit,
- * so it never interferes with the real one.
- */
-.splash {
-  animation: splash-failsafe 1ms linear 6s forwards;
-}
-
-@keyframes splash-failsafe {
-  to {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
-}
-
-/* The scripted exit still owns the animation while React is alive. */
-.splash-out {
-  animation: splash-out 480ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  .mm-cta { background-image: none; }
 }

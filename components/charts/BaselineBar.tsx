@@ -33,18 +33,18 @@ export default function BaselineBar({
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="text-[13px] text-chalk-70">{label}</span>
-        <span className="text-[13px] font-[620] tabular-nums">{format(value)}</span>
+        <span className="text-[13px] text-ink-soft">{label}</span>
+        <span className="text-[13px] font-bold tabular-nums">{format(value)}</span>
       </div>
 
-      <div className="relative mt-2 h-2.5 w-full rounded-pill bg-surface-inset">
+      <div className="relative mt-2 h-2.5 w-full rounded-pill bg-paper">
         <div
           className="h-full rounded-pill transition-[width] duration-700"
           style={{ width: pct(value), background: hex }}
         />
         {baseline !== undefined && (
           <span
-            className="absolute top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-pill bg-chalk-45"
+            className="absolute top-1/2 h-4 w-[2px] -translate-y-1/2 rounded-pill bg-ink-faint"
             style={{ left: pct(baseline) }}
             aria-hidden
           />
@@ -52,10 +52,10 @@ export default function BaselineBar({
       </div>
 
       {baseline !== undefined && (
-        <p className="label mt-1.5 text-chalk-30">
+        <p className="label mt-1.5 text-ink-faint">
           Your normal {format(baseline)}
           {better !== null && (
-            <span className={better ? 'ml-2 text-recovery' : 'ml-2 text-strain'}>
+            <span className={better ? 'ml-2 text-rest-text' : 'ml-2 text-effort'}>
               {better ? 'better' : 'above'}
             </span>
           )}

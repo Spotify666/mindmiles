@@ -1,51 +1,48 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter_Tight, JetBrains_Mono } from 'next/font/google';
+import { Figtree } from 'next/font/google';
 import './globals.css';
-import MindMilesProvider from '@/components/MindMilesProvider';
+import PhotonProvider from '@/components/PhotonProvider';
 import Splash from '@/components/Splash';
 import ServiceWorker from '@/components/ServiceWorker';
 import TopBar from '@/components/nav/TopBar';
 import { TabBar } from '@/components/nav/TabBar';
 
 /**
- * Inter Tight for everything the user reads, JetBrains Mono for labels and axes.
- * Two families, and the second one only ever appears at 10–11px in uppercase —
- * enough to make a label read as an instrument marking rather than as prose.
+ * One family, doing everything.
+ *
+ * The previous shell paired a tight grotesque with a monospace used for every
+ * small label in tracked-out capitals — an instrument-panel convention, and
+ * exactly wrong for a page meant to read as something a person made. Figtree is
+ * warm, geometric and holds up at both 12px and 40px, so labels can simply be
+ * small text rather than a second typographic voice.
  */
-const sans = Inter_Tight({
+const sans = Figtree({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
-  weight: ['400', '500', '600', '700'],
-});
-
-const mono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-  display: 'swap',
-  weight: ['400', '500'],
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: 'Mind Miles — Measure where your attention goes',
-    template: '%s · Mind Miles',
+    default: 'Photon — see what your screens are really doing',
+    template: '%s · Photon',
   },
   description:
-    'The digital fitness tracker for your mind. Mind Miles measures how you actually use your devices and turns it into focus, recovery, strain and reclaimed time — measured on your device, and never sent anywhere.',
-  applicationName: 'Mind Miles',
+    'Photon measures how you actually use your screens — not just how long — and turns it into focus, rest and time you got back. Everything stays on your device.',
+  applicationName: 'Photon',
   robots: { index: true, follow: true },
   openGraph: {
-    title: 'Mind Miles',
-    description: 'Measure where your attention goes.',
+    title: 'Photon',
+    description: 'See what your screens are really doing.',
     type: 'website',
   },
-  appleWebApp: { capable: true, title: 'Mind Miles', statusBarStyle: 'black-translucent' },
+  appleWebApp: { capable: true, title: 'Photon', statusBarStyle: 'default' },
   manifest: '/manifest.webmanifest',
 };
 
 export const viewport: Viewport = {
-  themeColor: '#08090C',
+  themeColor: '#EFF4F9',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -54,7 +51,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={sans.variable}>
       <head>
         {/*
           Runs before first paint. The opening plays once per browser session,
@@ -82,11 +79,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html:
               `try{` +
               // Already played this session.
-              `var seen=sessionStorage.getItem('mindmiles.splash.seen')==='1';` +
+              `var seen=sessionStorage.getItem('photon.splash.seen')==='1';` +
               // A first-time visitor goes straight to the welcome. The welcome IS
               // the entrance; putting a 2.5s title card in front of it just hides
               // the one screen that explains what this is.
-              `var raw=localStorage.getItem('mindmiles.v1');` +
+              `var raw=localStorage.getItem('photon.v1');` +
               `var first=true;try{first=!raw||JSON.parse(raw).onboarded!==true}catch(e){}` +
               `if(seen||first){document.documentElement.classList.add('splash-skip')}` +
               `}catch(e){}`,
@@ -96,20 +93,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans antialiased">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[80] focus:rounded-pill focus:bg-focus focus:px-4 focus:py-2 focus:text-sm focus:font-[620] focus:text-void"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[80] focus:rounded-pill focus:bg-focus focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white"
         >
           Skip to content
         </a>
         <ServiceWorker />
         <Splash />
-        <MindMilesProvider>
+        <PhotonProvider>
           <TopBar />
           {/* Bottom padding clears the mobile tab bar. */}
           <main id="main" className="safe-x mx-auto max-w-wide pb-28 pt-5 md:pb-16">
             {children}
           </main>
           <TabBar />
-        </MindMilesProvider>
+        </PhotonProvider>
       </body>
     </html>
   );

@@ -92,7 +92,7 @@ const RULES: Rule[] = [
       action: 'Nothing to change. This is the single habit that helps the most, and it is holding.',
       because:
         'Screen light late at night pushes your body clock back and makes sleep come later. A clear evening improves tomorrow before it has started.',
-      accent: 'recovery',
+      accent: 'rest',
     };
   },
 
@@ -113,7 +113,7 @@ const RULES: Rule[] = [
       action: 'Pick a stopping time an hour before bed, and put the charger in another room tonight.',
       because:
         'Screen light in the evening makes sleep come later, even if you end up sleeping just as long. When you stop matters more than how long you were on.',
-      accent: 'recovery',
+      accent: 'rest',
     };
   },
 
@@ -135,7 +135,7 @@ const RULES: Rule[] = [
           : 'Try keeping it to two set times of day, rather than letting it fill the gaps between things.',
       because:
         'Fast scrolling means things went past quicker than you could read them. It is the clearest sign of time passing without you getting anything from it.',
-      accent: 'scatter',
+      accent: 'jumpy',
     };
   },
 
@@ -173,7 +173,7 @@ const RULES: Rule[] = [
       action: 'Stand up at the end of the next hour, even for thirty seconds, and look at something across the room while you are up.',
       because:
         'You blink about half as often while staring at a screen, which is what makes eyes feel dry and gritty. Standing up sorts out the stiffness at the same time.',
-      accent: 'strain',
+      accent: 'effort',
     };
   },
 
@@ -217,7 +217,7 @@ const RULES: Rule[] = [
       action: 'Try giving the first half hour to something else, and see whether the rest of the morning feels different.',
       because:
         'How you start tends to set the pace for the rest. A jumpy first half hour usually means a jumpy day.',
-      accent: 'scatter',
+      accent: 'jumpy',
     };
   },
 
@@ -233,7 +233,7 @@ const RULES: Rule[] = [
       action: 'Set one thing for tomorrow — even a single 90-minute block of work is enough to make the comparison worth something.',
       because:
         'Hours on a screen tell you almost nothing on their own. The gap between what you meant to do and what you did is where the useful bit is.',
-      accent: 'record',
+      accent: 'gold',
     };
   },
 ];

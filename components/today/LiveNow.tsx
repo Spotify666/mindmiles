@@ -5,7 +5,7 @@ import { fmtClock, fmtCount, fmtDistance, pxToMeters } from '@/lib/mm/format';
 import { SOURCE_LABEL, SOURCE_NOTE } from '@/lib/mm/brightness';
 import { BURST_VELOCITY, type LiveStats } from '@/lib/mm/tracker';
 import { ACCENT_HEX } from '@/components/ui/tokens';
-import { useLive } from '@/components/MindMilesProvider';
+import { useLive } from '@/components/PhotonProvider';
 import { Heartbeat } from '@/components/ui/motion';
 import {
   enableDeviceAwareness,
@@ -55,10 +55,10 @@ function Wave({ wave, engaged }: { wave: number[]; engaged: boolean }) {
       // The newest three seconds are the live edge.
       const fresh = i >= n - 3;
       ctx.fillStyle = !engaged
-        ? 'rgba(244,246,250,0.12)'
+        ? '#D5DFEA'
         : fresh
           ? ACCENT_HEX.focus
-          : 'rgba(73,124,253,0.42)';
+          : 'rgba(26,65,190,0.38)';
       ctx.beginPath();
       ctx.roundRect(i * slot, rect.height - h, barW, h, 1);
       ctx.fill();
@@ -70,17 +70,17 @@ function Wave({ wave, engaged }: { wave: number[]; engaged: boolean }) {
 
 function Cell({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="rounded-[12px] bg-surface-inset px-3 py-2.5">
-      <p className="label text-chalk-30">{label}</p>
+    <div className="panel px-3 py-2.5">
+      <p className="label text-ink-faint">{label}</p>
       <p className="readout mt-1.5 text-[19px]">{value}</p>
-      {sub && <p className="mt-1 text-[10.5px] text-chalk-30">{sub}</p>}
+      {sub && <p className="mt-1 text-[10.5px] text-ink-faint">{sub}</p>}
     </div>
   );
 }
 
 export default function LiveNow() {
   // Straight from the 1Hz stream, not from the slow aggregate context — see the
-  // note on LiveCtx in MindMilesProvider for why that distinction is load-bearing.
+  // note on LiveCtx in PhotonProvider for why that distinction is load-bearing.
   const live = useLive();
   const [asking, setAsking] = useState(false);
   const [askResult, setAskResult] = useState<'granted' | 'refused' | null>(null);
@@ -92,43 +92,43 @@ export default function LiveNow() {
   const overdue = bout >= BREAK_TARGET_SEC;
   const pct = Math.min(100, (bout / BREAK_TARGET_SEC) * 100);
   const remaining = Math.max(0, BREAK_TARGET_SEC - bout);
-  const barColor = overdue ? ACCENT_HEX.strain : ACCENT_HEX.focus;
+  const barColor = overdue ? ACCENT_HEX.effort : ACCENT_HEX.focus;
 
   return (
     <section className="card mm-live-sheen relative overflow-hidden">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-hair px-4 py-3">
-        <span className="flex items-center gap-2 text-[12.5px] font-[560]">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-ink/15 px-4 py-3">
+        <span className="flex items-center gap-2 text-[12.5px] font-semibold">
           <span
             className={`h-2 w-2 rounded-pill ${engaged ? 'animate-breathe' : ''}`}
-            style={{ background: engaged ? ACCENT_HEX.recovery : 'rgba(244,246,250,0.22)' }}
+            style={{ background: engaged ? ACCENT_HEX.rest : '#C3CCD8' }}
             aria-hidden
           />
           {engaged ? 'Watching now' : 'Paused — you are not doing anything'}
         </span>
-        <span className="label ml-auto text-chalk-30">Never leaves this device</span>
+        <span className="label ml-auto text-ink-faint">Never leaves this device</span>
       </div>
 
       <div className="grid gap-5 p-4 sm:grid-cols-2">
         <div>
-          <p className="label text-chalk-30">Going without a break</p>
-          <p className="readout mt-2 text-[42px]" style={{ color: overdue ? ACCENT_HEX.strain : undefined }}>
+          <p className="label text-ink-faint">Going without a break</p>
+          <p className="readout mt-2 text-[42px]" style={{ color: overdue ? ACCENT_HEX.effort : undefined }}>
             {fmtClock(bout)}
           </p>
 
           <div className="mt-4">
             <div className="flex items-baseline justify-between gap-2">
-              <span className="label text-chalk-30">Next eye break</span>
-              <span className="label" style={{ color: barColor }}>
+              <span className="label text-ink-faint">Next eye break</span>
+              <span className="label text-ink-faint" style={{ color: barColor }}>
                 {overdue ? `overdue ${fmtClock(bout - BREAK_TARGET_SEC)}` : `in ${fmtClock(remaining)}`}
               </span>
             </div>
-            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-pill bg-surface-inset">
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-pill bg-paper">
               <div
                 className="h-full rounded-pill transition-[width] duration-1000 ease-linear"
                 style={{ width: `${pct}%`, background: barColor }}
               />
             </div>
-            <p className="mt-2 text-[11.5px] leading-relaxed text-chalk-45">
+            <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">
               {overdue
                 ? 'You have been staring at the same distance for over twenty minutes. Look at something across the room for twenty seconds — this resets when you step away.'
                 : 'Every twenty minutes, look at something far away for twenty seconds. This is the timer for that.'}
@@ -137,8 +137,8 @@ export default function LiveNow() {
         </div>
 
         <div>
-          <p className="label text-chalk-30">What you have been doing · last minute</p>
-          <div className="mt-2 h-14 w-full rounded-[12px] bg-surface-inset p-1.5">
+          <p className="label text-ink-faint">What you have been doing · last minute</p>
+          <div className="mt-2 h-14 w-full rounded-[12px] bg-paper p-1.5">
             <Wave wave={live?.wave ?? []} engaged={engaged} />
           </div>
 
@@ -160,8 +160,8 @@ export default function LiveNow() {
       </div>
 
       {/* What we can and cannot see, said plainly, with the way to widen it. */}
-      <div className="border-t border-hair px-4 py-3.5">
-        <p className="text-[12.5px] leading-relaxed text-chalk-45">{SOURCE_COPY[source].note}</p>
+      <div className="border-t border-ink/15 px-4 py-3.5">
+        <p className="text-[12.5px] leading-relaxed text-ink-faint">{SOURCE_COPY[source].note}</p>
 
         {canGoDeviceWide && (
           <button
@@ -173,41 +173,41 @@ export default function LiveNow() {
               setAskResult(ok ? 'granted' : 'refused');
               setAsking(false);
             }}
-            className="mt-3 rounded-pill bg-focus px-4 py-2 text-[13.5px] font-[560] text-void transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="mt-3 rounded-pill bg-focus px-4 py-2 text-[13.5px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {asking ? 'Asking your browser…' : 'Count my whole device'}
           </button>
         )}
 
         {askResult === 'refused' && (
-          <p className="mt-2.5 text-[12px] leading-relaxed text-chalk-30">
+          <p className="mt-2.5 text-[12px] leading-relaxed text-ink-faint">
             Your browser said no, or does not support it. Nothing is broken — we will keep counting
             this tab. The extension in this project counts every tab instead.
           </p>
         )}
 
         {live && !live.writing && (
-          <p className="mt-2.5 text-[12px] leading-relaxed text-chalk-30">
-            Mind Miles is open in another tab, and that one is doing the counting — so the same
+          <p className="mt-2.5 text-[12px] leading-relaxed text-ink-faint">
+            Photon is open in another tab, and that one is doing the counting — so the same
             minute is never counted twice.
           </p>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-hair px-4 py-3">
-        <span className="label text-chalk-30">Brightness</span>
-        <span className="text-[15px] font-[620] tabular-nums">{Math.round(live?.brightness ?? 0)}%</span>
-        {live?.lux !== undefined && <span className="text-[12px] tabular-nums text-chalk-30">{live.lux} lux</span>}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-ink/15 px-4 py-3">
+        <span className="label text-ink-faint">Brightness</span>
+        <span className="text-[15px] font-bold tabular-nums">{Math.round(live?.brightness ?? 0)}%</span>
+        {live?.lux !== undefined && <span className="text-[12px] tabular-nums text-ink-faint">{live.lux} lux</span>}
         <span
           className={`label rounded-pill px-2 py-0.5 ${
             live?.brightnessSource === 'declared'
-              ? 'border border-strain/25 bg-strain-dim text-strain'
-              : 'border border-recovery/25 bg-recovery-dim text-recovery'
+              ? 'border border-effort/40 bg-effort-wash text-effort'
+              : 'border border-rest/40 bg-rest-wash text-rest-text'
           }`}
         >
           {SOURCE_LABEL[live?.brightnessSource ?? 'declared']}
         </span>
-        <p className="w-full text-[11.5px] leading-relaxed text-chalk-45 sm:w-auto sm:flex-1">
+        <p className="w-full text-[11.5px] leading-relaxed text-ink-faint sm:w-auto sm:flex-1">
           {SOURCE_NOTE[live?.brightnessSource ?? 'declared']}
         </p>
       </div>

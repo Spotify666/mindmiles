@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'What we know about you',
-  description: 'What Mind Miles records, where it stays, and what it refuses to collect.',
+  description: 'What Photon records, where it stays, and what it refuses to collect.',
 };
 
 /**
@@ -15,8 +15,10 @@ export default function PrivacyPage() {
   return (
     <div className="mx-auto flex max-w-[680px] flex-col gap-7 pb-6">
       <header>
-        <h1 className="text-[26px] font-[620] tracking-tightest">What we know about you</h1>
-        <p className="mt-2.5 text-[14.5px] leading-relaxed text-chalk-70">
+        <h1 className="display text-[28px]">
+          What we know <span className="marked">about you</span>
+        </h1>
+        <p className="mt-2.5 text-[14.5px] leading-relaxed text-ink-soft">
           This app could learn an unusual amount about how you spend your attention. So the rule
           underneath everything else is that it only ever knows it in one place — the device you are
           reading this on.
@@ -64,8 +66,8 @@ export default function PrivacyPage() {
         them hard.
       </Block>
 
-      <p className="text-[12.5px] text-chalk-30">
-        <Link href="/method" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+      <p className="text-[12.5px] text-ink-faint">
+        <Link href="/method" className="text-ink-faint underline underline-offset-2 hover:text-ink">
           How we work all this out
         </Link>
       </p>
@@ -76,8 +78,8 @@ export default function PrivacyPage() {
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="text-[17px] font-[620] tracking-tightest">{title}</h2>
-      <p className="mt-2 text-[13.5px] leading-relaxed text-chalk-45">{children}</p>
+      <h2 className="text-[17px] font-bold tracking-tightest">{title}</h2>
+      <p className="mt-2 text-[13.5px] leading-relaxed text-ink-faint">{children}</p>
     </section>
   );
 }

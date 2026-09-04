@@ -37,7 +37,7 @@ function InputRow({ input, hex }: { input: MetricInput; hex: string }) {
   const flagged = input.provenance === 'estimated' || input.provenance === 'unavailable';
 
   return (
-    <li className="border-b border-hair last:border-b-0">
+    <li className="border-b border-ink/15 last:border-b-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -46,9 +46,9 @@ function InputRow({ input, hex }: { input: MetricInput; hex: string }) {
       >
         <div className="flex items-baseline gap-3">
           <span className="min-w-0 flex-1 text-[14px] leading-snug">{input.label}</span>
-          <span className="shrink-0 text-[14px] font-[620] tabular-nums">{input.value}</span>
+          <span className="shrink-0 text-[14px] font-bold tabular-nums">{input.value}</span>
           <span
-            className={`shrink-0 text-[11px] leading-none text-chalk-30 transition-transform ${open ? 'rotate-180' : ''}`}
+            className={`shrink-0 text-[11px] leading-none text-ink-faint transition-transform ${open ? 'rotate-180' : ''}`}
             aria-hidden
           >
             ▾
@@ -57,24 +57,24 @@ function InputRow({ input, hex }: { input: MetricInput; hex: string }) {
 
         {scored ? (
           <div className="mt-2 flex items-center gap-2.5">
-            <div className="h-1 flex-1 overflow-hidden rounded-pill bg-surface-inset">
+            <div className="h-1 flex-1 overflow-hidden rounded-pill bg-paper">
               <div
                 className="h-full rounded-pill"
                 style={{ width: `${Math.round(input.score ?? 0)}%`, background: hex, opacity: 0.9 }}
               />
             </div>
             {/* How much this one mattered, in words rather than a weight decimal. */}
-            <span className="label shrink-0 text-chalk-30">
+            <span className="label shrink-0 text-ink-faint">
               {weightWord(input.weight ?? 0)}
             </span>
           </div>
         ) : (
-          <p className="label mt-1.5 text-chalk-30">Background · not part of the score</p>
+          <p className="label mt-1.5 text-ink-faint">Background · not part of the score</p>
         )}
       </button>
 
       {open && (
-        <p className="pb-3.5 text-[13px] leading-relaxed text-chalk-45">
+        <p className="pb-3.5 text-[13px] leading-relaxed text-ink-faint">
           {input.detail}
           {flagged && (
             <span className="mt-2 block">
@@ -110,28 +110,28 @@ export function MetricExplain({
   return (
     <Sheet open={open} onClose={onClose} title={metric.label}>
       {/* ── the answer ────────────────────────────────────── */}
-      <p className="text-[13px] text-chalk-45">{metric.plain}</p>
+      <p className="text-[13px] text-ink-faint">{metric.plain}</p>
 
       <div className="mt-3 flex items-end gap-4">
         <span className="readout text-[60px]" style={{ color: unavailable ? undefined : hex }}>
           {unavailable ? '—' : <Counting value={metric.value} duration={650} />}
         </span>
         <div className="pb-2">
-          <p className="text-[17px] font-[620] leading-none">{metric.bandLabel}</p>
-          <p className="mt-2 text-[13.5px] font-[560] tabular-nums text-chalk-70">{metric.fact}</p>
-          <p className="label mt-1.5 text-chalk-30">
+          <p className="text-[17px] font-bold leading-none">{metric.bandLabel}</p>
+          <p className="mt-2 text-[13.5px] font-semibold tabular-nums text-ink-soft">{metric.fact}</p>
+          <p className="label mt-1.5 text-ink-faint">
             {metric.polarity === 'higher-better' ? 'Higher is better' : 'Lower is easier'}
           </p>
         </div>
       </div>
 
-      <p className="mt-3.5 text-[15px] leading-relaxed text-chalk-70">{metric.headline}</p>
+      <p className="mt-3.5 text-[15px] leading-relaxed text-ink-soft">{metric.headline}</p>
 
       {metric.delta && (
-        <p className="mt-3 text-[13.5px] leading-relaxed text-chalk-45">
+        <p className="mt-3 text-[13.5px] leading-relaxed text-ink-faint">
           Your usual for this kind of day is{' '}
-          <span className="font-[620] text-chalk">{Math.round(metric.delta.baseline)}</span>. Today is{' '}
-          <span className={metric.delta.better ? 'font-[620] text-recovery' : 'font-[620] text-strain'}>
+          <span className="font-bold text-ink">{Math.round(metric.delta.baseline)}</span>. Today is{' '}
+          <span className={metric.delta.better ? 'font-bold text-rest-text' : 'font-bold text-effort'}>
             {Math.abs(Math.round(metric.delta.change))} {metric.delta.change >= 0 ? 'higher' : 'lower'}
           </span>
           .
@@ -139,13 +139,13 @@ export function MetricExplain({
       )}
 
       {/* ── the working, only if you want it ──────────────── */}
-      <p className="label mt-7 text-chalk-30">What made this number</p>
+      <p className="label mt-7 text-ink-faint">What made this number</p>
       {/*
         The bars show how much each thing pushed the score, and for a
         lower-is-better metric that means a long bar is bad news. Leaving that
         unsaid teaches people to read the sheet backwards.
       */}
-      <p className="mt-1.5 text-[12.5px] leading-relaxed text-chalk-30">
+      <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-faint">
         {metric.polarity === 'higher-better'
           ? 'Longer bars pushed your score up. Tap any line to see why it matters.'
           : 'Longer bars pushed your score up — and here, lower is easier. Tap any line to see why.'}
@@ -157,16 +157,16 @@ export function MetricExplain({
         ))}
       </ul>
 
-      <p className="mt-5 text-[12.5px] leading-relaxed text-chalk-30">
-        <Link href="/guide" className="text-chalk-45 underline underline-offset-2 hover:text-chalk">
+      <p className="mt-5 text-[12.5px] leading-relaxed text-ink-faint">
+        <Link href="/guide" className="text-ink-faint underline underline-offset-2 hover:text-ink">
           What all the numbers mean
         </Link>
       </p>
 
       {/* ── where the number came from ────────────────────── */}
-      <div className="mt-5 rounded-[14px] bg-surface-raised p-3.5">
+      <div className="mt-5 panel p-3.5">
         <ProvenanceBadge provenance={metric.provenance} />
-        <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-45">
+        <p className="mt-2 text-[12.5px] leading-relaxed text-ink-faint">
           {PROVENANCE_NOTE[metric.provenance]}
         </p>
       </div>
@@ -190,11 +190,11 @@ export default function MetricCard({ metric, compact = false }: { metric: Metric
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`${metric.label}: ${unavailable ? 'no score yet' : metric.value}. ${metric.plain}. Tap to see how it works.`}
-        className="card group w-full p-4 text-left transition-colors hover:border-hair-strong hover:bg-surface-raised"
+        className="card group w-full p-4 text-left transition-colors hover:border-ink hover:bg-paper"
       >
         {/* The name gets the row to itself. Sharing it with the badge pushed
             the pill off the edge of a two-up phone card. */}
-        <span className="label block truncate text-chalk-45">{metric.label}</span>
+        <span className="label block truncate text-ink-faint">{metric.label}</span>
 
         {/*
           The plain-English line is not optional chrome — it is what makes the
@@ -206,7 +206,7 @@ export default function MetricCard({ metric, compact = false }: { metric: Metric
           happens to be, or on whether they carry a badge, come out ragged in a
           two-up phone layout.
         */}
-        <p className="mt-1 min-h-[2.5em] text-[11.5px] leading-snug text-chalk-30">
+        <p className="mt-1 min-h-[2.5em] text-[11.5px] leading-snug text-ink-faint">
           {metric.plain}
           {metric.provenance === 'estimated' && (
             <ProvenanceBadge provenance="estimated" className="ml-1.5 align-[1px]" />
@@ -217,7 +217,7 @@ export default function MetricCard({ metric, compact = false }: { metric: Metric
           <span className="readout text-[34px]" style={{ color: unavailable ? undefined : hex }}>
             {unavailable ? '—' : <Counting value={metric.value} />}
           </span>
-          <span className="pb-1 text-[13px] text-chalk-45">{metric.bandLabel}</span>
+          <span className="pb-1 text-[13px] text-ink-faint">{metric.bandLabel}</span>
         </div>
 
         {/*
@@ -227,9 +227,9 @@ export default function MetricCard({ metric, compact = false }: { metric: Metric
           measuring two completely different things, and it is the part anyone
           can actually act on.
         */}
-        <p className="mt-1.5 text-[12.5px] font-[560] tabular-nums text-chalk-70">{metric.fact}</p>
+        <p className="mt-1.5 text-[12.5px] font-semibold tabular-nums text-ink-soft">{metric.fact}</p>
 
-        <div className="mt-2.5 h-1 w-full overflow-hidden rounded-pill bg-surface-inset">
+        <div className="mt-2.5 h-1 w-full overflow-hidden rounded-pill bg-paper">
           <div
             className="h-full rounded-pill transition-[width] duration-700"
             style={{ width: unavailable ? '0%' : `${metric.value}%`, background: hex, opacity: 0.9 }}

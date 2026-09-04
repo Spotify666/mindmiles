@@ -17,7 +17,7 @@ import { installMode, onInstallChange } from '@/lib/mm/install';
  * remembered, because a banner you cannot get rid of is worse than no banner.
  */
 
-const DISMISSED = 'mindmiles.install.dismissed';
+const DISMISSED = 'photon.install.dismissed';
 
 export default function InstallBanner() {
   const [show, setShow] = useState(false);
@@ -40,20 +40,20 @@ export default function InstallBanner() {
 
   return (
     <div className="card flex items-center gap-3 p-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-surface-inset text-focus">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center panel text-focus">
         <Mark size={19} />
       </span>
 
       <Link href="/install" className="min-w-0 flex-1">
-        <p className="text-[13.5px] font-[560]">Get Mind Miles as an app</p>
-        <p className="mt-0.5 truncate text-[12px] text-chalk-45">
+        <p className="text-[13.5px] font-semibold">Get Photon as an app</p>
+        <p className="mt-0.5 truncate text-[12px] text-ink-faint">
           One tap from your home screen, works offline
         </p>
       </Link>
 
       <Link
         href="/install"
-        className="label shrink-0 rounded-pill border border-focus/40 bg-focus-dim px-2.5 py-1.5 text-focus transition-colors hover:bg-focus/20"
+        className="label shrink-0 rounded-pill border border-focus/40 bg-focus-wash px-2.5 py-1.5 text-focus transition-colors hover:bg-focus/20"
       >
         Get it
       </Link>
@@ -69,7 +69,7 @@ export default function InstallBanner() {
           }
           setShow(false);
         }}
-        className="shrink-0 rounded-pill px-1.5 py-1 text-[15px] leading-none text-chalk-30 transition-colors hover:text-chalk-70"
+        className="shrink-0 rounded-pill px-1.5 py-1 text-[15px] leading-none text-ink-faint transition-colors hover:text-ink-soft"
       >
         ×
       </button>

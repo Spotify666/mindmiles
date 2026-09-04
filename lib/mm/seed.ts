@@ -101,7 +101,7 @@ function goodDayBlocks(rng: Rng): Block[] {
 }
 
 function buildDay(date: string, offset: number): DayRecord {
-  const rng = makeRng(`mindmiles-seed:${date}`);
+  const rng = makeRng(`photon-seed:${date}`);
   const weekday = new Date(`${date}T12:00:00`).getDay();
   const weekend = weekday === 0 || weekday === 6;
 
