@@ -41,6 +41,25 @@ const TICK_MS = 1_000;
 const FLUSH_MS = 10_000;
 /** Away at least this long is a real break, and resets the unbroken-stretch clock. */
 const BREAK_MS = 90_000;
+
+/**
+ * How much elapsed time a single tick may bank.
+ *
+ * These two numbers are the whole reason device-wide counting used to record
+ * almost nothing. Browsers throttle `setInterval` in a background tab to about
+ * once a minute, so with a flat three-second cap a full minute of real activity
+ * banked three seconds — roughly a twentieth of the truth. The clock was
+ * technically running and the numbers were nonsense.
+ *
+ * TAB: still tight. With the page hidden and no presence signal we have no idea
+ * whether anyone was there, so a long gap must not be credited.
+ *
+ * DEVICE: generous, because idle detection is positive evidence the person was
+ * at their machine for that whole stretch. Capped anyway — past five minutes,
+ * assume the machine slept or the tab was frozen rather than inventing time.
+ */
+const CATCHUP_TAB_MS = TICK_MS * 3;
+const CATCHUP_DEVICE_MS = 5 * 60_000;
 /** Live waveform length — one sample per second. */
 const WAVE_LEN = 60;
 /**
@@ -241,7 +260,22 @@ class Tracker {
     if (document.visibilityState === 'visible') {
       const now = Date.now();
       this.lastInput = now;
-      // Do not bill the away time to the returning minute.
+
+      /*
+       * Coming back to the tab used to reset the clock outright, on the reasoning
+       * that time away should not be billed to the returning minute. That is
+       * right when this page is all we can see — and exactly wrong once idle
+       * detection is on, because then the time away is the very thing we were
+       * asked to count. It threw away every background minute at the moment the
+       * user returned to look at it.
+       *
+       * So: bank what presence says we earned, then reset.
+       */
+      const p = presence(false);
+      if (p.deviceAware && p.active && this.writing) {
+        const elapsed = Math.min(now - this.lastTick, CATCHUP_DEVICE_MS);
+        if (elapsed > TICK_MS) this.sessionMs += this.bankSpan(now - elapsed, now);
+      }
       this.lastTick = now;
     } else {
       this.onSwitch();
@@ -277,7 +311,9 @@ class Tracker {
   private refreshBrightness() {
     if (this.brightnessBusy) return;
     this.brightnessBusy = true;
-    readBrightness(loadState().brightness)
+    // null when the user has never set one, so the reading comes back `unset`
+    // rather than dressing a default up as their answer.
+    readBrightness(loadState().brightnessSet ? loadState().brightness : null)
       .then((r) => {
         this.brightness = r.value;
         this.brightnessSource = r.source;
@@ -289,13 +325,56 @@ class Tracker {
       });
   }
 
+  /**
+   * Bank a span of engaged time across the minutes it actually covers.
+   *
+   * The old code added the whole elapsed span to whichever minute happened to be
+   * current when the tick fired. At one tick a second that was harmless; catching
+   * up a throttled minute it would have dumped sixty seconds into a single
+   * bucket, inventing one very busy minute and fifty-nine empty ones. Bouts,
+   * breaks and the timeline are all built from those buckets, so the shape of the
+   * day would have been wrong, not just the total.
+   */
+  private bankSpan(fromMs: number, toMs: number): number {
+    if (toMs <= fromMs) return 0;
+
+    const state = loadState();
+    let banked = 0;
+    let cursor = fromMs;
+
+    // Walk minute boundary to minute boundary, so each bucket gets only its own
+    // share and a span crossing midnight lands in the right day.
+    while (cursor < toMs) {
+      const at = new Date(cursor);
+      const minuteEnd = new Date(cursor);
+      minuteEnd.setSeconds(60, 0);
+      const sliceEnd = Math.min(minuteEnd.getTime(), toMs);
+      const slice = sliceEnd - cursor;
+
+      const day = ensureDay(state, dayKey(at));
+      const bucket = getBucket(day, at.getHours() * 60 + at.getMinutes(), this.brightness);
+      bucket.a = Math.min(60_000, bucket.a + slice);
+      bucket.b = this.brightness;
+
+      banked += slice;
+      cursor = sliceEnd;
+    }
+
+    saveState(state);
+    return banked;
+  }
+
   private tick = () => {
     const now = Date.now();
-    // Cap the delta so a laptop waking from sleep cannot bill hours to one minute.
-    const delta = Math.min(now - this.lastTick, TICK_MS * 3);
+    const p = presence(this.tabEngaged());
+
+    // How far back this tick is allowed to reach. See CATCHUP_* above.
+    const cap = p.deviceAware ? CATCHUP_DEVICE_MS : CATCHUP_TAB_MS;
+    const elapsed = Math.min(now - this.lastTick, cap);
+    const spanStart = now - elapsed;
     this.lastTick = now;
 
-    const engaged = this.engagedNow();
+    const engaged = p.active;
 
     // Unbroken-stretch clock. A long enough absence resets it; a short one does not.
     if (engaged) {
@@ -336,11 +415,15 @@ class Tracker {
     // Switches are recorded whether or not the tab is engaged — leaving is the
     // event, and it necessarily happens while the tab is not in focus.
     if (this.writing && (engaged || switchesThisTick > 0)) {
-      const d = new Date();
+      // Time first, spread over the minutes it belongs to.
+      if (engaged) this.sessionMs += this.bankSpan(spanStart, now);
+
+      // Then the counts, which can only ever belong to the minute we are in —
+      // input is observed live, so there is nothing to catch up.
       const state = loadState();
+      const d = new Date();
       const day = ensureDay(state, dayKey(d));
-      const minuteOfDay = d.getHours() * 60 + d.getMinutes();
-      const bucket = getBucket(day, minuteOfDay, this.brightness);
+      const bucket = getBucket(day, d.getHours() * 60 + d.getMinutes(), this.brightness);
 
       if (switchesThisTick > 0) {
         day.switches += switchesThisTick;
@@ -348,9 +431,6 @@ class Tracker {
       }
 
       if (engaged) {
-        this.sessionMs += delta;
-        bucket.a = Math.min(60_000, bucket.a + delta);
-        bucket.b = this.brightness;
         bucket.k += keysThisTick;
         bucket.c += clicksThisTick;
         bucket.s += Math.round(scrollThisTick);

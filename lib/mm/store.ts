@@ -56,6 +56,7 @@ function emptyState(): PhotonState {
   return {
     version: VERSION,
     brightness: 70,
+    brightnessSet: false,
     enabled: false,
     seeded: false,
     onboarded: false,
@@ -214,6 +215,14 @@ export function setIntent(date: string, category: Category, minutes: number): Ph
 export function setBrightness(value: number): PhotonState {
   const state = loadState();
   state.brightness = Math.max(0, Math.min(100, Math.round(value)));
+  state.brightnessSet = true;
+  return saveState(state);
+}
+
+/** Hand brightness back to automatic detection, or to nothing at all. */
+export function clearBrightness(): PhotonState {
+  const state = loadState();
+  state.brightnessSet = false;
   return saveState(state);
 }
 

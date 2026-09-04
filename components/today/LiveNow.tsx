@@ -12,6 +12,7 @@ import {
   idleDetectionSupported,
   SOURCE_COPY,
 } from '@/lib/mm/presence';
+import { requestAmbientSensor } from '@/lib/mm/brightness';
 import { extensionInstalled } from '@/lib/mm/extension';
 
 /**
@@ -86,6 +87,7 @@ export default function LiveNow() {
   const [askResult, setAskResult] = useState<'granted' | 'refused' | null>(null);
 
   const source = extensionInstalled() ? 'extension' : (live?.presenceSource ?? 'tab');
+  const brightnessSource = live?.brightnessSource ?? 'unset';
   const canGoDeviceWide = !live?.deviceAware && idleDetectionSupported();
   const engaged = live?.engaged ?? false;
   const bout = live?.boutSec ?? 0;
@@ -169,7 +171,11 @@ export default function LiveNow() {
             disabled={asking}
             onClick={async () => {
               setAsking(true);
+              // Both permissions belong to the same intent — "watch my device,
+              // not just this tab" — so they are asked for together rather than
+              // making the user find brightness in a settings page later.
               const ok = await enableDeviceAwareness();
+              await requestAmbientSensor();
               setAskResult(ok ? 'granted' : 'refused');
               setAsking(false);
             }}
@@ -196,19 +202,27 @@ export default function LiveNow() {
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-ink/15 px-4 py-3">
         <span className="label text-ink-faint">Brightness</span>
-        <span className="text-[15px] font-bold tabular-nums">{Math.round(live?.brightness ?? 0)}%</span>
-        {live?.lux !== undefined && <span className="text-[12px] tabular-nums text-ink-faint">{live.lux} lux</span>}
+        {brightnessSource === 'unset' ? (
+          <span className="text-[15px] font-bold text-ink-faint">—</span>
+        ) : (
+          <span className="text-[15px] font-bold tabular-nums">
+            {Math.round(live?.brightness ?? 0)}%
+          </span>
+        )}
+        {live?.lux !== undefined && (
+          <span className="text-[12px] tabular-nums text-ink-faint">{live.lux} lux</span>
+        )}
         <span
           className={`label rounded-pill px-2 py-0.5 ${
-            live?.brightnessSource === 'declared'
-              ? 'border border-effort/40 bg-effort-wash text-effort'
-              : 'border border-rest/40 bg-rest-wash text-rest-text'
+            brightnessSource === 'native' || brightnessSource === 'sensor'
+              ? 'border border-rest/40 bg-rest-wash text-rest-text'
+              : 'border border-ink/15 bg-paper text-ink-faint'
           }`}
         >
-          {SOURCE_LABEL[live?.brightnessSource ?? 'declared']}
+          {SOURCE_LABEL[brightnessSource]}
         </span>
         <p className="w-full text-[11.5px] leading-relaxed text-ink-faint sm:w-auto sm:flex-1">
-          {SOURCE_NOTE[live?.brightnessSource ?? 'declared']}
+          {SOURCE_NOTE[brightnessSource]}
         </p>
       </div>
     </section>

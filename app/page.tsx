@@ -8,6 +8,7 @@ import Ring from '@/components/ui/Ring';
 import MetricCard from '@/components/ui/MetricCard';
 import LiveNow from '@/components/today/LiveNow';
 import InstallBanner from '@/components/InstallBanner';
+import TopSites from '@/components/today/TopSites';
 import { TimeCard, OneThingCard, StoryCard, WinCard } from '@/components/today/Cards';
 import { recordsSetOn } from '@/lib/mm/records';
 import { fmtSigned, todayLabel } from '@/lib/mm/labels';
@@ -142,14 +143,18 @@ export default function TodayPage() {
         <DayTimeline day={today.summary} />
       </Enter>
 
-      <Enter index={4} className="flex flex-col gap-3.5 md:col-span-5">
+      <Enter index={4} className="md:col-span-5">
+        <TopSites date={today.date} />
+      </Enter>
+
+      <Enter index={5} className="flex flex-col gap-3.5 md:col-span-7">
         <StoryCard story={story} />
         {win && <WinCard record={win} />}
         {insight && <OneThingCard insight={insight} />}
       </Enter>
 
       {/* ── live, last ─────────────────────────────────────── */}
-      <Enter index={5} className="md:col-span-12">
+      <Enter index={6} className="md:col-span-12">
         <LiveNow />
       </Enter>
 

@@ -130,6 +130,12 @@ export interface PhotonState {
   version: number;
   /** The brightness the user declared, used when nothing better can be read. */
   brightness: number;
+  /**
+   * Whether a human ever actually set that number. Without this the default
+   * would be indistinguishable from an answer, and the app would report a
+   * brightness nobody supplied as though they had.
+   */
+  brightnessSet: boolean;
   /** Measurement is opt-in and can be switched off without losing history. */
   enabled: boolean;
   seeded: boolean;

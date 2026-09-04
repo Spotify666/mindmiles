@@ -10,6 +10,7 @@ import {
   ProfileControls,
   SharingControls,
   setBrightness,
+  clearBrightness,
 } from '@/components/profile/Controls';
 import { streakOf } from '@/lib/mm/baseline';
 import { fmtDate, fmtMiles, fmtMin } from '@/lib/mm/format';
@@ -128,10 +129,15 @@ export default function ProfilePage() {
       <IntentionsControl state={state} onChange={refresh} />
       <BrightnessControl
         value={state.brightness}
-        source={live?.brightnessSource ?? 'declared'}
+        source={live?.brightnessSource ?? 'unset'}
+        isSet={state.brightnessSet}
         onChange={(v) => {
           setBrightness(v);
           tracker().setDeclaredBrightness(v);
+          refresh();
+        }}
+        onClear={() => {
+          clearBrightness();
           refresh();
         }}
       />

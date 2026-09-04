@@ -187,14 +187,18 @@ export default function PhotonProvider({ children }: { children: React.ReactNode
     // The first pass produces metric values with no baseline attached; the
     // second builds a baseline that includes those values, so a metric can be
     // compared against its own history rather than only against raw minutes.
-    const brightnessMeasured = live ? live.brightnessSource !== 'declared' : false;
-    const firstPass = summaries.map((s) => buildDayReport(s, { brightnessMeasured }));
+    const source = live?.brightnessSource ?? 'unset';
+    const brightness = {
+      known: source !== 'unset',
+      measured: source === 'native' || source === 'sensor',
+    };
+    const firstPass = summaries.map((s) => buildDayReport(s, { brightness }));
     const metricsByDate: Record<string, Record<MetricId, Metric>> = Object.fromEntries(
       firstPass.map((r) => [r.date, r.byId]),
     );
 
     const baseline = Baseline.from(summaries, metricsByDate);
-    const reports = summaries.map((s) => buildDayReport(s, { baseline, brightnessMeasured }));
+    const reports = summaries.map((s) => buildDayReport(s, { baseline, brightness }));
     const byDate = new Map(reports.map((r) => [r.date, r]));
 
     const todayReport = byDate.get(today) ?? reports[reports.length - 1];

@@ -24,14 +24,25 @@
  * travels with the number into every card that shows it.
  */
 
-export type BrightnessSource = 'native' | 'sensor' | 'declared';
+/**
+ * `unset` is the honest default. There is no web API for display brightness on
+ * any platform, so if no sensor answers we do not have a value — and inventing
+ * one, or nagging the user to type one in, are both worse than saying so and
+ * dropping the input from the score.
+ */
+export type BrightnessSource = 'native' | 'sensor' | 'declared' | 'unset';
 
 export interface BrightnessReading {
-  /** 0–100. */
+  /** 0–100. Meaningless when `source` is `unset` — check before using it. */
   value: number;
   source: BrightnessSource;
   /** Room illuminance in lux, when a sensor is genuinely present. */
   lux?: number;
+}
+
+/** True when we actually know something, rather than having been told. */
+export function isMeasured(source: BrightnessSource): boolean {
+  return source === 'native' || source === 'sensor';
 }
 
 /** The shape a native shell is expected to expose, if one is ever attached. */
@@ -115,25 +126,61 @@ function luxToScale(lux: number): number {
   return Math.round(Math.max(0, Math.min(1, t)) * 100);
 }
 
-/** Start any background source. Safe to call repeatedly. */
+/**
+ * Start any background source. Safe to call repeatedly.
+ *
+ * Attempted automatically on load rather than waiting to be asked — the point
+ * is that nobody should have to tell the app how bright their screen is. Where
+ * a sensor exists it just works; where it does not, nothing is prompted and the
+ * input is simply dropped.
+ */
 export function initBrightness(): void {
   if (hasAmbientSensor()) startSensor();
 }
 
-/** The strongest reading available right now. */
-export async function readBrightness(declared: number): Promise<BrightnessReading> {
+/**
+ * Ask for the ambient light permission explicitly. Some browsers gate the
+ * sensor behind a prompt that needs a user gesture, so this is wired to the same
+ * button that turns on device-wide counting.
+ */
+export async function requestAmbientSensor(): Promise<boolean> {
+  if (!hasAmbientSensor()) return false;
+  try {
+    const status = await navigator.permissions?.query({
+      name: 'ambient-light-sensor' as PermissionName,
+    });
+    if (status && status.state === 'denied') return false;
+  } catch {
+    // Permissions API does not know this name in every browser; try anyway.
+  }
+  startSensor();
+  // The sensor needs a moment to produce its first reading.
+  await new Promise((r) => setTimeout(r, 600));
+  return lastLux !== null;
+}
+
+/**
+ * The strongest reading available right now.
+ *
+ * `declared` is only used when the user has actually set something. Passing
+ * null means they have not, and the answer is `unset` rather than a made-up
+ * middle value — the metric that consumes this drops the input entirely.
+ */
+export async function readBrightness(declared: number | null): Promise<BrightnessReading> {
   const native = await readNative();
   if (native !== null) return { value: native, source: 'native' };
   if (lastLux !== null) {
     return { value: luxToScale(lastLux), source: 'sensor', lux: Math.round(lastLux) };
   }
-  return { value: declared, source: 'declared' };
+  if (declared !== null) return { value: declared, source: 'declared' };
+  return { value: 0, source: 'unset' };
 }
 
 export const SOURCE_LABEL: Record<BrightnessSource, string> = {
   native: 'Read from your screen',
   sensor: 'Read from your room',
   declared: 'You told us',
+  unset: "Can't read it",
 };
 
 export const SOURCE_NOTE: Record<BrightnessSource, string> = {
@@ -142,4 +189,6 @@ export const SOURCE_NOTE: Record<BrightnessSource, string> = {
     'Taken from your device’s light sensor. It measures the light in the room rather than the screen — and a bright screen in a dark room is the combination that tires eyes out.',
   declared:
     'No web browser can read your screen brightness, on any device. So this is the number you set. We use it for your Eyes score, and we always say it came from you rather than pretending we measured it.',
+  unset:
+    'No web browser can read screen brightness, on any device — and your device has no light sensor we can use either. So we leave it out of your Eyes score rather than guessing or asking you to type in a number.',
 };

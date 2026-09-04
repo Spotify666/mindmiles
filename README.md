@@ -124,6 +124,13 @@ whether *you* are at your device — at the OS level, while it sits in the
 background. It still cannot see which app you were in, and never claims to. The
 live panel says "This tab only" or "Your whole device", never something vaguer.
 
+Getting that to record honestly took more than the permission. Browsers throttle
+`setInterval` in a background tab to roughly once a minute, so a flat
+three-second delta cap banked about a twentieth of the real time — the clock ran
+and the numbers were fiction. Ticks now catch up across the minutes they actually
+cover, generously when presence is positive evidence and tightly when it is not,
+and returning to the tab banks the background span instead of discarding it.
+
 **The extension.** `extension/` is a working MV3 extension that sees every tab.
 It records, per minute, how many seconds you were active and the **domain** —
 the path, query and page title are discarded the moment a URL is seen. It stores
@@ -137,6 +144,27 @@ readout and bank nothing.
 Where the extension fills a minute, it contributes **time only** — never
 keystrokes or scroll. It knows you were there; it does not know what you did,
 because it does not look.
+
+**Where your time went.** With the extension running, Today ranks the sites that
+actually took the day. Domains only — the path, query and title are discarded
+before anything is written. Without it, the section says plainly that a browser
+cannot see this and points at the thing that can. It never estimates a
+breakdown: a guess at which apps you used is not a softer version of knowing.
+
+## Brightness
+
+There is no web API for display brightness, on any platform, and there is not
+going to be one — it is a fingerprinting surface. So Photon does not ask you to
+type it in either.
+
+Where a device exposes an ambient light sensor, it is read automatically and
+labelled as measured. Where it does not, brightness is marked unknown and
+**dropped from the Eyes score entirely**, with its weight redistributed across
+the inputs that were actually observed. A metric that treats "no data" as
+"middling" is quietly inventing the thing it claims to measure.
+
+Setting it by hand is still there for anyone who wants it, one tap behind
+"Set it myself anyway" — an option, not a chore.
 
 ## Installing it
 

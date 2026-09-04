@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import {
   addExternal,
+  clearBrightness,
   clearAll,
   clearHistory,
   exportJson,
@@ -33,43 +34,79 @@ import { fmtMin } from '@/lib/mm/format';
 export function BrightnessControl({
   value,
   source,
+  isSet,
   onChange,
+  onClear,
 }: {
   value: number;
   source: BrightnessSource;
+  isSet: boolean;
   onChange: (v: number) => void;
+  onClear: () => void;
 }) {
+  const [manual, setManual] = useState(isSet);
+  const measured = source === 'native' || source === 'sensor';
+
   return (
     <section className="card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <p className="label text-ink-faint">How bright is your screen?</p>
+        <p className="label text-ink-faint">Screen brightness</p>
         <span
           className={`label rounded-pill px-2 py-0.5 ${
-            source === 'declared'
-              ? 'border border-effort/40 bg-effort-wash text-effort'
-              : 'border border-rest/40 bg-rest-wash text-rest-text'
+            measured
+              ? 'border border-rest/40 bg-rest-wash text-rest-text'
+              : 'border border-ink/15 bg-paper text-ink-faint'
           }`}
         >
           {SOURCE_LABEL[source]}
         </span>
       </div>
 
-      <div className="mt-3 flex items-center gap-4">
-        <span className="readout w-[62px] text-[26px]">{value}%</span>
-        <input
-          type="range"
-          min={0}
-          max={100}
-          step={5}
-          value={value}
-          disabled={source !== 'declared'}
-          onChange={(e) => onChange(Number(e.target.value))}
-          aria-label="Declared screen brightness"
-          className="h-1.5 flex-1 cursor-pointer appearance-none rounded-pill bg-paper accent-[#497CFD] disabled:cursor-not-allowed disabled:opacity-40"
-        />
-      </div>
+      <p className="mt-2.5 text-[13px] leading-relaxed text-ink-soft">{SOURCE_NOTE[source]}</p>
 
-      <p className="mt-3 text-[11.5px] leading-relaxed text-ink-faint">{SOURCE_NOTE[source]}</p>
+      {/*
+        Detected where it can be, and otherwise left out — never demanded.
+        Asking someone to type in their own screen brightness every day is asking
+        them to do the app's job, and a number supplied that way is worth very
+        little anyway.
+      */}
+      {measured ? (
+        <p className="mt-3 text-[15px] font-bold tabular-nums">{value}%</p>
+      ) : manual ? (
+        <>
+          <div className="mt-3 flex items-center gap-4">
+            <span className="readout w-[62px] text-[24px]">{value}%</span>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={5}
+              value={value}
+              onChange={(e) => onChange(Number(e.target.value))}
+              aria-label="Screen brightness"
+              className="h-1.5 flex-1 cursor-pointer appearance-none rounded-pill bg-paper accent-[#2B90E0]"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              onClear();
+              setManual(false);
+            }}
+            className="label mt-3 text-ink-faint underline underline-offset-2 hover:text-ink"
+          >
+            Stop using my figure
+          </button>
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setManual(true)}
+          className="btn btn-quiet mt-3.5 px-4 py-2 text-[13.5px]"
+        >
+          Set it myself anyway
+        </button>
+      )}
     </section>
   );
 }
@@ -472,4 +509,4 @@ export function ProfileControls({
   );
 }
 
-export { setBrightness };
+export { setBrightness, clearBrightness };

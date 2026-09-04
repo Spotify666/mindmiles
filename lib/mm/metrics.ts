@@ -394,7 +394,11 @@ function strainMetric(d: DaySummary, baseline?: Baseline): Metric {
  * is not, and cannot be, a statement about your eyes. No clinical claim is made
  * anywhere in this metric.
  */
-function visualMetric(d: DaySummary, brightnessMeasured: boolean, baseline?: Baseline): Metric {
+function visualMetric(
+  d: DaySummary,
+  brightness: { known: boolean; measured: boolean },
+  baseline?: Baseline,
+): Metric {
   const breaksPerHour = d.activeMin > 30 ? d.breakCount / (d.activeMin / 60) : 0;
   const breakDeficit = Math.max(0, 1.5 - breaksPerHour);
   const eveningExposure = (d.avgBrightness / 100) * d.nightMin;
@@ -426,14 +430,23 @@ function visualMetric(d: DaySummary, brightnessMeasured: boolean, baseline?: Bas
       detail: `Breaks of ${RECOVERY_MIN} minutes or more. About one and a half an hour is the target.`,
     },
     {
-      label: 'Evening screen, and how bright',
-      value: `${fmtMin(d.nightMin)} at ${d.avgBrightness}%`,
-      score: d.nightMin > 20 ? ramp(eveningExposure, 15, 180) : 0,
-      weight: 0.16,
-      provenance: brightnessMeasured ? 'measured' : 'estimated',
-      detail: brightnessMeasured
-        ? 'Evening time, weighted by how bright your screen really was. A bright screen in a dark room is the hardest combination for your eyes.'
-        : 'Evening time, weighted by the brightness you told us. No web browser can read your screen brightness, so this part is a guess — which is why the whole score is marked as one.',
+      label: brightness.known ? 'Evening screen, and how bright' : 'Evening screen brightness',
+      value: brightness.known ? `${fmtMin(d.nightMin)} at ${d.avgBrightness}%` : "Can't read it",
+      /*
+       * Dropped outright when brightness is unknown. `assemble` spreads its
+       * weight over the inputs that remain, so the score is built only from
+       * things actually observed — rather than quietly folding in a default
+       * nobody supplied, which is what happens when a metric treats "no data"
+       * as "middling".
+       */
+      score: brightness.known ? (d.nightMin > 20 ? ramp(eveningExposure, 15, 180) : 0) : undefined,
+      weight: brightness.known ? 0.16 : undefined,
+      provenance: brightness.known ? (brightness.measured ? 'measured' : 'estimated') : 'unavailable',
+      detail: brightness.measured
+        ? 'Evening time, weighted by how bright it actually is where you are — read from your device’s light sensor. A bright screen in a dark room is the hardest combination for your eyes.'
+        : brightness.known
+          ? 'Evening time, weighted by the brightness you set yourself. No web browser can read screen brightness, so this part is your figure rather than ours.'
+          : 'No web browser can read screen brightness on any device, and yours has no light sensor we can use. So this is left out of the score entirely instead of being guessed at. Your evening screen time still counts through the inputs above.',
     },
     {
       label: 'Fast-moving stuff',
@@ -452,9 +465,10 @@ function visualMetric(d: DaySummary, brightnessMeasured: boolean, baseline?: Bas
       plain: 'How tired your eyes got',
       fact: `${fmtMin(d.nightMin)} evening screen`,
       polarity: 'lower-better',
-      // Brightness is the input that decides this: without a real reading the
-      // whole metric is an estimate, and says so rather than implying a measurement.
-      provenance: brightnessMeasured ? 'derived' : 'estimated',
+      // With a real sensor reading this is arithmetic on observed values. With a
+      // figure the user typed it is an estimate. With neither, brightness is
+      // simply not part of it, and the rest is derived as normal.
+      provenance: brightness.measured || !brightness.known ? 'derived' : 'estimated',
       inputs,
       headline: (v) =>
         d.activeMin < 15
@@ -803,14 +817,18 @@ function fitnessMetric(
  */
 export function buildDayReport(
   summary: DaySummary,
-  opts: { baseline?: Baseline; brightnessMeasured?: boolean } = {},
+  opts: {
+    baseline?: Baseline;
+    /** Whether a brightness figure exists at all, and whether it was measured. */
+    brightness?: { known: boolean; measured: boolean };
+  } = {},
 ): DayReport {
-  const { baseline, brightnessMeasured = false } = opts;
+  const { baseline, brightness = { known: false, measured: false } } = opts;
 
   const focus = focusMetric(summary, baseline);
   const fragmentation = fragmentationMetric(summary, baseline);
   const strain = strainMetric(summary, baseline);
-  const visual = visualMetric(summary, brightnessMeasured, baseline);
+  const visual = visualMetric(summary, brightness, baseline);
   const recovery = recoveryMetric(summary, fragmentation.value, baseline);
   const intentionality = intentionalityMetric(summary, baseline);
   const fitness = fitnessMetric(
