@@ -49,9 +49,16 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
+/*
+ * `suppressHydrationWarning` on <html> because the second script below
+ * deliberately stamps a class onto it before React hydrates. That is the whole
+ * point of doing it in the head — deciding in an effect would run after first
+ * paint and show a frame of the opening on every load — so the mismatch is
+ * intended, and this is the one element in the app allowed to have one.
+ */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={sans.variable}>
+    <html lang="en" className={sans.variable} suppressHydrationWarning>
       <head>
         {/*
           Runs before first paint. The opening plays once per browser session,

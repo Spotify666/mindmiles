@@ -60,6 +60,11 @@ const SIGNALS: { name: string; provenance: Provenance; note: string }[] = [
     note: 'A web page cannot see your other tabs. Our browser add-on can, if you install it — it counts time per website, and nothing else. Without it we do not guess. Apps that are not websites stay out of reach either way, so you can add that time by hand.',
   },
   {
+    name: 'A stretch you meant to do',
+    provenance: 'measured',
+    note: 'When you start a block we record the time you pressed it and the length you chose. Nothing else — whether you were actually there is read back afterwards from the same minutes as everything else, and a block never changes a score.',
+  },
+  {
     name: 'Your phone’s own screen time',
     provenance: 'unavailable',
     note: 'Out of reach of any website. It would need an app installed on your phone, and this is not one.',
@@ -106,6 +111,16 @@ const THRESHOLDS: { rule: string; value: string; why: string }[] = [
     rule: 'Scrolling counts as fast at',
     value: '1,400 pixels a second',
     why: 'Above that, things are going past faster than you could read them. This one line is what separates a Scroll Mile from a Focus Mile.',
+  },
+  {
+    rule: 'A stretch stays one stretch while it is at least',
+    value: '60% full',
+    why: 'Short pauses inside a session are still that session, so a gap of five minutes or less does not end it. But that tolerance chains: a tab you glance at every three minutes would otherwise join up into one sixteen-hour "unbroken session" of deep focus, which is the opposite of what happened. So a stretch only counts as continuous if the time you were actually there fills most of the clock it covers.',
+  },
+  {
+    rule: 'The eye-rest nudge fires after',
+    value: '20 minutes of screen',
+    why: 'The 20-20-20 rule: every twenty minutes, look at something far away for twenty seconds. It counts screen time rather than clock time, so a break resets it and it never arrives for work you did not do. It is off until you switch it on, and it is the only notification this app has.',
   },
   {
     rule: 'Evening starts at',

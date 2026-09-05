@@ -309,6 +309,84 @@ export default function GuidePage() {
         entries={OTHER}
       />
 
+      {/*
+        Blocks are not a number, so they get prose rather than an entry card —
+        but the page promises to explain everything the app shows you, and the
+        one thing the app now asks you to press cannot be the thing it leaves
+        out.
+      */}
+      <section>
+        <h2 className="display text-[19px]">The one button</h2>
+        <p className="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
+          Everything above is something the app noticed. A block is something you decided.
+        </p>
+        <div className="mt-3.5 card p-4">
+          <h3 className="text-[15.5px] font-bold tracking-tightest">Blocks</h3>
+          <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-soft">
+            Before you start on something, say how long you mean to give it — 25, 50 or 90 minutes.
+            When it is up, the app tells you how much of that time you were really at the screen,
+            and how many times something pulled you away.
+          </p>
+          <dl className="mt-3 space-y-2.5 text-[13px] leading-relaxed">
+            <div>
+              <dt className="label text-ink-faint">You cannot fail one</dt>
+              <dd className="mt-0.5 text-ink-soft">
+                Stop whenever you like. Nothing is lost, no streak breaks, and the app does not
+                mention it again.
+              </dd>
+            </div>
+            <div>
+              <dt className="label text-ink-faint">It does not change any score</dt>
+              <dd className="mt-0.5 text-ink-soft">
+                Those minutes were already being counted, at the same rate, before you pressed
+                anything. If pressing a button could raise your Focus, the number would stop being
+                about your day.
+              </dd>
+            </div>
+            <div>
+              <dt className="label text-ink-faint">So what is it for?</dt>
+              <dd className="mt-0.5 text-ink-soft">
+                Finding out whether the hour you thought you spent on something is the hour you
+                actually spent on it. That is the one thing you cannot tell yourself afterwards.
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="mt-3.5 card p-4">
+          <h3 className="text-[15.5px] font-bold tracking-tightest">Looking away</h3>
+          <p className="mt-1.5 text-[13.5px] leading-relaxed text-ink-soft">
+            Every 20 minutes, look at something far off for 20 seconds. That is the advice this app
+            has always given for tired eyes, so now it can nudge you when the time comes — if you
+            switch it on, and only then.
+          </p>
+          <p className="mt-2.5 text-[13px] leading-relaxed text-ink-faint">
+            It counts 20 minutes of screen, not 20 minutes of clock, so it stays quiet while you are
+            away. It is the only message this app will ever send you, and there is not going to be a
+            second one.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="display text-[19px]">Your week</h2>
+        <p className="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
+          The screen this whole app is really for.
+        </p>
+        <div className="mt-3.5 card p-4">
+          <p className="text-[13.5px] leading-relaxed text-ink-soft">
+            Once a week is about the right amount of attention to give your own attention. The Week
+            screen reads top to bottom: what the week was, what changed against your own last week,
+            the day that went best, the time you won back, and one thing worth trying next week.
+          </p>
+          <p className="mt-2.5 text-[13px] leading-relaxed text-ink-faint">
+            There is no score for a week anywhere on it, on purpose. A week is a piece of your life,
+            not a test you sat — and a weekly number would very quickly become the thing you played
+            for.
+          </p>
+        </div>
+      </section>
+
       <section className="card p-4">
         <h2 className="text-[17px] font-bold tracking-tightest">Two things worth knowing</h2>
         <div className="mt-3 space-y-3 text-[13.5px] leading-relaxed text-ink-faint">
