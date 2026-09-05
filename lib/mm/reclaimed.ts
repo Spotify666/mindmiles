@@ -116,7 +116,7 @@ export function reclaimedTime(summaries: DaySummary[], baseline: Baseline): Recl
 
 /** One line for the share card and the weekly review. */
 export function reclaimedHeadline(r: Reclaimed): string {
-  if (!r.available) return 'Building your baseline — reclaimed time appears once there is a normal to compare against.';
-  if (r.minutes < 5) return 'Roughly level with your normal across this window.';
-  return `${fmtMin(r.minutes)} reclaimed against your own baseline.`;
+  if (!r.available) return 'We need a few more days before we know what a normal week looks like for you.';
+  if (r.minutes < 5) return 'About the same as you usually do.';
+  return `${fmtMin(r.minutes)} won back, compared with how you usually spend it.`;
 }

@@ -50,14 +50,14 @@ const SIGNALS: { name: string; provenance: Provenance; note: string }[] = [
     note: 'Worked out from how far the page moved. Screens differ, so the real figure wobbles. We show it in metres and never puff it up into kilometres.',
   },
   {
-    name: 'Screen brightness',
+    name: 'How much light is around you',
     provenance: 'estimated',
-    note: 'No web browser can read your screen brightness — on any phone or laptop, ever. So we use the number you set. If your device has a light sensor we use that instead, and say so.',
+    note: 'If your device has a light sensor, we read it. If not, you can let us take one frame from your camera — we look at how bright the room is, then throw the picture away. Neither one is your screen brightness: no web page can read that, on any device. So this is a good guess, and we always say which way we got it.',
   },
   {
-    name: 'Which app or website you used',
-    provenance: 'unavailable',
-    note: 'A web page cannot see your other tabs, your other apps or your other devices. We do not guess, and we do not ask for permission to look. You can add that time by hand instead.',
+    name: 'Which website you were on',
+    provenance: 'estimated',
+    note: 'A web page cannot see your other tabs. Our browser add-on can, if you install it — it counts time per website, and nothing else. Without it we do not guess. Apps that are not websites stay out of reach either way, so you can add that time by hand.',
   },
   {
     name: 'Your phone’s own screen time',
@@ -73,7 +73,7 @@ const SIGNALS: { name: string; provenance: Provenance; note: string }[] = [
 
 const THRESHOLDS: { rule: string; value: string; why: string }[] = [
   {
-    rule: 'One Mind Mile is',
+    rule: 'One mile is',
     value: '20 minutes on screen',
     why: 'Twenty minutes is how often eye doctors suggest looking away, and about the shortest stretch in which people get properly stuck into something. It also puts a normal day between about 5 and 25 miles, which is a range you can hold in your head.',
   },

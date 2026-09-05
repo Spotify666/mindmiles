@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "tsc -p tsconfig.test.json && node .test-build/test/edge.test.js"
+    "test": "tsc -p tsconfig.test.json && node .test-build/test/edge.test.js && node .test-build/test/copy.test.js"
   },
   "dependencies": {
     "clsx": "2.1.1",

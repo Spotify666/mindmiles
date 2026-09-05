@@ -166,7 +166,8 @@ section('records, challenges and reclaimed time on thin data');
   const r = reclaimedTime([], Baseline.from([]));
   clean('reclaimed', r);
   check('nothing claimed without a baseline', r.available === false && r.minutes === 0);
-  check('and it says why', /baseline/i.test(reclaimedHeadline(r)));
+  check('and it says why, in words a child could read', /few more days/i.test(reclaimedHeadline(r)), reclaimedHeadline(r));
+  check('and says it without jargon', !/baseline|metric|derive/i.test(reclaimedHeadline(r)), reclaimedHeadline(r));
 
   clean('challenges', evaluateChallenges([], {}, Baseline.from([]), PROFILE, 0, '2026-09-05'));
 }

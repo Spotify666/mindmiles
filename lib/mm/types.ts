@@ -202,7 +202,7 @@ export interface RecoveryWindow {
   minutes: number;
 }
 
-/** Mileage, the product's base unit. One Mind Mile = 20 engaged minutes. */
+/** Mileage, the product's base unit. One mile = 20 engaged minutes. */
 export interface Mileage {
   total: number;
   focus: number;

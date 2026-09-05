@@ -26,7 +26,7 @@ export function finite(n: number, fallback = 0): number {
 /**
  * MINUTES PER MILE — the base unit of the whole product.
  *
- * One Mind Mile is twenty engaged minutes. Twenty is not decorative: it is the
+ * One mile is twenty engaged minutes. Twenty is not decorative: it is the
  * interval in the 20-20-20 break guideline, and it is roughly the shortest
  * stretch in which attention research finds people reaching any depth. It also
  * lands a normal day between about 5 and 25 miles, which is a range a person

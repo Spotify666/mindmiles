@@ -159,7 +159,7 @@ const SCORES: Entry[] = [
     good: 'Under 25.',
     bad: 'Over 75 — the shape of a day that ends with a headache.',
     soWhat:
-      'A best guess, not a medical reading, because no browser can measure your screen brightness — you tell us that part. Every 20 minutes, look at something far away for 20 seconds.',
+      'A good guess, not a doctor’s reading. We work out how much light is around you from your device’s sensor, or from one camera frame if you let us. Every 20 minutes, look at something far away for 20 seconds.',
   },
   {
     name: 'Jumpiness',

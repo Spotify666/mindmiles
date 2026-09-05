@@ -109,7 +109,7 @@ const EVALUATORS: Record<string, Evaluator> = {
     detail:
       reclaimedMinutes > 0
         ? `${fmtMin(reclaimedMinutes)} saved of 3h`
-        : 'Nothing saved against your usual yet',
+        : 'Nothing won back yet',
   }),
 
   'deep-work-5': ({ window }) => {
@@ -127,11 +127,11 @@ const EVALUATORS: Record<string, Evaluator> = {
 
   'scroll-down': ({ window, baseline }) => {
     const measured = window.filter((r) => r.summary.activeMin >= 15);
-    if (measured.length === 0) return { progress: 0, detail: 'No days measured yet' };
+    if (measured.length === 0) return { progress: 0, detail: 'No days counted yet' };
     const avg = measured.reduce((s, r) => s + r.summary.burstMin, 0) / measured.length;
     const normal = baseline.settled('burstMin', measured[measured.length - 1].date);
     if (!normal || normal.value < 3) {
-      return { progress: 0, detail: 'Needs a few more days before we can compare' };
+      return { progress: 0, detail: 'A few more days and we can compare' };
     }
     const target = normal.value * 0.8;
     // Progress is how far the gap has been closed, floored at zero — being
@@ -158,11 +158,11 @@ const EVALUATORS: Record<string, Evaluator> = {
 
   'fragmentation-breaker': ({ window, baseline }) => {
     const measured = window.filter((r) => r.summary.activeMin >= 60);
-    if (measured.length === 0) return { progress: 0, detail: 'No full days measured yet' };
+    if (measured.length === 0) return { progress: 0, detail: 'No whole days counted yet' };
     const avg = measured.reduce((s, r) => s + r.summary.switchRate, 0) / measured.length;
     const normal = baseline.settled('switchRate', measured[measured.length - 1].date);
     if (!normal || normal.value < 1) {
-      return { progress: 0, detail: 'Needs more baseline history to compare' };
+      return { progress: 0, detail: 'We need a few more days to know what is normal for you' };
     }
     const target = normal.value * 0.85;
     const progress = Math.min(1, Math.max(0, (normal.value - avg) / Math.max(normal.value - target, 0.001)));

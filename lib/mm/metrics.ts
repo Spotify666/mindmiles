@@ -443,10 +443,10 @@ function visualMetric(
       weight: brightness.known ? 0.16 : undefined,
       provenance: brightness.known ? (brightness.measured ? 'measured' : 'estimated') : 'unavailable',
       detail: brightness.measured
-        ? 'Evening time, weighted by how bright it actually is where you are — read from your device’s light sensor. A bright screen in a dark room is the hardest combination for your eyes.'
+        ? 'Evening screen time, counted more heavily when the light around you is low. We read that from your device’s light sensor. A bright screen in a dark room is the hardest thing for your eyes.'
         : brightness.known
-          ? 'Evening time, weighted by the brightness you set yourself. No web browser can read screen brightness, so this part is your figure rather than ours.'
-          : 'No web browser can read screen brightness on any device, and yours has no light sensor we can use. So this is left out of the score entirely instead of being guessed at. Your evening screen time still counts through the inputs above.',
+          ? 'Evening screen time, counted more heavily when the light around you is low. We worked that out from one camera frame, or from what you told us — so it is a good guess, not an exact reading.'
+          : 'We could not find out how much light is around you — no sensor, and no camera reading. So we leave this out completely rather than make it up. Your evening screen time still counts through the things above.',
     },
     {
       label: 'Fast-moving stuff',
@@ -768,10 +768,10 @@ function fitnessMetric(
       score: 100 - parts.visual.value,
       weight: 0.12,
       provenance: 'estimated',
-      detail: 'Your Eyes score, flipped. It counts for less because part of it rests on a brightness you told us rather than one we measured.',
+      detail: 'Your Eyes score, flipped round. It counts for less because part of it is a good guess about the light around you, not something we counted.',
     },
     {
-      label: 'Intentionality',
+      label: 'On Plan',
       value: intentionalityAvailable ? String(parts.intentionality.value) : 'Nothing planned',
       score: intentionalityAvailable ? parts.intentionality.value : undefined,
       weight: intentionalityAvailable ? 0.1 : undefined,
