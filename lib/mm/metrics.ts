@@ -132,7 +132,7 @@ function assemble(draft: Draft, baseline?: Baseline, date?: string): Metric {
 function focusMetric(d: DaySummary, baseline?: Baseline): Metric {
   const focusShare = d.activeMin > 0 ? (d.miles.focus / Math.max(d.miles.total, 0.001)) * 100 : 0;
 
-  const deep = d.bouts.filter((b) => b.endMin - b.startMin + 1 >= DEEP_BOUT_MIN);
+  const deep = d.bouts.filter((b) => b.continuous && Math.round(b.activeMin) >= DEEP_BOUT_MIN);
   const interruptionsPerDeepBout = deep.length > 0 ? deep.reduce((s, b) => s + b.switches, 0) / deep.length : 0;
 
   const inputs: MetricInput[] = [

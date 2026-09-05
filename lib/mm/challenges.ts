@@ -114,7 +114,7 @@ const EVALUATORS: Record<string, Evaluator> = {
 
   'deep-work-5': ({ window }) => {
     const blocks = window.reduce(
-      (n, r) => n + r.summary.bouts.filter((b) => b.endMin - b.startMin + 1 >= 60).length,
+      (n, r) => n + r.summary.bouts.filter((b) => b.continuous && Math.round(b.activeMin) >= 60).length,
       0,
     );
     // Counted blocks are clamped for display: "41 of 5" is arithmetically true
@@ -129,7 +129,7 @@ const EVALUATORS: Record<string, Evaluator> = {
     const measured = window.filter((r) => r.summary.activeMin >= 15);
     if (measured.length === 0) return { progress: 0, detail: 'No days measured yet' };
     const avg = measured.reduce((s, r) => s + r.summary.burstMin, 0) / measured.length;
-    const normal = baseline.normal('burstMin', measured[measured.length - 1].date);
+    const normal = baseline.settled('burstMin', measured[measured.length - 1].date);
     if (!normal || normal.value < 3) {
       return { progress: 0, detail: 'Needs a few more days before we can compare' };
     }
@@ -160,7 +160,7 @@ const EVALUATORS: Record<string, Evaluator> = {
     const measured = window.filter((r) => r.summary.activeMin >= 60);
     if (measured.length === 0) return { progress: 0, detail: 'No full days measured yet' };
     const avg = measured.reduce((s, r) => s + r.summary.switchRate, 0) / measured.length;
-    const normal = baseline.normal('switchRate', measured[measured.length - 1].date);
+    const normal = baseline.settled('switchRate', measured[measured.length - 1].date);
     if (!normal || normal.value < 1) {
       return { progress: 0, detail: 'Needs more baseline history to compare' };
     }

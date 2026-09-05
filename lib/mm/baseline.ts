@@ -136,6 +136,20 @@ export class Baseline {
     return { value: median(values), samples: values.length };
   }
 
+  /**
+   * A normal only once it rests on enough days to be one.
+   *
+   * `normal` deliberately still answers with one or two samples, because the
+   * Delta component wants to say "2 of 4 days" rather than nothing. Anywhere
+   * that number is going to be PRESENTED as the user's usual — a comparison
+   * bar, a line in a coach insight — it has to clear the threshold first, or
+   * the app confidently reports a 1400% rise against a single Tuesday.
+   */
+  settled(field: BaselineField, date: string): { value: number; samples: number } | null {
+    const n = this.normal(field, date);
+    return n && n.samples >= MIN_BASELINE_DAYS ? n : null;
+  }
+
   /** True once there is enough history for comparisons to be worth showing. */
   ready(date: string): boolean {
     return this.countFor(date) >= MIN_BASELINE_DAYS;

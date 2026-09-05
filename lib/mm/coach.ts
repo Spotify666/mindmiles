@@ -119,7 +119,7 @@ const RULES: Rule[] = [
 
   ({ today, baseline }) => {
     const d = today.summary.burstMin;
-    const normal = baseline.normal('burstMin', today.date);
+    const normal = baseline.settled('burstMin', today.date);
     if (!normal || normal.value < 5 || d < normal.value * 1.25) return null;
     const eveningShare =
       today.summary.nightMin > 0 ? today.summary.nightMin / Math.max(today.summary.activeMin, 1) : 0;
@@ -289,7 +289,7 @@ export function dayStory(ctx: Ctx): string {
       : `You spent ${fmtMin(s.activeMin)} actually using a screen, about the same as a normal ${kind} for you.`,
   );
 
-  const longest = [...s.bouts].sort((a, b) => b.endMin - b.startMin - (a.endMin - a.startMin))[0];
+  const longest = [...s.bouts].sort((a, b) => b.activeMin - a.activeMin)[0];
   if (longest && longest.endMin - longest.startMin + 1 >= 25) {
     parts.push(
       `Your best run was ${fmtRange(longest.startMin, longest.endMin)} — ${fmtMin(longest.endMin - longest.startMin + 1)} without a break.`,

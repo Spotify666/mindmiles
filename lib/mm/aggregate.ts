@@ -7,6 +7,7 @@ import type {
   DayRecord,
   DaySummary,
   ExternalSession,
+  MinuteBucket,
   MinuteClass,
   Profile,
   RecoveryWindow,
@@ -55,8 +56,62 @@ export const RECOVERY_MIN = 10;
  */
 export const RECOVERY_CAP_MIN = 60;
 
+/**
+ * How full a stretch has to be before it counts as one continuous session.
+ *
+ * Bouts tolerate gaps of up to five minutes, which is right for someone who
+ * gets a coffee mid-task. Applied without a floor, though, that tolerance
+ * chains: half a minute of activity every three minutes from breakfast to
+ * midnight joins into a single "sixteen-hour unbroken session", and every one
+ * of those minutes gets classified as deep focus. That is a very ordinary
+ * pattern — a tab left open and checked now and then — and it is the opposite
+ * of focus, so a stretch only reads as continuous if the engaged time actually
+ * fills most of the wall clock it spans.
+ */
+const BOUT_DENSITY_MIN = 0.6;
+
 /** Keystrokes in a minute below which nothing is being produced. */
 const PRODUCTION_KEYS = 5;
+
+/**
+ * Repair one stored minute before anything reads it.
+ *
+ * The store is localStorage plus a JSON import path, so a bucket can arrive
+ * holding NaN, a negative count, a minute index outside the day, or a figure
+ * written by an older schema. Un-repaired, a single one of those turns
+ * `byHour` into a 167-element array and every downstream score into NaN, which
+ * the UI then prints. Everything is coerced to a sane range here, at the one
+ * place raw records are read.
+ */
+function sane(b: MinuteBucket): MinuteBucket | null {
+  const m = Math.round(num(b?.m, -1));
+  if (!(m >= 0 && m <= 1439)) return null;
+  return {
+    m,
+    a: clamp(num(b.a), 0, 60_000),
+    k: Math.max(0, Math.round(num(b.k))),
+    c: Math.max(0, Math.round(num(b.c))),
+    s: Math.max(0, num(b.s)),
+    v: Math.max(0, num(b.v)),
+    x: Math.max(0, Math.round(num(b.x))),
+    b: clamp(num(b.b), 0, 100),
+  };
+}
+
+/** Same repair for a hand-logged session. */
+function saneExternal(e: ExternalSession): ExternalSession | null {
+  const minutes = Math.round(num(e?.minutes));
+  if (!(minutes > 0) || !Number.isFinite(num(e.start, NaN))) return null;
+  return {
+    ...e,
+    minutes: Math.min(minutes, 1440),
+    brightness: clamp(num(e.brightness), 0, 100),
+  };
+}
+
+function num(v: unknown, fallback = 0): number {
+  return typeof v === 'number' && Number.isFinite(v) ? v : fallback;
+}
 
 const emptySummary = (date: string): DaySummary => ({
   date,
@@ -125,9 +180,10 @@ function classifyMinute(
   velocity: number,
   switches: number,
   boutLengthMin: number,
+  continuous: boolean,
 ): MinuteClass {
   if (velocity >= BURST_VELOCITY && keys < PRODUCTION_KEYS) return 'scroll';
-  if (boutLengthMin >= DEEP_BOUT_MIN && switches === 0) return 'focus';
+  if (continuous && boutLengthMin >= DEEP_BOUT_MIN && switches === 0) return 'focus';
   return 'scatter';
 }
 
@@ -151,7 +207,7 @@ export function summarizeDay(
   out.partial = date === toLocalKey(now);
   if (!day) return out;
 
-  out.switches = day.switches ?? 0;
+  out.switches = Math.max(0, Math.round(num(day.switches)));
   out.intents = day.intents ?? {};
 
   const curfewStart = profile.curfewHour * 60;
@@ -162,7 +218,14 @@ export function summarizeDay(
   const engagedMinutes: number[] = [];
   let brightnessWeighted = 0;
 
-  for (const bucket of Object.values(day.buckets)) {
+  const buckets: MinuteBucket[] = [];
+  for (const raw of Object.values(day.buckets ?? {})) {
+    const b = sane(raw);
+    if (b) buckets.push(b);
+  }
+  const byMinute = new Map(buckets.map((b) => [b.m, b]));
+
+  for (const bucket of buckets) {
     if (bucket.a <= 0) continue;
 
     const hour = Math.floor(bucket.m / 60);
@@ -209,6 +272,8 @@ export function summarizeDay(
     const bout: Bout = {
       startMin: start,
       endMin: end,
+      spanMin: lengthMin,
+      continuous: true,
       activeMin: 0,
       keys: 0,
       clicks: 0,
@@ -221,19 +286,31 @@ export function summarizeDay(
     const tally: Record<MinuteClass, number> = { focus: 0, scatter: 0, scroll: 0 };
 
     for (let m = start; m <= end; m++) {
-      const b = day.buckets[String(m)];
+      const b = byMinute.get(m);
       if (!b || b.a <= 0) continue;
       bout.activeMin += b.a / 60_000;
       bout.keys += b.k;
       bout.clicks += b.c;
       bout.scrollPx += b.s;
       bout.switches += b.x;
+    }
 
-      if (b.a >= ENGAGED_MS) {
-        const cls = classifyMinute(b.k, b.v, b.x, lengthMin);
-        out.minuteClass[m] = cls;
-        tally[cls] += 1;
-      }
+    /*
+     * A bout's LENGTH is the time actually spent in it, not the wall clock it
+     * covers. The two are the same for a real session and wildly different for
+     * a tab that gets glanced at all day, and it is the second case that used
+     * to be reported back as sixteen hours of deep focus.
+     */
+    bout.continuous = bout.activeMin >= lengthMin * BOUT_DENSITY_MIN;
+    const continuous = bout.continuous;
+    const effectiveMin = Math.round(bout.activeMin);
+
+    for (let m = start; m <= end; m++) {
+      const b = byMinute.get(m);
+      if (!b || b.a < ENGAGED_MS) continue;
+      const cls = classifyMinute(b.k, b.v, b.x, effectiveMin, continuous);
+      out.minuteClass[m] = cls;
+      tally[cls] += 1;
     }
 
     // The bout takes the class most of its minutes had — used for the timeline,
@@ -246,7 +323,9 @@ export function summarizeDay(
   }
 
   // ── pass three: logged external sessions ──────────────────────
-  for (const ext of day.externals ?? []) {
+  for (const rawExt of day.externals ?? []) {
+    const ext = saneExternal(rawExt);
+    if (!ext) continue;
     const start = new Date(ext.start);
     const startMin = start.getHours() * 60 + start.getMinutes();
     const cls = classifyExternal(ext);
@@ -267,9 +346,16 @@ export function summarizeDay(
       if (out.minuteClass[m] === undefined) out.minuteClass[m] = cls;
     }
 
+    // A session logged as running past midnight still belongs to the day it was
+    // logged against, but its bout must stay inside the 0–1439 minute grid or
+    // every timeline that positions it draws past the end of the chart.
     out.bouts.push({
       startMin,
-      endMin: startMin + ext.minutes - 1,
+      endMin: Math.min(1439, startMin + ext.minutes - 1),
+      spanMin: Math.min(1440 - startMin, ext.minutes),
+      // A logged session is a single stated stretch, so it is continuous by
+      // construction — there is no minute-level detail to say otherwise.
+      continuous: true,
       activeMin: ext.minutes,
       keys: 0,
       clicks: 0,
@@ -289,10 +375,13 @@ export function summarizeDay(
   out.avgBrightness = out.activeMin > 0 ? brightnessWeighted / out.activeMin : 0;
   out.scrollMeters = pxToMeters(out.scrollPx);
 
-  out.longestBoutMin = out.bouts.reduce((max, b) => Math.max(max, b.endMin - b.startMin + 1), 0);
-  out.deepBouts = out.bouts.filter((b) => b.endMin - b.startMin + 1 >= DEEP_BOUT_MIN).length;
-  out.shortBouts = out.bouts.filter((b) => b.endMin - b.startMin + 1 < SHORT_BOUT_MIN).length;
-  out.unbrokenBouts = out.bouts.filter((b) => b.endMin - b.startMin + 1 >= UNBROKEN_BOUT_MIN).length;
+  // Every one of these is a claim about how long the user was actually at the
+  // screen, so all of them count engaged minutes rather than wall clock.
+  const boutLen = (b: Bout) => Math.round(b.activeMin);
+  out.longestBoutMin = out.bouts.reduce((max, b) => Math.max(max, boutLen(b)), 0);
+  out.deepBouts = out.bouts.filter((b) => b.continuous && boutLen(b) >= DEEP_BOUT_MIN).length;
+  out.shortBouts = out.bouts.filter((b) => boutLen(b) < SHORT_BOUT_MIN).length;
+  out.unbrokenBouts = out.bouts.filter((b) => b.continuous && boutLen(b) >= UNBROKEN_BOUT_MIN).length;
 
   if (out.bouts.length > 0) {
     out.firstEngagedMin = out.bouts[0].startMin;
@@ -303,9 +392,27 @@ export function summarizeDay(
   // Only gaps *between* bouts count. Time before the first session and after
   // the last is not recovery earned during the day, and counting it would
   // reward starting late rather than taking breaks.
-  for (let i = 1; i < out.bouts.length; i++) {
-    const gapStart = out.bouts[i - 1].endMin + 1;
-    const gapEnd = out.bouts[i].startMin - 1;
+  //
+  // The gaps are taken from the MERGED span of all bouts, not from consecutive
+  // pairs. Measured bouts and hand-logged sessions overlap freely — a phone
+  // session logged inside a long stretch at the laptop is the normal case — and
+  // walking the sorted list pairwise reads the far side of an overlap as an
+  // empty gap. An eight-hour "break" in the middle of eight hours of screen
+  // time is not a rounding error, it is the opposite of what happened.
+  const spans = out.bouts
+    .map((b) => [b.startMin, Math.max(b.startMin, b.endMin)] as [number, number])
+    .sort((a, b) => a[0] - b[0]);
+
+  const merged: [number, number][] = [];
+  for (const [from, to] of spans) {
+    const last = merged[merged.length - 1];
+    if (last && from <= last[1] + 1) last[1] = Math.max(last[1], to);
+    else merged.push([from, to]);
+  }
+
+  for (let i = 1; i < merged.length; i++) {
+    const gapStart = merged[i - 1][1] + 1;
+    const gapEnd = merged[i][0] - 1;
     const minutes = gapEnd - gapStart + 1;
     if (minutes >= RECOVERY_MIN) {
       out.breaks.push({ startMin: gapStart, endMin: gapEnd, minutes });

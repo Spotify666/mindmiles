@@ -55,7 +55,7 @@ export default function TrendsPage() {
     [windowReports, series],
   );
 
-  const seriesBaseline = baseline.normal(series, today.date);
+  const seriesBaseline = baseline.settled(series, today.date);
   const selectedReport = byDate.get(selected) ?? today;
 
   const thisWeek = summaries.slice(-7);
@@ -151,7 +151,7 @@ export default function TrendsPage() {
           <BaselineBar
             label="Time on screen today"
             value={today.summary.activeMin}
-            baseline={baseline.normal('activeMin', today.date)?.value}
+            baseline={baseline.settled('activeMin', today.date)?.value}
             max={480}
             accent="focus"
             format={fmtMin}
@@ -160,7 +160,7 @@ export default function TrendsPage() {
           <BaselineBar
             label="Longest stretch without a break"
             value={today.summary.longestBoutMin}
-            baseline={baseline.normal('longestBoutMin', today.date)?.value}
+            baseline={baseline.settled('longestBoutMin', today.date)?.value}
             max={120}
             accent="effort"
             format={fmtMin}
@@ -169,7 +169,7 @@ export default function TrendsPage() {
           <BaselineBar
             label="Fast scrolling"
             value={today.summary.burstMin}
-            baseline={baseline.normal('burstMin', today.date)?.value}
+            baseline={baseline.settled('burstMin', today.date)?.value}
             max={90}
             accent="effort"
             format={fmtMin}
@@ -178,7 +178,7 @@ export default function TrendsPage() {
           <BaselineBar
             label="Breaks you took"
             value={today.summary.breakCount}
-            baseline={baseline.normal('breakCount', today.date)?.value}
+            baseline={baseline.settled('breakCount', today.date)?.value}
             max={8}
             accent="rest"
             format={(n) => `${Math.round(n)}`}
@@ -238,7 +238,7 @@ export default function TrendsPage() {
                         </span>
                       )}
                     </td>
-                    <td className="py-2 tabular-nums">{fmtMin(b.endMin - b.startMin + 1)}</td>
+                    <td className="py-2 tabular-nums">{fmtMin(b.activeMin)}</td>
                     <td className="py-2 text-right tabular-nums text-ink-faint">
                       {b.keys.toLocaleString()}
                     </td>

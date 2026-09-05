@@ -6,7 +6,21 @@ export function cn(...inputs: ClassValue[]): string {
 }
 
 export function clamp(n: number, min: number, max: number): number {
+  if (!Number.isFinite(n)) return min;
   return Math.min(max, Math.max(min, n));
+}
+
+/**
+ * Coerce anything to a finite number.
+ *
+ * Every formatter runs its input through this. Not because the arithmetic
+ * upstream is expected to produce NaN, but because the store is localStorage —
+ * a text file the user can edit, an export they can re-import, a value written
+ * by an older version of the app. One bad figure in there should show as a dash
+ * on one card, never as the literal text "NaN" in a headline.
+ */
+export function finite(n: number, fallback = 0): number {
+  return Number.isFinite(n) ? n : fallback;
 }
 
 /**
@@ -22,12 +36,13 @@ export function clamp(n: number, min: number, max: number): number {
 export const MIN_PER_MILE = 20;
 
 export function toMiles(minutes: number): number {
-  return minutes / MIN_PER_MILE;
+  return finite(minutes) / MIN_PER_MILE;
 }
 
 export function fmtMiles(miles: number): string {
-  if (miles >= 100) return miles.toFixed(0);
-  return miles.toFixed(1);
+  const v = finite(miles);
+  if (v >= 100) return v.toFixed(0);
+  return v.toFixed(1);
 }
 
 /**
@@ -42,18 +57,19 @@ export function fmtMiles(miles: number): string {
 export const METERS_PER_CSS_PX = 0.0254 / 96;
 
 export function pxToMeters(px: number): number {
-  return px * METERS_PER_CSS_PX;
+  return finite(px) * METERS_PER_CSS_PX;
 }
 
 export function fmtDistance(meters: number): string {
-  if (meters >= 1000) return `${(meters / 1000).toFixed(2)} km`;
-  if (meters >= 10) return `${Math.round(meters)} m`;
-  return `${meters.toFixed(1)} m`;
+  const v = Math.max(0, finite(meters));
+  if (v >= 1000) return `${(v / 1000).toFixed(2)} km`;
+  if (v >= 10) return `${Math.round(v)} m`;
+  return `${v.toFixed(1)} m`;
 }
 
 /** "2h 14m", "48m", "0m". Never "2.23 hours". */
 export function fmtMin(minutes: number): string {
-  const m = Math.round(minutes);
+  const m = Math.max(0, Math.round(finite(minutes)));
   if (m < 60) return `${m}m`;
   const h = Math.floor(m / 60);
   const rem = m % 60;
@@ -62,16 +78,17 @@ export function fmtMin(minutes: number): string {
 
 /** Compact clock for live readouts: "12:04" or "1:02:17". */
 export function fmtClock(totalSec: number): string {
-  const h = Math.floor(totalSec / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  const s = Math.floor(totalSec % 60);
+  const t = Math.max(0, finite(totalSec));
+  const h = Math.floor(t / 3600);
+  const m = Math.floor((t % 3600) / 60);
+  const s = Math.floor(t % 60);
   const pad = (n: number) => String(n).padStart(2, '0');
   return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
 }
 
 /** Minute of day to "09:10". */
 export function fmtTimeOfDay(minuteOfDay: number): string {
-  const m = ((Math.round(minuteOfDay) % 1440) + 1440) % 1440;
+  const m = ((Math.round(finite(minuteOfDay)) % 1440) + 1440) % 1440;
   return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 }
 
@@ -88,32 +105,42 @@ export function fmtPercent(p: number | null): string {
 }
 
 export function fmtSigned(n: number): string {
-  const v = Math.round(n);
+  const v = Math.round(finite(n));
   if (v === 0) return '0';
   return `${v > 0 ? '+' : '−'}${Math.abs(v)}`;
 }
 
 export function fmtCount(n: number): string {
-  return Math.round(n).toLocaleString();
+  return Math.round(finite(n)).toLocaleString();
 }
 
 export function plural(n: number, one: string, many = `${one}s`): string {
   return `${n} ${n === 1 ? one : many}`;
 }
 
+/** Noon local on a stored day key, or null if the key is not a real date. */
+function atNoon(iso: string): Date | null {
+  const d = new Date(`${iso}T12:00:00`);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
 /** "Tue 24 Jun". Dates in this app are always local and always ISO in storage. */
 export function fmtDate(iso: string, opts: Intl.DateTimeFormatOptions = {}): string {
-  const d = new Date(`${iso}T12:00:00`);
+  const d = atNoon(iso);
+  if (!d) return '—';
   return d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', ...opts });
 }
 
 export function weekdayShort(iso: string): string {
-  return new Date(`${iso}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short' });
+  const d = atNoon(iso);
+  return d ? d.toLocaleDateString(undefined, { weekday: 'short' }) : '—';
 }
 
 export function isWeekend(iso: string): boolean {
-  const d = new Date(`${iso}T12:00:00`).getDay();
-  return d === 0 || d === 6;
+  const d = atNoon(iso);
+  if (!d) return false;
+  const wd = d.getDay();
+  return wd === 0 || wd === 6;
 }
 
 /**
@@ -126,28 +153,32 @@ export function isWeekend(iso: string): boolean {
  * rather than a bespoke curve per metric.
  */
 export function ramp(value: number, comfortable: number, severe: number): number {
-  if (value <= 0) return 0;
-  if (value <= comfortable) return (value / Math.max(comfortable, 1)) * 25;
-  const t = (value - comfortable) / Math.max(severe - comfortable, 1);
+  const v = finite(value);
+  if (v <= 0) return 0;
+  if (v <= comfortable) return (v / Math.max(comfortable, 1)) * 25;
+  const t = (v - comfortable) / Math.max(severe - comfortable, 1);
   return clamp(25 + t * 75, 0, 100);
 }
 
 /** `ramp` inverted, for inputs where more is better. */
 export function rampInverse(value: number, target: number, floor = 0): number {
-  if (value >= target) return 100;
-  const t = (value - floor) / Math.max(target - floor, 1);
+  const v = finite(value);
+  if (v >= target) return 100;
+  const t = (v - floor) / Math.max(target - floor, 1);
   return clamp(t * 100, 0, 100);
 }
 
 /** Median. Used for baselines because one 14-hour travel day should not move a normal. */
 export function median(values: number[]): number {
-  if (values.length === 0) return 0;
-  const s = [...values].sort((a, b) => a - b);
+  const clean = values.filter((v) => Number.isFinite(v));
+  if (clean.length === 0) return 0;
+  const s = clean.sort((a, b) => a - b);
   const mid = Math.floor(s.length / 2);
   return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
 }
 
 export function mean(values: number[]): number {
-  if (values.length === 0) return 0;
-  return values.reduce((s, n) => s + n, 0) / values.length;
+  const clean = values.filter((v) => Number.isFinite(v));
+  if (clean.length === 0) return 0;
+  return clean.reduce((s, n) => s + n, 0) / clean.length;
 }

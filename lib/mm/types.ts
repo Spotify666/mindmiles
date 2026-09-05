@@ -166,7 +166,17 @@ export type MinuteClass = 'focus' | 'scatter' | 'scroll';
 export interface Bout {
   startMin: number;
   endMin: number;
-  /** Engaged minutes inside the bout — always ≤ its wall-clock span. */
+  /** Wall-clock minutes the bout covers, gaps included. */
+  spanMin: number;
+  /**
+   * Whether the engaged time actually fills the span. A bout that is not
+   * continuous is a tab being checked on, not a session, and cannot hold focus.
+   */
+  continuous: boolean;
+  /**
+   * Engaged minutes inside the bout — always ≤ its span, and the figure every
+   * "how long" question is answered with. See BOUT_DENSITY_MIN in ./aggregate.
+   */
   activeMin: number;
   keys: number;
   clicks: number;
@@ -184,6 +194,11 @@ export interface Bout {
 export interface RecoveryWindow {
   startMin: number;
   endMin: number;
+  /**
+   * The real length of the gap. Recovery MILEAGE caps each break at
+   * RECOVERY_CAP_MIN, but "your longest time away" is a fact about the day and
+   * is reported as it happened.
+   */
   minutes: number;
 }
 
