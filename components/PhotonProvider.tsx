@@ -146,31 +146,47 @@ export default function PhotonProvider({ children }: { children: React.ReactNode
   const [state, setState] = useState<PhotonState | null>(null);
   const [live, setLive] = useState<LiveStats | null>(null);
   const [tick, setTick] = useState(0);
-  const started = useRef(false);
+  const booted = useRef(false);
 
+  /*
+   * Everything here subscribes, and every subscription is torn down again by
+   * the cleanup below — so this effect has to survive being run twice.
+   *
+   * It did not. A `started` ref made the second run a no-op, which sounds like
+   * the careful thing to do and is the exact opposite: React's strict mode runs
+   * mount, cleanup, mount, so the guard skipped the re-subscribe while the
+   * cleanup had already happened. In development the app therefore ran with no
+   * live subscription, no rebuild interval, and no extension listener at all —
+   * which is why the extension bridge looked broken every time anyone tried it
+   * locally, and why the live readout had to be debugged twice.
+   *
+   * So the guard now covers only the one-time bootstrap, which genuinely must
+   * not repeat, and the subscriptions re-register freely.
+   */
   useEffect(() => {
-    if (started.current) return;
-    started.current = true;
+    if (!booted.current) {
+      booted.current = true;
+      seedSampleHistory();
+      const s = loadState();
+      // Measurement is opt-in, but a first run has already agreed to it by
+      // arriving here — the privacy note on Today explains exactly what is
+      // recorded, and Profile can switch it off without losing history.
+      if (!s.enabled) setEnabled(true);
 
-    seedSampleHistory();
-    const s = loadState();
-    // Measurement is opt-in, but a first run has already agreed to it by
-    // arriving here — the privacy note on Today explains exactly what is
-    // recorded, and Profile can switch it off without losing history.
-    if (!s.enabled) setEnabled(true);
+      // If OS idle detection was granted in a previous session, pick it back up
+      // without prompting — the prompt needs a gesture, a resume does not.
+      void resumeDeviceAwareness();
+
+      // Likewise the last room-light reading, so a refresh does not cost someone
+      // their camera again.
+      if (s.roomLight) setCameraReading(s.roomLight.value, s.roomLight.at);
+    }
+
     setState({ ...loadState() });
 
     const t = tracker();
     t.start();
     const unsub = t.subscribe(setLive);
-
-    // If OS idle detection was granted in a previous session, pick it back up
-    // without prompting — the prompt needs a gesture, a resume does not.
-    void resumeDeviceAwareness();
-
-    // Likewise the last room-light reading, so a refresh does not cost someone
-    // their camera again.
-    if (s.roomLight) setCameraReading(s.roomLight.value, s.roomLight.at);
 
     // The extension, if one is installed, posts its totals into the page.
     const stopExtension = listenForExtension();

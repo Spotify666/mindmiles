@@ -23,6 +23,8 @@ import { dayKey, ensureDay, getBucket, loadState, saveState } from './store';
  */
 
 const SOURCE = 'photon-extension';
+/** What the page calls itself when it says it is ready to receive. */
+const PAGE_SOURCE = 'photon-page';
 
 interface ExtSlot {
   /** Active seconds in this minute. */
@@ -140,9 +142,17 @@ export function listenForExtension(): () => void {
     }
     if (!data.days) return;
 
-    // The extension re-sends every 30s; merging that often is wasteful and the
-    // data barely moves.
+    /*
+     * An empty payload must not start the clock.
+     *
+     * The extension banks on a minute boundary, so the very first answer after
+     * a page load is frequently `{}` — it knows nothing yet. Throttling on that
+     * used to lock out the next payload, the one that actually had the day in
+     * it, for a full twenty seconds. Nothing is merged here, so nothing is
+     * spent here.
+     */
     const now = Date.now();
+    if (Object.keys(data.days).length === 0) return;
     if (now - lastMerge < 20_000) return;
     lastMerge = now;
 
@@ -155,5 +165,26 @@ export function listenForExtension(): () => void {
   };
 
   window.addEventListener('message', onMessage);
-  return () => window.removeEventListener('message', onMessage);
+
+  /*
+   * Tell the extension we are here.
+   *
+   * The content script runs at document_idle, which is always before React has
+   * hydrated and attached the listener above — so an extension that only
+   * announced itself was talking to nobody, every single time. The page has to
+   * open the conversation, because the page is the one that knows when it can
+   * hear.
+   *
+   * Repeated a few times over the first couple of seconds for the other order:
+   * a content script that has not run yet cannot answer a question asked before
+   * it existed. After that, silence means no extension.
+   */
+  const hello = () => window.postMessage({ source: PAGE_SOURCE, type: 'ready' }, window.location.origin);
+  hello();
+  const retries = [250, 1000, 2500].map((ms) => window.setTimeout(hello, ms));
+
+  return () => {
+    window.removeEventListener('message', onMessage);
+    retries.forEach(window.clearTimeout);
+  };
 }

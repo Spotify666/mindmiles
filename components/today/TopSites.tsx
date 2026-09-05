@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { extensionInstalled, onExtensionData, sitesFor, type SiteTotal } from '@/lib/mm/extension';
-import { fmtMin } from '@/lib/mm/format';
+import { fmtMin, plural } from '@/lib/mm/format';
 import { ACCENT_HEX } from '@/components/ui/tokens';
 
 /**
@@ -70,7 +70,7 @@ export default function TopSites({ date }: { date: string }) {
 
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className="label text-ink-faint">Where your time went</p>
-        <span className="text-[12.5px] text-ink-faint">{fmtMin(total)} across {sites.length} sites</span>
+        <span className="text-[12.5px] text-ink-faint">{fmtMin(total)} across {plural(sites.length, 'site')}</span>
       </div>
 
       {top.length === 0 ? (

@@ -67,9 +67,15 @@ export function fmtDistance(meters: number): string {
   return `${v.toFixed(1)} m`;
 }
 
-/** "2h 14m", "48m", "0m". Never "2.23 hours". */
+/**
+ * "2h 14m", "48m", "under a minute". Never "2.23 hours", and never "0m" for
+ * time that did happen — a site you were on for ten seconds reading "0m" looks
+ * like a bug, because it looks like nothing was counted.
+ */
 export function fmtMin(minutes: number): string {
-  const m = Math.max(0, Math.round(finite(minutes)));
+  const raw = Math.max(0, finite(minutes));
+  if (raw > 0 && raw < 1) return 'under a minute';
+  const m = Math.round(raw);
   if (m < 60) return `${m}m`;
   const h = Math.floor(m / 60);
   const rem = m % 60;

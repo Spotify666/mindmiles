@@ -136,6 +136,10 @@ section('formatters never print NaN at the user');
     check(`toMiles(${v}) is finite`, Number.isFinite(fmt.toMiles(v)));
   }
   check('a broken date reads as a dash', fmt.fmtDate('not-a-date') === '—', fmt.fmtDate('not-a-date'));
+  // Ten seconds on a site used to print "0m", which reads as "not counted".
+  check('time under a minute is not shown as zero', fmt.fmtMin(0.17) === 'under a minute', fmt.fmtMin(0.17));
+  check('but real zero still is', fmt.fmtMin(0) === '0m', fmt.fmtMin(0));
+  check('and a minute is a minute', fmt.fmtMin(1) === '1m', fmt.fmtMin(1));
   check('median of nothing', fmt.median([]) === 0);
   check('mean ignores junk', fmt.mean([2, NaN, 4]) === 3, fmt.mean([2, NaN, 4]));
 }
