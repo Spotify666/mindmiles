@@ -11,11 +11,16 @@ import { usePhoton } from '@/components/PhotonProvider';
  * and above the home indicator; on desktop the same four sit in the header.
  * Four is the ceiling because the product's claim is that you can understand
  * your state in five seconds, and a five-tab app has already failed that.
+ *
+ * The week has the slot rather than Trends, and that is the product argument
+ * made in navigation: the review is what this app is for, and the charts are
+ * where you go once it has told you something worth digging into. Trends is
+ * still there, one tap from the bottom of the week.
  */
 
 const TABS = [
   { href: '/', label: 'Today', icon: TodayIcon },
-  { href: '/trends', label: 'Trends', icon: TrendsIcon },
+  { href: '/week', label: 'Week', icon: WeekIcon },
   { href: '/challenges', label: 'Challenges', icon: ChallengeIcon },
   { href: '/profile', label: 'Profile', icon: ProfileIcon },
 ] as const;
@@ -111,11 +116,15 @@ function TodayIcon({ active }: { active: boolean }) {
   );
 }
 
-function TrendsIcon() {
+/**
+ * Seven marks, one per day, the tallest in the middle. It reads as a week
+ * rather than as a chart — Trends is the chart, and it is one tap deeper.
+ */
+function WeekIcon() {
   return (
     <Base>
-      <path d="M3 13.5 7 8l3 3 4-6.2" stroke="currentColor" />
       <path d="M3 17h14" stroke="currentColor" opacity={0.45} />
+      <path d="M4.2 14v-2M6.8 14v-4M9.4 14v-6.5M12 14v-4.5M14.6 14v-3" stroke="currentColor" />
     </Base>
   );
 }

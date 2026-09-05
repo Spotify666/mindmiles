@@ -9,6 +9,7 @@ import MetricCard from '@/components/ui/MetricCard';
 import LiveNow from '@/components/today/LiveNow';
 import InstallBanner from '@/components/InstallBanner';
 import TopSites from '@/components/today/TopSites';
+import FocusBlock from '@/components/today/FocusBlock';
 import { TimeCard, OneThingCard, StoryCard, WinCard } from '@/components/today/Cards';
 import { recordsSetOn } from '@/lib/mm/records';
 import { fmtSigned, todayLabel } from '@/lib/mm/labels';
@@ -111,7 +112,16 @@ export default function TodayPage() {
         </div>
       </Enter>
 
-      <Enter index={1} className="md:col-span-7">
+      {/*
+        The one control on the screen, and it sits beside the status rather than
+        under the metrics: deciding to do a block is a thing you do at the start
+        of a session, not after reading six scores.
+      */}
+      <Enter as="section" index={1} className="md:col-span-7">
+        <FocusBlock />
+      </Enter>
+
+      <Enter index={2} className="md:col-span-12">
         <TimeCard
           miles={today.summary.miles}
           activeMin={today.summary.activeMin}
@@ -120,7 +130,7 @@ export default function TodayPage() {
       </Enter>
 
       {/* ── the six ────────────────────────────────────────── */}
-      <Enter as="section" index={2} className="md:col-span-12">
+      <Enter as="section" index={3} className="md:col-span-12">
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
           <MetricCard metric={today.focus} />
           <MetricCard metric={today.recovery} />
@@ -139,22 +149,22 @@ export default function TodayPage() {
       </Enter>
 
       {/* ── the day ────────────────────────────────────────── */}
-      <Enter as="section" index={3} className="card p-4 md:col-span-7">
+      <Enter as="section" index={4} className="card p-4 md:col-span-7">
         <DayTimeline day={today.summary} />
       </Enter>
 
-      <Enter index={4} className="md:col-span-5">
+      <Enter index={5} className="md:col-span-5">
         <TopSites date={today.date} />
       </Enter>
 
-      <Enter index={5} className="flex flex-col gap-3.5 md:col-span-7">
+      <Enter index={6} className="flex flex-col gap-3.5 md:col-span-7">
         <StoryCard story={story} />
         {win && <WinCard record={win} />}
         {insight && <OneThingCard insight={insight} />}
       </Enter>
 
       {/* ── live, last ─────────────────────────────────────── */}
-      <Enter index={6} className="md:col-span-12">
+      <Enter index={7} className="md:col-span-12">
         <LiveNow />
       </Enter>
 

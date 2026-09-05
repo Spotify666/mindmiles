@@ -41,6 +41,9 @@ import type {
   PersonalRecord,
   Reclaimed,
 } from '@/lib/mm/types';
+import type { Block } from '@/lib/mm/types';
+import { activeBlock, blocksOn, outcomeOf } from '@/lib/mm/blocks';
+import { weekReview, type WeekReview } from '@/lib/mm/week';
 
 /**
  * The single place the whole app gets its numbers.
@@ -91,6 +94,12 @@ interface PhotonValue {
   reclaimedWeek: Reclaimed;
   insights: Insight[];
   story: string;
+  /** Your week, the way the review page reads it. */
+  week: WeekReview;
+  /** The block running right now, if there is one. */
+  block: Block | null;
+  /** Blocks finished today, oldest first. */
+  blocksToday: Block[];
 
   /** Re-read storage after a mutation. */
   refresh: () => void;
@@ -245,6 +254,11 @@ export default function PhotonProvider({ children }: { children: React.ReactNode
     const insights = coachInsights(coachCtx);
     const story = dayStory(coachCtx);
 
+    const keptThisWeek = reports
+      .slice(-7)
+      .reduce((n, r) => n + blocksOn(state, r.date).filter((b) => outcomeOf(b).kept).length, 0);
+    const week = weekReview(reports, baseline, keptThisWeek, records);
+
     return {
       ready: true,
       state,
@@ -263,6 +277,9 @@ export default function PhotonProvider({ children }: { children: React.ReactNode
       reclaimedWeek,
       insights,
       story,
+      week,
+      block: activeBlock(state),
+      blocksToday: blocksOn(state, today),
       refresh,
       markRecordsSeen: () => {
         acknowledgeRecords(acknowledgementMap(records));

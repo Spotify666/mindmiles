@@ -76,8 +76,10 @@ const BANNED: Record<string, string> = {
 /** Claims the app used to make that are no longer true. */
 const STALE: { pattern: RegExp; why: string }[] = [
   {
-    pattern: /no (web )?browser can (read|measure) (your )?screen brightness[^.]*\.\s*so we use the number you set/i,
-    why: 'brightness now comes from a light sensor or one camera frame',
+    // The claim itself is true and has to stay. What is no longer true is
+    // presenting a typed-in number as the only thing left to do about it.
+    pattern: /no (web )?(browser|page) can (read|measure)[^.]*brightness[^.]*\.\s*(so )?(this is|we use) the number you (set|typed)\.?\s*(we use it|$)/i,
+    why: 'a light sensor or one camera frame now measures it, so typing is no longer the only option',
   },
   {
     pattern: /cannot see your other tabs, your other apps or your other devices/i,

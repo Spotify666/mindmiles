@@ -16,7 +16,10 @@ import * as fmt from '../lib/mm/format';
 import { buildDayReport, fitnessStatus } from '../lib/mm/metrics';
 import { reclaimedTime, reclaimedHeadline } from '../lib/mm/reclaimed';
 import { personalRecords, recordsSetOn } from '../lib/mm/records';
-import type { DayRecord, DaySummary, MinuteBucket } from '../lib/mm/types';
+import { BLOCK_LENGTHS, LOOK_AWAY_MIN, activeBlock, elapsedMin, remainingMs } from '../lib/mm/blocks';
+import { dueForLookAway } from '../lib/mm/remind';
+import { weekReview } from '../lib/mm/week';
+import type { Block, DayRecord, DaySummary, MinuteBucket } from '../lib/mm/types';
 import { check, clean, note, report, rng, section } from './harness';
 import { logged, minute, NOW, PROFILE, record, run } from './fixtures';
 
@@ -219,6 +222,56 @@ section('three hundred random days hold the invariants');
     check(`day #${t}: one thing to do is a thing or nothing`, oneThing({ today: r, history: [r], baseline: Baseline.from([]), profile: PROFILE } as never) !== undefined);
   }
   note('300 random days checked');
+}
+
+section('blocks record an intention and score nothing');
+{
+  const now = new Date('2026-09-05T10:40:00').getTime();
+  const started = new Date('2026-09-05T10:00:00').getTime();
+  const block: Block = { id: 'b1', startedAt: started, minutes: 50, date: '2026-09-05' };
+
+  check('a running block has time left', remainingMs(block, now) === 10 * 60_000, remainingMs(block, now));
+  check('and time behind it', Math.round(elapsedMin(block, now)) === 40, elapsedMin(block, now));
+  check('nothing left once it is up', remainingMs(block, started + 60 * 60_000) === 0);
+  check('a block left running by a closed tab is not still going',
+    activeBlock({ blocks: [block] } as never, started + 3 * 60 * 60_000) === null);
+  check('but one inside its window is', activeBlock({ blocks: [block] } as never, now)?.id === 'b1');
+
+  const stopped: Block = { ...block, endedAt: started + 12 * 60_000 };
+  check('a block stopped early ran what it ran', Math.round(elapsedMin(stopped, now)) === 12, elapsedMin(stopped, now));
+  check('lengths offered are sane', BLOCK_LENGTHS.every((m) => m >= 20 && m <= 120), BLOCK_LENGTHS.join());
+  check('the eye-rest rule matches what the app preaches', LOOK_AWAY_MIN === 20, LOOK_AWAY_MIN);
+}
+
+section('the eye-rest nudge fires on time spent, not the clock');
+{
+  const t = new Date('2026-09-05T10:00:00').getTime();
+  check('silent before twenty minutes', dueForLookAway(19, null) === false);
+  check('fires at twenty', dueForLookAway(20, null) === true);
+  check('does not fire again on the next tick', dueForLookAway(41, t, t + 60_000) === false);
+  check('but does after another twenty', dueForLookAway(41, t, t + 21 * 60_000) === true);
+  check('a break resets it', dueForLookAway(0, t, t + 60 * 60_000) === false);
+}
+
+section('the week reads as a review, not a score');
+{
+  const week = weekReview([], Baseline.from([]));
+  clean('empty week', week);
+  check('an empty week is not ready', week.ready === false);
+  check('and says so plainly', /come back|only/i.test(week.headline), week.headline);
+  check('with nothing to try yet', week.oneThing === null);
+  check('and no score anywhere on it', !('score' in week));
+
+  const days = ['08-30', '08-31', '09-01', '09-02', '09-03', '09-04', '09-05'].map((d) =>
+    buildDayReport(day(record(`2026-${d}`, [...run(540, 645, { k: 40 }), ...run(700, 760)]), `2026-${d}`)),
+  );
+  const full = weekReview(days, Baseline.from(days.map((r) => r.summary)));
+  clean('full week', full);
+  check('a full week is ready', full.ready === true, full.days);
+  check('the headline says what happened', full.headline.length > 20 && !/undefined|NaN/.test(full.headline), full.headline);
+  check('it names a best day', full.bestDay !== null);
+  check('and one thing to try', typeof full.oneThing === 'string', full.oneThing);
+  check('the one thing is an action, not a scolding', !/less|stop using|too much/i.test(full.oneThing ?? ''), full.oneThing);
 }
 
 function junkOrFail(label: string, value: unknown): boolean {

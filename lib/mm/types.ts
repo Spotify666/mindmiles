@@ -126,6 +126,38 @@ export interface ChallengeEnrollment {
   completedOn?: string;
 }
 
+/**
+ * A stretch you decided on in advance. See ./blocks — a block records the
+ * intention only; whether you were there is read back from the measurement.
+ */
+export interface Block {
+  id: string;
+  /** Epoch ms. */
+  startedAt: number;
+  /** Epoch ms, set when it finishes or is stopped early. Absent while running. */
+  endedAt?: number;
+  /** How long it was meant to run. */
+  minutes: number;
+  /** What it was for, in the user's words. Optional — most blocks have none. */
+  label?: string;
+  /** The local day it started on, so it can be found without scanning. */
+  date: string;
+}
+
+/** How a block actually went, read back from the minutes it covered. */
+export interface BlockOutcome {
+  block: Block;
+  plannedMin: number;
+  ranMin: number;
+  /** Minutes inside the block where the screen was actually being used. */
+  presentMin: number;
+  jumps: number;
+  longestGapMin: number;
+  /** Whether it ran most of its length. A block is never failed, only short. */
+  kept: boolean;
+  headline: string;
+}
+
 export interface PhotonState {
   version: number;
   /** The brightness the user declared, used when nothing better can be read. */
@@ -152,6 +184,10 @@ export interface PhotonState {
   /** Record key → the best value already shown, so a new best can be flagged once. */
   seenRecords: Record<string, number>;
   sharing: SharingPrefs;
+  /** Stretches the user set out to do. Never scored — see ./blocks. */
+  blocks?: Block[];
+  /** Whether the eye-rest nudge is switched on. Off until asked for. */
+  remindLookAway?: boolean;
 }
 
 // ─────────────────────────── derived shapes ───────────────────────────
