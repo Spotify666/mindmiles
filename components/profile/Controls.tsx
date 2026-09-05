@@ -16,7 +16,13 @@ import {
 } from '@/lib/mm/store';
 import { seedSampleHistory } from '@/lib/mm/seed';
 import { tracker } from '@/lib/mm/tracker';
-import { SOURCE_LABEL, SOURCE_NOTE, type BrightnessSource } from '@/lib/mm/brightness';
+import {
+  isMeasured,
+  SOURCE_LABEL,
+  SOURCE_NOTE,
+  type BrightnessSource,
+} from '@/lib/mm/brightness';
+import { cameraSupported, ERROR_COPY, measureRoomLight } from '@/lib/mm/roomlight';
 import { CATEGORIES, CATEGORY_LABEL, type Category, type PhotonState } from '@/lib/mm/types';
 import { fmtMin } from '@/lib/mm/format';
 
@@ -35,17 +41,23 @@ export function BrightnessControl({
   value,
   source,
   isSet,
+  roomLightAt,
   onChange,
   onClear,
+  onMeasured,
 }: {
   value: number;
   source: BrightnessSource;
   isSet: boolean;
+  roomLightAt?: number;
   onChange: (v: number) => void;
   onClear: () => void;
+  onMeasured: (value: number, at: number) => void;
 }) {
-  const [manual, setManual] = useState(isSet);
-  const measured = source === 'native' || source === 'sensor';
+  const [manual, setManual] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  const measured = isMeasured(source);
 
   return (
     <section className="card p-4">
@@ -64,17 +76,53 @@ export function BrightnessControl({
 
       <p className="mt-2.5 text-[13px] leading-relaxed text-ink-soft">{SOURCE_NOTE[source]}</p>
 
+      {measured && (
+        <p className="mt-3 text-[15px] font-bold tabular-nums">
+          {value}%
+          {roomLightAt && source === 'camera' && (
+            <span className="ml-2 text-[12px] font-normal text-ink-faint">
+              measured {relativeTime(roomLightAt)}
+            </span>
+          )}
+        </p>
+      )}
+
       {/*
-        Detected where it can be, and otherwise left out — never demanded.
-        Asking someone to type in their own screen brightness every day is asking
-        them to do the app's job, and a number supplied that way is worth very
-        little anyway.
+        The camera route. No browser can read display brightness, but one frame
+        from a camera can tell how much light is in the room — and for the
+        question the Eyes score asks, that is the more useful half: a screen at
+        80% is unremarkable at midday and punishing at midnight.
       */}
-      {measured ? (
-        <p className="mt-3 text-[15px] font-bold tabular-nums">{value}%</p>
-      ) : manual ? (
+      {cameraSupported() && (
+        <div className="mt-3.5">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setProblem(null);
+              const result = await measureRoomLight();
+              if (result.ok) onMeasured(result.reading.value, result.reading.at);
+              else setProblem(ERROR_COPY[result.error]);
+              setBusy(false);
+            }}
+            className="btn btn-quiet px-4 py-2 text-[13.5px]"
+          >
+            {busy ? 'Measuring…' : source === 'camera' ? 'Measure again' : 'Measure my room light'}
+          </button>
+          <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">
+            Takes one frame from your camera, turns it into a single number, and throws the picture
+            away. The camera is on for under a second, nothing is saved, and nothing is sent
+            anywhere.
+          </p>
+          {problem && <p className="mt-2 text-[12px] text-effort">{problem}</p>}
+        </div>
+      )}
+
+      {/* Typing a number in is still possible, but it is the last resort now. */}
+      {manual ? (
         <>
-          <div className="mt-3 flex items-center gap-4">
+          <div className="mt-4 flex items-center gap-4">
             <span className="readout w-[62px] text-[24px]">{value}%</span>
             <input
               type="range"
@@ -99,16 +147,26 @@ export function BrightnessControl({
           </button>
         </>
       ) : (
-        <button
-          type="button"
-          onClick={() => setManual(true)}
-          className="btn btn-quiet mt-3.5 px-4 py-2 text-[13.5px]"
-        >
-          Set it myself anyway
-        </button>
+        !measured && (
+          <button
+            type="button"
+            onClick={() => setManual(true)}
+            className="label mt-3 block text-ink-faint underline underline-offset-2 hover:text-ink"
+          >
+            {isSet ? 'Adjust my figure' : 'Or set it myself'}
+          </button>
+        )
       )}
     </section>
   );
+}
+
+function relativeTime(at: number): string {
+  const mins = Math.round((Date.now() - at) / 60000);
+  if (mins < 2) return 'just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.round(mins / 60);
+  return hours === 1 ? 'an hour ago' : `${hours} hours ago`;
 }
 
 export function IntentionsControl({

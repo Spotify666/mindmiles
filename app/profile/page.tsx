@@ -16,6 +16,8 @@ import { streakOf } from '@/lib/mm/baseline';
 import { fmtDate, fmtMiles, fmtMin } from '@/lib/mm/format';
 import { totalMileage } from '@/lib/mm/metrics';
 import { tracker } from '@/lib/mm/tracker';
+import { setCameraReading } from '@/lib/mm/brightness';
+import { setRoomLight } from '@/lib/mm/store';
 import { ACCENT_HEX } from '@/components/ui/tokens';
 import { Mark } from '@/components/brand/Logo';
 import InstallApp from '@/components/InstallApp';
@@ -128,7 +130,13 @@ export default function ProfilePage() {
       <InstallApp />
       <IntentionsControl state={state} onChange={refresh} />
       <BrightnessControl
-        value={state.brightness}
+        /*
+         * The value actually in use, not the stored fallback. These are the same
+         * number only when nothing has been measured — otherwise the card was
+         * showing 70% while the score used the camera's 86%, which is exactly
+         * the kind of quiet mismatch this app is supposed to not have.
+         */
+        value={live?.brightness ?? state.brightness}
         source={live?.brightnessSource ?? 'unset'}
         isSet={state.brightnessSet}
         onChange={(v) => {
@@ -138,6 +146,12 @@ export default function ProfilePage() {
         }}
         onClear={() => {
           clearBrightness();
+          refresh();
+        }}
+        roomLightAt={state.roomLight?.at}
+        onMeasured={(v, at) => {
+          setCameraReading(v, at);
+          setRoomLight(v, at);
           refresh();
         }}
       />

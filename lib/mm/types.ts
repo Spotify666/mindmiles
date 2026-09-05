@@ -136,6 +136,12 @@ export interface PhotonState {
    * brightness nobody supplied as though they had.
    */
   brightnessSet: boolean;
+  /**
+   * The last room-light reading taken from the camera, and when. One frame,
+   * measured and discarded — only the number survives. Expires after a day so
+   * an evening is never scored against the morning's light.
+   */
+  roomLight?: { value: number; at: number };
   /** Measurement is opt-in and can be switched off without losing history. */
   enabled: boolean;
   seeded: boolean;

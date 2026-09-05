@@ -30,7 +30,7 @@
  * one, or nagging the user to type one in, are both worse than saying so and
  * dropping the input from the score.
  */
-export type BrightnessSource = 'native' | 'sensor' | 'declared' | 'unset';
+export type BrightnessSource = 'native' | 'sensor' | 'camera' | 'declared' | 'unset';
 
 export interface BrightnessReading {
   /** 0–100. Meaningless when `source` is `unset` — check before using it. */
@@ -42,7 +42,31 @@ export interface BrightnessReading {
 
 /** True when we actually know something, rather than having been told. */
 export function isMeasured(source: BrightnessSource): boolean {
-  return source === 'native' || source === 'sensor';
+  return source === 'native' || source === 'sensor' || source === 'camera';
+}
+
+/**
+ * A camera reading, once taken, stands until it is taken again — asking for the
+ * camera on a timer would be intolerable, and a room does not change by the
+ * minute. It expires after a day so this evening is never scored against this
+ * morning's light.
+ */
+const CAMERA_TTL_MS = 24 * 60 * 60 * 1000;
+
+let cameraReading: { value: number; at: number } | null = null;
+
+export function setCameraReading(value: number, at: number): void {
+  cameraReading = { value, at };
+}
+
+export function clearCameraReading(): void {
+  cameraReading = null;
+}
+
+export function currentCameraReading(): { value: number; at: number } | null {
+  if (!cameraReading) return null;
+  if (Date.now() - cameraReading.at > CAMERA_TTL_MS) return null;
+  return cameraReading;
 }
 
 /** The shape a native shell is expected to expose, if one is ever attached. */
@@ -169,9 +193,13 @@ export async function requestAmbientSensor(): Promise<boolean> {
 export async function readBrightness(declared: number | null): Promise<BrightnessReading> {
   const native = await readNative();
   if (native !== null) return { value: native, source: 'native' };
+  // A live sensor beats a stored camera reading: it is current, and it did not
+  // cost anyone their camera.
   if (lastLux !== null) {
     return { value: luxToScale(lastLux), source: 'sensor', lux: Math.round(lastLux) };
   }
+  const cam = currentCameraReading();
+  if (cam) return { value: cam.value, source: 'camera' };
   if (declared !== null) return { value: declared, source: 'declared' };
   return { value: 0, source: 'unset' };
 }
@@ -179,6 +207,7 @@ export async function readBrightness(declared: number | null): Promise<Brightnes
 export const SOURCE_LABEL: Record<BrightnessSource, string> = {
   native: 'Read from your screen',
   sensor: 'Read from your room',
+  camera: 'Measured from your room',
   declared: 'You told us',
   unset: "Can't read it",
 };
@@ -189,6 +218,8 @@ export const SOURCE_NOTE: Record<BrightnessSource, string> = {
     'Taken from your device’s light sensor. It measures the light in the room rather than the screen — and a bright screen in a dark room is the combination that tires eyes out.',
   declared:
     'No web browser can read your screen brightness, on any device. So this is the number you set. We use it for your Eyes score, and we always say it came from you rather than pretending we measured it.',
+  camera:
+    'Measured with one frame from your camera, then discarded — we looked at how much light is in your room, not at you. Cameras adjust their own exposure, so treat this as a good indication rather than an exact figure.',
   unset:
-    'No web browser can read screen brightness, on any device — and your device has no light sensor we can use either. So we leave it out of your Eyes score rather than guessing or asking you to type in a number.',
+    'No web browser can read screen brightness, on any device — and your device has no light sensor we can use either. So we leave it out of your Eyes score rather than guessing or asking you to type in a number. You can measure your room light instead, if you want to.',
 };

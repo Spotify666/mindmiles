@@ -157,14 +157,27 @@ There is no web API for display brightness, on any platform, and there is not
 going to be one — it is a fingerprinting surface. So Photon does not ask you to
 type it in either.
 
-Where a device exposes an ambient light sensor, it is read automatically and
-labelled as measured. Where it does not, brightness is marked unknown and
-**dropped from the Eyes score entirely**, with its weight redistributed across
-the inputs that were actually observed. A metric that treats "no data" as
-"middling" is quietly inventing the thing it claims to measure.
+Three routes, in order of how much they can be trusted:
 
-Setting it by hand is still there for anyone who wants it, one tap behind
-"Set it myself anyway" — an option, not a chore.
+**Ambient light sensor**, read automatically where a device exposes one. Rare in
+practice — Chrome on Android, behind a flag.
+
+**One frame from the camera**, on request. A camera can see how much light is in
+the room, and for the question the Eyes score actually asks that is the useful
+half: a screen at 80% is unremarkable at midday and punishing at midnight. The
+stream opens, a single 64×48 frame is sampled, mean Rec.709 luminance is
+computed, exposure is divided back out where the browser reports it, and every
+track is stopped in the same function. No image is stored, none is sent, and it
+only ever runs from a button. It is labelled a best guess in the score, because
+cameras auto-expose and it reads the room rather than the screen.
+
+**Nothing**, which is the common case. Brightness is then marked unknown and
+**dropped from the Eyes score entirely**, its weight redistributed over inputs
+actually observed. A metric that treats "no data" as "middling" is quietly
+inventing the thing it claims to measure.
+
+Typing a number in survives as a last resort behind a link — an option, not a
+chore.
 
 ## Installing it
 

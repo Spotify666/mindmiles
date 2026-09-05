@@ -219,6 +219,18 @@ export function setBrightness(value: number): PhotonState {
   return saveState(state);
 }
 
+export function setRoomLight(value: number, at: number): PhotonState {
+  const state = loadState();
+  state.roomLight = { value, at };
+  return saveState(state);
+}
+
+export function clearRoomLight(): PhotonState {
+  const state = loadState();
+  delete state.roomLight;
+  return saveState(state);
+}
+
 /** Hand brightness back to automatic detection, or to nothing at all. */
 export function clearBrightness(): PhotonState {
   const state = loadState();

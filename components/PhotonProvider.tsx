@@ -19,6 +19,7 @@ import { reclaimedTime } from '@/lib/mm/reclaimed';
 import { seedSampleHistory } from '@/lib/mm/seed';
 import { listenForExtension, onExtensionData } from '@/lib/mm/extension';
 import { resumeDeviceAwareness } from '@/lib/mm/presence';
+import { setCameraReading } from '@/lib/mm/brightness';
 import {
   acknowledgeRecords,
   isStorageBlocked,
@@ -158,6 +159,10 @@ export default function PhotonProvider({ children }: { children: React.ReactNode
     // without prompting — the prompt needs a gesture, a resume does not.
     void resumeDeviceAwareness();
 
+    // Likewise the last room-light reading, so a refresh does not cost someone
+    // their camera again.
+    if (s.roomLight) setCameraReading(s.roomLight.value, s.roomLight.at);
+
     // The extension, if one is installed, posts its totals into the page.
     const stopExtension = listenForExtension();
     const stopExtensionData = onExtensionData(() => setState({ ...loadState() }));
@@ -188,6 +193,18 @@ export default function PhotonProvider({ children }: { children: React.ReactNode
     // second builds a baseline that includes those values, so a metric can be
     // compared against its own history rather than only against raw minutes.
     const source = live?.brightnessSource ?? 'unset';
+    /*
+     * Two different questions, and they have different answers for the camera.
+     *
+     * `known` — is there a figure at all? Anything but `unset`.
+     *
+     * `measured` — is it precise enough to present as an observation? A native
+     * plugin or a light sensor, yes. A camera frame, no: cameras auto-expose,
+     * and it reads the room rather than the screen. So a camera reading counts
+     * as real enough to score with and is labelled a best guess, which is what
+     * it is. The control still calls it measured, because the distinction there
+     * is "we took this" versus "you typed it" — a different question again.
+     */
     const brightness = {
       known: source !== 'unset',
       measured: source === 'native' || source === 'sensor',
